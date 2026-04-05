@@ -31,17 +31,23 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
+    <!-- Site Navigation -->
+    <nav class="bg-gradient-to-r from-red-700 to-orange-500 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-white">Lock<span class="text-red-200">ML</span></a>
+            <div class="hidden md:flex space-x-8">
+                <a href="/" class="text-white font-semibold transition">Home</a>
+                <a href="/guides.html" class="text-red-100 hover:text-white transition">Guides</a>
+                <a href="/tools.html" class="text-red-100 hover:text-white transition">Tools</a>
+                <a href="/blog/getting-started.html" class="text-red-100 hover:text-white transition">Blog</a>
+                <a href="/about.html" class="text-red-100 hover:text-white transition">About</a>
+            </div>
+        </div>
+    </nav>
+
     <!-- Hero Section -->
     <header class="relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-br from-red-700 via-red-500 to-orange-500"></div>
-        <nav class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
-            <div class="text-2xl font-bold text-white">Lock<span class="text-red-200">ML</span></div>
-            <div class="hidden md:flex space-x-8">
-                <a href="#pillars" class="text-red-100 hover:text-white transition">Security Pillars</a>
-                <a href="#checklists" class="text-red-100 hover:text-white transition">Checklists</a>
-                <a href="#resources" class="text-red-100 hover:text-white transition">Resources</a>
-            </div>
-        </nav>
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center">
             <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">Secure Your ML Pipeline</h1>
             <p class="text-xl md:text-2xl text-red-100 max-w-3xl mx-auto mb-10">Protect your machine learning systems from adversarial attacks, data poisoning, and model theft. Security checklists and best practices for every stage of the ML lifecycle.</p>

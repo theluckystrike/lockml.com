@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Essential ML security tools: adversarial testing frameworks, vulnerability scanners, privacy tools, and compliance platforms for securing machine learning systems.">
+    <meta name="keywords" content="ML security tools, adversarial testing framework, AI vulnerability scanner, ML privacy tools, AI compliance platform, model security">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="LockML — Tools & Resources">
+    <meta property="og:description" content="Essential tools for securing machine learning systems: adversarial testing, vulnerability scanning, privacy, and compliance.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools.html">
+    <title>LockML — Tools & Resources</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        html { scroll-behavior: smooth; }
+    </style>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "LockML — Tools & Resources",
+        "url": "https://lockml.com/tools.html",
+        "description": "Essential tools for securing machine learning systems.",
+        "isPartOf": { "@type": "WebSite", "name": "LockML", "url": "https://lockml.com" }
+    }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <nav class="bg-gradient-to-r from-red-700 to-orange-500 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-white">Lock<span class="text-red-200">ML</span></a>
+            <div class="hidden md:flex space-x-8">
+                <a href="/" class="text-red-100 hover:text-white transition">Home</a>
+                <a href="/guides.html" class="text-red-100 hover:text-white transition">Guides</a>
+                <a href="/tools.html" class="text-white font-semibold transition">Tools</a>
+                <a href="/blog/getting-started.html" class="text-red-100 hover:text-white transition">Blog</a>
+                <a href="/about.html" class="text-red-100 hover:text-white transition">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="bg-gradient-to-br from-red-700 via-red-500 to-orange-500 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">Tools & Resources</h1>
+            <p class="text-xl text-red-100 max-w-2xl mx-auto">Security tools, testing frameworks, and platforms for hardening your ML pipeline against real-world threats.</p>
+        </div>
+    </header>
+
+    <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="space-y-8">
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Adversarial Robustness Toolbox (ART)</h3>
+                <p class="text-gray-600 mb-3">IBM's comprehensive Python library for adversarial ML. Implements attacks (FGSM, PGD, C&W), defenses (adversarial training, input preprocessing), and robustness evaluation metrics across all major ML frameworks.</p>
+                <a href="https://github.com/Trusted-AI/adversarial-robustness-toolbox" class="text-red-600 hover:text-red-800 font-medium" target="_blank" rel="noopener">github.com/Trusted-AI/adversarial-robustness-toolbox</a>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Garak</h3>
+                <p class="text-gray-600 mb-3">An LLM vulnerability scanner that probes language models for security weaknesses including prompt injection susceptibility, data leakage, and jailbreak vulnerabilities. Essential for pre-deployment security testing of any LLM-powered application.</p>
+                <a href="https://github.com/leondz/garak" class="text-red-600 hover:text-red-800 font-medium" target="_blank" rel="noopener">github.com/leondz/garak</a>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">NIST AI Risk Management Framework</h3>
+                <p class="text-gray-600 mb-3">The official NIST framework for managing AI risks. Provides a structured approach to identifying, assessing, and mitigating risks in AI systems. The definitive reference for AI governance and compliance programs.</p>
+                <a href="https://www.nist.gov/artificial-intelligence/executive-order-safe-secure-and-trustworthy-artificial-intelligence" class="text-red-600 hover:text-red-800 font-medium" target="_blank" rel="noopener">nist.gov/artificial-intelligence</a>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Microsoft Counterfit</h3>
+                <p class="text-gray-600 mb-3">An automation tool for security testing of AI systems. Enables red-teaming of ML models by automating adversarial attack generation, making it easier to systematically probe models for vulnerabilities at scale.</p>
+                <a href="https://github.com/Azure/counterfit" class="text-red-600 hover:text-red-800 font-medium" target="_blank" rel="noopener">github.com/Azure/counterfit</a>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Zovo.one</h3>
+                <p class="text-gray-600 mb-3">A comprehensive AI tools directory useful for evaluating the security posture of AI platforms and discovering security-focused tools. Helpful when selecting components for your ML pipeline with security as a primary consideration.</p>
+                <a href="https://zovo.one" class="text-red-600 hover:text-red-800 font-medium" rel="dofollow">zovo.one</a>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Opaque Systems (formerly MC2)</h3>
+                <p class="text-gray-600 mb-3">A confidential computing platform for secure ML workloads. Enables training and inference on encrypted data using hardware-based trusted execution environments, protecting sensitive data even from infrastructure administrators.</p>
+                <a href="https://opaque.co" class="text-red-600 hover:text-red-800 font-medium" target="_blank" rel="noopener">opaque.co</a>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Guardrails AI</h3>
+                <p class="text-gray-600 mb-3">An open-source framework for adding validation and safety checks to LLM outputs. Enables you to define validators that check outputs for hallucinations, toxicity, PII leakage, and format compliance before they reach users.</p>
+                <a href="https://github.com/guardrails-ai/guardrails" class="text-red-600 hover:text-red-800 font-medium" target="_blank" rel="noopener">github.com/guardrails-ai/guardrails</a>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">OWASP ML Security Top 10</h3>
+                <p class="text-gray-600 mb-3">The OWASP project identifying the top security risks for machine learning applications. Provides a standardized taxonomy of ML threats with practical mitigation guidance for each risk category.</p>
+                <a href="https://owasp.org/www-project-machine-learning-security-top-10/" class="text-red-600 hover:text-red-800 font-medium" target="_blank" rel="noopener">owasp.org/www-project-machine-learning-security-top-10</a>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Presidio</h3>
+                <p class="text-gray-600 mb-3">Microsoft's open-source PII detection and anonymization tool. Critical for ML pipelines that process user data, providing automated identification and redaction of personal information in text and images.</p>
+                <a href="https://github.com/microsoft/presidio" class="text-red-600 hover:text-red-800 font-medium" target="_blank" rel="noopener">github.com/microsoft/presidio</a>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Rebuff</h3>
+                <p class="text-gray-600 mb-3">A self-hardening prompt injection detection library. Uses multiple detection strategies including heuristic analysis, LLM-based detection, and a canary token system to identify and block prompt injection attempts in real time.</p>
+                <a href="https://github.com/protectai/rebuff" class="text-red-600 hover:text-red-800 font-medium" target="_blank" rel="noopener">github.com/protectai/rebuff</a>
+            </div>
+
+        </div>
+
+        <div class="mt-12 bg-red-50 p-8 rounded-xl border border-red-200">
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">Additional Security Resources</h3>
+            <p class="text-gray-700">For complementary resources on <a href="https://ml0x.com" class="text-red-600 hover:text-red-800 underline">ML engineering practices</a> and <a href="https://gen8x.com" class="text-red-600 hover:text-red-800 underline">generative AI security considerations</a>, these focused communities provide additional depth on securing specific aspects of the ML stack.</p>
+        </div>
+    </section>
+
+    <footer class="bg-gray-900 text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="text-xl font-bold text-white mb-4">Lock<span class="text-red-400">ML</span></div>
+            <p class="mb-6">Secure Your ML Pipeline — security checklists, threat models, and best practices.</p>
+            <div class="flex justify-center space-x-6 mb-6">
+                <a href="/" class="hover:text-white transition">Home</a>
+                <a href="/guides.html" class="hover:text-white transition">Guides</a>
+                <a href="/tools.html" class="hover:text-white transition">Tools</a>
+                <a href="/blog/getting-started.html" class="hover:text-white transition">Blog</a>
+                <a href="/about.html" class="hover:text-white transition">About</a>
+            </div>
+            <p class="text-sm">&copy; 2025 LockML. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
