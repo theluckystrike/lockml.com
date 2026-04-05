@@ -20,9 +20,7 @@ Open the comparison dashboard and use the filter controls to narrow models by ty
 
 - Vanilla JavaScript (no frameworks, no dependencies)
 - Client-side only — your data never leaves your browser
-- Part of the [Zovo Tools](https://zovo.one) open network
 
-## Related Tools
 
 - [LLM Cost Calculator](https://kickllm.com) — estimate API costs for the models you're comparing
 - [AI Model Database](https://gpt0x.com) — browse 40+ AI models with detailed specs

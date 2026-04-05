@@ -48,7 +48,7 @@
       <li><strong>70B models:</strong> 2x A100-80GB or 4x A100-40GB</li>
       <li><strong>180B+ models:</strong> 8+ A100-80GB (full node)</li>
     </ul>
-    <p>Quantization (GPTQ, AWQ, GGUF) can reduce requirements by 2-4x with acceptable quality loss. A 70B model quantized to 4-bit can run on a single A100-80GB. Tools like <a href="https://epochpilot.com">EpochPilot</a> can help you track and manage your training and inference infrastructure.</p>
+    <p>Quantization (GPTQ, AWQ, GGUF) can reduce requirements by 2-4x with acceptable quality loss. A 70B model quantized to 4-bit can run on a single A100-80GB. Tools like <a href="https://epochpilot.com" rel="nofollow">EpochPilot</a> can help you track and manage your training and inference infrastructure.</p>
 
     <h2>Step 3: Check the License</h2>
     <p>Licensing is often the deciding factor for commercial deployments. The landscape breaks down roughly as follows:</p>
@@ -93,7 +93,7 @@ print(f"Accuracy: {accuracy:.1%}")</code></pre>
 
     <h2>Step 5: Consider Total Cost of Ownership</h2>
     <p>Self-hosting is not always cheaper than API access. Factor in GPU rental costs ($2-8/hr for A100s), engineering time for deployment and maintenance, and the opportunity cost of building inference infrastructure.</p>
-    <p>A rough breakpoint: if you are making fewer than 100K requests per day, API access (through providers like Groq, Together, or Fireworks) is usually more cost-effective. Above that, self-hosting with optimized inference (vLLM, TensorRT-LLM) starts to make financial sense. Run the numbers with <a href="https://kickllm.com">KickLLM's cost calculator</a> to compare your options and with <a href="https://zovo.one">zovo.one</a> for broader infrastructure guidance.</p>
+    <p>A rough breakpoint: if you are making fewer than 100K requests per day, API access (through providers like Groq, Together, or Fireworks) is usually more cost-effective. Above that, self-hosting with optimized inference (vLLM, TensorRT-LLM) starts to make financial sense. Run the numbers with <a href="https://kickllm.com" rel="nofollow">KickLLM's cost calculator</a> to compare your options and with <a href="https://zovo.one">ML resources</a> for broader infrastructure guidance.</p>
 
     <h2>Decision Matrix</h2>
     <p>Here is a quick reference for common scenarios:</p>
@@ -110,12 +110,7 @@ print(f"Accuracy: {accuracy:.1%}")</code></pre>
   </article>
 
   <footer class="footer">
-    <div class="footer-links">
-      <a href="/">Tool</a>
-      <a href="/blog/">Blog</a>
-      <a href="/about.html">About</a>
-    </div>
-    <p>Built by <a href="https://zovo.one">zovo.one</a> &middot; More tools: <a href="https://kickllm.com">kickllm.com</a> &middot; <a href="https://heytensor.com">heytensor.com</a></p>
+    <p>&copy; 2025 LockML. Open source model comparison tool.</p>
   </footer>
 </body>
 </html>
