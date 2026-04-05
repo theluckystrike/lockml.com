@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Choose the Right ML Model for Your Use Case — LockML</title>
+  <meta name="description" content="A practical framework for choosing between open-source ML models. Covers parameters, licensing, deployment, benchmarks, and cost.">
+  <link rel="canonical" href="https://lockml.com/blog/how-to-choose-ml-model.html">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="nav-logo">lockml</a>
+    <ul class="nav-links">
+      <li><a href="/">Tool</a></li>
+      <li><a href="/blog/">Blog</a></li>
+      <li><a href="/about.html">About</a></li>
+    </ul>
+  </nav>
+
+  <article class="page-content">
+    <h1>How to Choose the Right ML Model for Your Use Case</h1>
+    <div class="blog-meta">Published January 2025 &middot; 12 min read</div>
+
+    <p>With over 30 competitive open-source ML models available, choosing the right one is no longer a simple decision. This guide provides a practical framework for evaluating models based on what actually matters: your specific requirements, infrastructure, and budget.</p>
+
+    <h2>Step 1: Define Your Task Category</h2>
+    <p>Before comparing benchmarks, get specific about what you are building. Model performance varies dramatically across task types.</p>
+
+    <h3>General Chat and Instruction Following</h3>
+    <p>If you need a conversational assistant or instruction-following model, your best options are Llama 3.1 (8B/70B/405B), Qwen 2 72B, or Mistral Large 2. These models have been heavily fine-tuned on instruction data and have strong chat templates. Llama 3.1 70B offers the best balance of performance and inference cost for most teams.</p>
+
+    <h3>Code Generation and Completion</h3>
+    <p>For code tasks, specialized models outperform generalists. DeepSeek Coder V2 leads on HumanEval and MBPP. Codestral 22B from Mistral covers 80+ programming languages with fill-in-the-middle support. StarCoder2 15B is the best option if you need a fully permissive license (BigCode OpenRAIL-M).</p>
+
+    <h3>Retrieval-Augmented Generation (RAG)</h3>
+    <p>RAG systems benefit from models designed for grounded generation. Command R+ (104B) and Command R (35B) from Cohere are purpose-built for this, with native support for document citations and tool use. Their 128K context windows accommodate large retrieval sets.</p>
+
+    <h3>Edge and Mobile Deployment</h3>
+    <p>When you need to run inference on-device, parameter count is the primary constraint. Phi-3 Mini (3.8B) runs on mobile hardware and achieves MMLU 69.7. Gemma 2 9B and Llama 3.1 8B are good options for edge servers with modest GPUs.</p>
+
+    <h2>Step 2: Evaluate Your Infrastructure Constraints</h2>
+    <p>Model size determines your hardware requirements. Here is a rough guide for FP16 inference:</p>
+    <ul>
+      <li><strong>7-8B models:</strong> Single consumer GPU (16GB+ VRAM) — RTX 4090, A4000</li>
+      <li><strong>13-14B models:</strong> Single professional GPU (24GB+ VRAM) — A5000, A6000</li>
+      <li><strong>30-34B models:</strong> 2x A100-40GB or 1x A100-80GB</li>
+      <li><strong>70B models:</strong> 2x A100-80GB or 4x A100-40GB</li>
+      <li><strong>180B+ models:</strong> 8+ A100-80GB (full node)</li>
+    </ul>
+    <p>Quantization (GPTQ, AWQ, GGUF) can reduce requirements by 2-4x with acceptable quality loss. A 70B model quantized to 4-bit can run on a single A100-80GB. Tools like <a href="https://epochpilot.com">EpochPilot</a> can help you track and manage your training and inference infrastructure.</p>
+
+    <h2>Step 3: Check the License</h2>
+    <p>Licensing is often the deciding factor for commercial deployments. The landscape breaks down roughly as follows:</p>
+    <ul>
+      <li><strong>Apache 2.0 / MIT (fully permissive):</strong> Mistral 7B, Falcon 40B, MPT-30B, Phi-3, Qwen 2 7B, Yi-1.5, OLMo, StarCoder2, Arctic</li>
+      <li><strong>Custom permissive with conditions:</strong> Llama 3.1 (700M MAU limit), Gemma (no harmful use), DeepSeek (attribution required)</li>
+      <li><strong>Non-commercial or restrictive:</strong> Command R+ (CC-BY-NC), Falcon 180B (restricted), Codestral (MNPL)</li>
+    </ul>
+    <p>If you are building a commercial product, stick to Apache 2.0 or Llama 3 Community licenses unless your legal team has reviewed the alternatives. Use the <a href="/">LockML comparison table</a> to filter by license type.</p>
+
+    <h2>Step 4: Benchmark on YOUR Data</h2>
+    <p>Public benchmarks (MMLU, HumanEval, GSM8K) are useful for initial filtering but are not substitutes for evaluation on your actual data. Models optimized for benchmarks can underperform on real-world tasks, and vice versa.</p>
+    <p>Here is a practical evaluation workflow:</p>
+    <ol>
+      <li>Create a test set of 100-500 examples from your production data</li>
+      <li>Define clear success criteria (accuracy, format compliance, latency)</li>
+      <li>Run each candidate model and grade outputs systematically</li>
+      <li>Measure inference speed and throughput on your hardware</li>
+      <li>Test edge cases and failure modes</li>
+    </ol>
+
+    <pre><code># Simple evaluation loop example
+import json
+from vllm import LLM, SamplingParams
+
+model = LLM(model="meta-llama/Llama-3.1-70B-Instruct")
+params = SamplingParams(temperature=0, max_tokens=512)
+
+test_cases = json.load(open("test_set.json"))
+results = []
+
+for case in test_cases[:500]:
+    output = model.generate([case["prompt"]], params)
+    results.append({
+        "expected": case["expected"],
+        "actual": output[0].outputs[0].text,
+        "pass": evaluate(output[0].outputs[0].text, case["expected"])
+    })
+
+accuracy = sum(r["pass"] for r in results) / len(results)
+print(f"Accuracy: {accuracy:.1%}")</code></pre>
+
+    <h2>Step 5: Consider Total Cost of Ownership</h2>
+    <p>Self-hosting is not always cheaper than API access. Factor in GPU rental costs ($2-8/hr for A100s), engineering time for deployment and maintenance, and the opportunity cost of building inference infrastructure.</p>
+    <p>A rough breakpoint: if you are making fewer than 100K requests per day, API access (through providers like Groq, Together, or Fireworks) is usually more cost-effective. Above that, self-hosting with optimized inference (vLLM, TensorRT-LLM) starts to make financial sense. Run the numbers with <a href="https://kickllm.com">KickLLM's cost calculator</a> to compare your options and with <a href="https://zovo.one">zovo.one</a> for broader infrastructure guidance.</p>
+
+    <h2>Decision Matrix</h2>
+    <p>Here is a quick reference for common scenarios:</p>
+    <ul>
+      <li><strong>Startup building a chatbot, needs commercial license:</strong> Llama 3.1 70B (Apache-like) or Mistral 7B (Apache 2.0 for budget)</li>
+      <li><strong>Enterprise RAG system, multilingual:</strong> Command R+ (if non-commercial OK) or Qwen 2 72B (permissive)</li>
+      <li><strong>Code assistant for IDE integration:</strong> DeepSeek Coder V2 or Codestral 22B</li>
+      <li><strong>Mobile/edge deployment:</strong> Phi-3 Mini 3.8B or Gemma 2 9B (quantized)</li>
+      <li><strong>Research with full reproducibility:</strong> OLMo 7B (fully open data + code + logs)</li>
+      <li><strong>Maximum performance, no budget limit:</strong> Llama 3.1 405B</li>
+    </ul>
+
+    <p>The open-source ML model space is maturing rapidly. The right choice depends on your specific intersection of task, infrastructure, licensing, and budget — not on which model has the highest number on a single benchmark. Use the tools on this site to narrow your options, then validate with your own data.</p>
+  </article>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="/">Tool</a>
+      <a href="/blog/">Blog</a>
+      <a href="/about.html">About</a>
+    </div>
+    <p>Built by <a href="https://zovo.one">zovo.one</a> &middot; More tools: <a href="https://kickllm.com">kickllm.com</a> &middot; <a href="https://heytensor.com">heytensor.com</a></p>
+  </footer>
+</body>
+</html>
