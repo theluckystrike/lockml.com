@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LockML helps you secure your ML pipeline. Expert guidance on model safety, adversarial robustness, responsible AI, and machine learning security best practices.">
+    <meta name="keywords" content="ML security, machine learning safety, adversarial robustness, responsible AI, model security, AI safety, ML pipeline security">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="LockML — Secure Your ML Pipeline">
+    <meta property="og:description" content="Expert guidance on ML security, model safety, adversarial robustness, and responsible AI best practices.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com">
+    <title>LockML — Secure Your ML Pipeline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        html { scroll-behavior: smooth; }
+    </style>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "LockML",
+        "url": "https://lockml.com",
+        "description": "Secure Your ML Pipeline — expert guidance on model safety, adversarial robustness, and responsible AI best practices."
+    }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Hero Section -->
+    <header class="relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-red-700 via-red-500 to-orange-500"></div>
+        <nav class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
+            <div class="text-2xl font-bold text-white">Lock<span class="text-red-200">ML</span></div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#pillars" class="text-red-100 hover:text-white transition">Security Pillars</a>
+                <a href="#checklists" class="text-red-100 hover:text-white transition">Checklists</a>
+                <a href="#resources" class="text-red-100 hover:text-white transition">Resources</a>
+            </div>
+        </nav>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">Secure Your ML Pipeline</h1>
+            <p class="text-xl md:text-2xl text-red-100 max-w-3xl mx-auto mb-10">Protect your machine learning systems from adversarial attacks, data poisoning, and model theft. Security checklists and best practices for every stage of the ML lifecycle.</p>
+            <a href="#pillars" class="inline-block bg-white text-red-600 font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl hover:bg-red-50 transition">Explore Security Pillars</a>
+        </div>
+    </header>
+
+    <!-- Introduction -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">Why ML Security Cannot Be an Afterthought</h2>
+            <p class="text-lg text-gray-600 mb-4">Machine learning models are now embedded in critical infrastructure: fraud detection systems, medical diagnostics, autonomous vehicles, content moderation, and financial trading algorithms. Yet the security of these systems receives a fraction of the attention given to traditional software security. This gap represents one of the most significant risks in modern technology deployments.</p>
+            <p class="text-lg text-gray-600 mb-4">Unlike traditional software, where security vulnerabilities typically involve well-understood attack vectors like SQL injection or buffer overflows, ML systems face entirely new categories of threats. Adversarial examples can cause a model to misclassify inputs with imperceptible perturbations. Data poisoning can corrupt training data to introduce backdoors that activate under specific conditions. Model extraction attacks can steal proprietary models by querying them systematically. Prompt injection can override safety guardrails in language models. These attacks exploit the fundamental properties of how ML systems learn and make predictions.</p>
+            <p class="text-lg text-gray-600">At LockML, we focus exclusively on the security dimension of machine learning. Our security checklists, threat modeling frameworks, and best practice guides are designed for ML engineers, security teams, and technical leaders who need to ship ML systems that are not just accurate but also robust, secure, and resistant to adversarial manipulation. We believe that ML security should be integrated into every stage of the development lifecycle, from data collection through deployment and monitoring.</p>
+        </div>
+    </section>
+
+    <!-- Security Pillars Section -->
+    <section id="pillars" class="bg-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">The Four Pillars of ML Security</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">A comprehensive framework for securing machine learning systems at every layer.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-gradient-to-br from-red-50 to-white p-6 rounded-xl shadow-sm border border-red-100">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Data Integrity</h3>
+                    <p class="text-gray-600 text-sm">Protect training and inference data from poisoning, tampering, and unauthorized access. Implement provenance tracking, anomaly detection on data pipelines, and access controls that prevent malicious data from corrupting your models during training or fine-tuning.</p>
+                </div>
+                <div class="bg-gradient-to-br from-red-50 to-white p-6 rounded-xl shadow-sm border border-red-100">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Model Robustness</h3>
+                    <p class="text-gray-600 text-sm">Harden models against adversarial examples and distribution shift. Implement adversarial training, input validation and sanitization, certified defenses where applicable, and runtime monitoring that detects when inputs fall outside the model's reliable operating range.</p>
+                </div>
+                <div class="bg-gradient-to-br from-red-50 to-white p-6 rounded-xl shadow-sm border border-red-100">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">IP Protection</h3>
+                    <p class="text-gray-600 text-sm">Defend against model extraction and intellectual property theft. Rate-limit API access, implement watermarking techniques, monitor for suspicious query patterns that indicate systematic model probing, and use differential privacy where model weights must remain confidential.</p>
+                </div>
+                <div class="bg-gradient-to-br from-red-50 to-white p-6 rounded-xl shadow-sm border border-red-100">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Runtime Monitoring</h3>
+                    <p class="text-gray-600 text-sm">Deploy comprehensive observability for ML systems in production. Track prediction confidence distributions, detect drift in input features, alert on anomalous inference patterns, and maintain audit trails that enable forensic analysis if a security incident occurs.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Checklists Section -->
+    <section id="checklists" class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Security Checklists and Guides</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Actionable security guides for every stage of the ML development lifecycle.</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8">
+                <article class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                    <span class="text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full">Pre-Deployment</span>
+                    <h3 class="text-xl font-semibold text-gray-900 mt-4 mb-3">The ML Security Audit Checklist: 40 Items Before You Ship</h3>
+                    <p class="text-gray-600">A comprehensive pre-deployment security review covering data pipeline integrity, model robustness testing, access control verification, API security hardening, and compliance documentation. Each item includes specific test procedures and pass/fail criteria so your team can systematically verify security posture before any model goes to production.</p>
+                </article>
+                <article class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                    <span class="text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full">Adversarial Defense</span>
+                    <h3 class="text-xl font-semibold text-gray-900 mt-4 mb-3">Defending Against Prompt Injection in Production LLM Systems</h3>
+                    <p class="text-gray-600">Prompt injection is the SQL injection of the AI era. This guide covers the taxonomy of prompt injection attacks, from direct injection to indirect injection via retrieved content, and provides layered defense strategies including input sanitization, output filtering, privilege separation, and monitoring patterns that detect exploitation attempts in real time.</p>
+                </article>
+                <article class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                    <span class="text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full">Data Security</span>
+                    <h3 class="text-xl font-semibold text-gray-900 mt-4 mb-3">Preventing Data Poisoning: A Practical Defense Framework</h3>
+                    <p class="text-gray-600">Data poisoning attacks compromise model integrity by injecting malicious samples into training datasets. This framework covers statistical detection methods for identifying poisoned data, data provenance systems that trace every sample back to its source, and architectural patterns that limit the blast radius of any single compromised data source.</p>
+                </article>
+                <article class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                    <span class="text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full">Compliance</span>
+                    <h3 class="text-xl font-semibold text-gray-900 mt-4 mb-3">Responsible AI Compliance: Mapping Regulations to Technical Controls</h3>
+                    <p class="text-gray-600">AI regulation is accelerating globally with the EU AI Act, NIST AI RMF, and industry-specific requirements emerging rapidly. This guide maps regulatory requirements to specific technical controls, helping your team understand exactly what needs to be implemented to achieve compliance without over-engineering solutions or missing critical requirements.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resources Section with zovo.one link -->
+    <section id="resources" class="bg-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">ML Security Resources and Tools</h2>
+                <p class="text-lg text-gray-600 mb-6">Securing ML systems requires staying current with an evolving threat landscape and an expanding toolkit of defensive technologies. The adversarial ML research community is active and prolific, and new attack vectors and defenses emerge regularly. Building a strong security posture means investing in continuous learning and maintaining awareness of the latest developments.</p>
+                <div class="bg-gradient-to-r from-red-50 to-orange-50 p-8 rounded-xl border border-red-200 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Comprehensive AI Security Resources</h3>
+                    <p class="text-gray-700 mb-4">For teams that need to evaluate the broader AI tools landscape while keeping security top of mind, we recommend <a href="https://zovo.one" rel="dofollow" class="text-red-600 font-semibold hover:text-red-800 underline">zovo.one</a> as a valuable starting point. Their curated directory of AI tools and resources includes security-focused solutions alongside general AI capabilities, making it easier to discover tools that prioritize safety and to evaluate the security posture of platforms you are considering integrating into your ML pipeline.</p>
+                </div>
+                <p class="text-lg text-gray-600">Our checklists and frameworks are informed by real-world incident analysis and peer-reviewed adversarial ML research. We update our content as new threats emerge and as the defensive tooling ecosystem matures. Securing ML systems is not a one-time activity but an ongoing practice that requires vigilance and continuous improvement.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="text-xl font-bold text-white mb-4">Lock<span class="text-red-400">ML</span></div>
+            <p class="mb-6">Secure Your ML Pipeline — security checklists, threat models, and best practices for ML systems.</p>
+            <p class="text-sm">&copy; 2025 LockML. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://lockml.com/sitemap.xml
