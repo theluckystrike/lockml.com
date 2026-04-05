@@ -152,7 +152,9 @@ function renderTable() {
       html += '<dt>Modality</dt><dd>' + esc(m.modality) + '</dd></div>';
       html += '<div><dt>Notes</dt><dd>' + esc(m.notes) + '</dd>';
       html += '<dt>Link</dt><dd><a href="' + esc(m.link) + '" target="_blank" rel="noopener">' + esc(m.link) + '</a></dd></div>';
-      html += '</div></td></tr>';
+      html += '</div>';
+      html += buildLicenseDetail(m);
+      html += '</td></tr>';
     }
   }
   tbody.innerHTML = html;
@@ -241,5 +243,111 @@ function esc(s) {
   d.appendChild(document.createTextNode(s));
   return d.innerHTML;
 }
+
+/* --- License Compatibility Checker --- */
+
+var LICENSE_DB = {
+  "Apache 2.0": { commercial: "Yes", modification: "Yes", distribution: "With attribution", patent: "Yes", copyleft: "No", summary: "Very permissive. Use commercially, modify, redistribute with attribution." },
+  "MIT": { commercial: "Yes", modification: "Yes", distribution: "With attribution", patent: "No", copyleft: "No", summary: "Extremely permissive. Almost no restrictions." },
+  "Llama 3.1 Community": { commercial: "Conditional", modification: "Yes", distribution: "With restrictions", patent: "No", copyleft: "No", summary: "Commercial use allowed under 700M monthly active users. Must include attribution and acceptable use policy." },
+  "Llama 3 Community": { commercial: "Conditional", modification: "Yes", distribution: "With restrictions", patent: "No", copyleft: "No", summary: "Same as Llama 3.1 — commercial under 700M MAU limit." },
+  "Mistral Research": { commercial: "No", modification: "Yes", distribution: "Research only", patent: "No", copyleft: "No", summary: "Research and non-commercial use only. Contact Mistral for commercial licensing." },
+  "Gemma": { commercial: "Yes", modification: "Yes", distribution: "With restrictions", patent: "No", copyleft: "No", summary: "Commercial use allowed. Must comply with Google's Prohibited Use Policy." },
+  "Qwen": { commercial: "Conditional", modification: "Yes", distribution: "With restrictions", patent: "No", copyleft: "No", summary: "Free for commercial use under specific conditions. Contact Alibaba for large deployments." },
+  "CC-BY-NC-4.0": { commercial: "No", modification: "Yes", distribution: "Non-commercial only", patent: "No", copyleft: "No", summary: "Non-commercial only. Attribution required. No commercial use without separate license." },
+  "Databricks Open": { commercial: "Yes", modification: "Yes", distribution: "With attribution", patent: "No", copyleft: "No", summary: "Permissive open license from Databricks. Commercial use allowed." },
+  "Falcon-180B TII": { commercial: "Conditional", modification: "Yes", distribution: "With restrictions", patent: "No", copyleft: "No", summary: "Commercial use requires royalty arrangement above hosting revenue threshold." },
+  "Stability AI Community": { commercial: "Conditional", modification: "Yes", distribution: "With restrictions", patent: "No", copyleft: "No", summary: "Free for commercial use under 1M monthly revenue. Enterprise license above that." },
+  "Jamba Open": { commercial: "Yes", modification: "Yes", distribution: "With attribution", patent: "No", copyleft: "No", summary: "Open license allowing commercial use with attribution." },
+  "NVIDIA Open Model": { commercial: "Yes", modification: "Yes", distribution: "With restrictions", patent: "No", copyleft: "No", summary: "Commercial use allowed. Must comply with NVIDIA's acceptable use policy." },
+  "DeepSeek": { commercial: "Yes", modification: "Yes", distribution: "With attribution", patent: "No", copyleft: "No", summary: "Permissive license. Commercial use allowed with attribution." },
+  "MNPL": { commercial: "No", modification: "Yes", distribution: "Non-production only", patent: "No", copyleft: "No", summary: "Mistral Non-Production License. Research and testing only. No production use." },
+  "BigCode OpenRAIL-M": { commercial: "Conditional", modification: "Yes", distribution: "With use restrictions", patent: "No", copyleft: "No", summary: "Commercial use allowed with responsible AI use restrictions." }
+};
+
+var compareList = [];
+
+function getLicenseInfo(licenseName) {
+  if (LICENSE_DB[licenseName]) return LICENSE_DB[licenseName];
+  for (var key in LICENSE_DB) {
+    if (licenseName.toLowerCase().indexOf(key.toLowerCase()) !== -1) return LICENSE_DB[key];
+  }
+  return { commercial: "Unknown", modification: "Unknown", distribution: "Unknown", patent: "Unknown", copyleft: "Unknown", summary: "License details not in database. Check the model's official repository." };
+}
+
+function buildLicenseDetail(model) {
+  var lic = getLicenseInfo(model.license);
+  var commColor = lic.commercial === "Yes" ? "#34D399" : lic.commercial === "No" ? "#F87171" : "#FBBF24";
+  var html = '<div class="license-detail">';
+  html += '<div class="lic-row"><span class="lic-label">License:</span><span>' + esc(model.license) + '</span></div>';
+  html += '<div class="lic-row"><span class="lic-label">Commercial Use:</span><span style="color:' + commColor + ';font-weight:600;">' + lic.commercial + '</span></div>';
+  html += '<div class="lic-row"><span class="lic-label">Modification:</span><span>' + lic.modification + '</span></div>';
+  html += '<div class="lic-row"><span class="lic-label">Distribution:</span><span>' + lic.distribution + '</span></div>';
+  html += '<div class="lic-summary">' + esc(lic.summary) + '</div>';
+  html += '<button class="compare-btn" data-model="' + esc(model.name) + '">' +
+    (compareList.indexOf(model.name) !== -1 ? 'Remove from Compare' : 'Add to Compare') + '</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderCompareTable() {
+  var container = document.getElementById('license-compare');
+  if (!container) return;
+  if (compareList.length < 2) {
+    container.innerHTML = compareList.length === 1 ? '<p style="color:var(--text-muted);font-size:0.9rem;">Select 1 more model to compare licenses.</p>' : '';
+    container.style.display = compareList.length > 0 ? 'block' : 'none';
+    return;
+  }
+  container.style.display = 'block';
+  var html = '<h3 style="font-family:var(--font-display);font-size:1rem;color:var(--accent);margin-bottom:1rem;">License Comparison</h3>';
+  html += '<table class="model-table" style="font-size:0.85rem;"><thead><tr><th>Attribute</th>';
+  for (var i = 0; i < compareList.length && i < 3; i++) {
+    html += '<th>' + esc(compareList[i]) + '</th>';
+  }
+  html += '</tr></thead><tbody>';
+  var attrs = ["commercial", "modification", "distribution", "patent", "copyleft"];
+  var labels = ["Commercial Use", "Modification", "Distribution", "Patent Grant", "Copyleft"];
+  for (var a = 0; a < attrs.length; a++) {
+    html += '<tr><td style="font-weight:600;">' + labels[a] + '</td>';
+    for (var m = 0; m < compareList.length && m < 3; m++) {
+      var model = null;
+      for (var k = 0; k < MODELS.length; k++) {
+        if (MODELS[k].name === compareList[m]) { model = MODELS[k]; break; }
+      }
+      if (model) {
+        var lic = getLicenseInfo(model.license);
+        var val = lic[attrs[a]];
+        var color = val === "Yes" ? "#34D399" : val === "No" ? "#F87171" : "#FBBF24";
+        html += '<td style="color:' + color + '">' + val + '</td>';
+      } else {
+        html += '<td>-</td>';
+      }
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  html += '<button class="tag-chip" onclick="clearCompare()" style="margin-top:0.75rem;">Clear Comparison</button>';
+  container.innerHTML = html;
+}
+
+function clearCompare() {
+  compareList = [];
+  renderCompareTable();
+  renderTable();
+}
+
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('compare-btn')) {
+    var modelName = e.target.getAttribute('data-model');
+    var idx = compareList.indexOf(modelName);
+    if (idx !== -1) {
+      compareList.splice(idx, 1);
+    } else if (compareList.length < 3) {
+      compareList.push(modelName);
+    }
+    renderCompareTable();
+    renderTable();
+  }
+});
 
 document.addEventListener('DOMContentLoaded', init);

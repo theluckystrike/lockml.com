@@ -23,6 +23,20 @@
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "What is the best open source LLM?", "acceptedAnswer": { "@type": "Answer", "text": "Llama 3.1 405B leads benchmarks (87.3 MMLU). For cost efficiency, Llama 3.1 70B and Qwen 2 72B excel. For edge deployment, Phi-3 Mini 3.8B is ideal." } },
+      { "@type": "Question", "name": "Can I use Llama commercially?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, the Llama 3/3.1 Community License allows commercial use for organizations under 700M monthly active users with attribution required." } },
+      { "@type": "Question", "name": "Which LLM licenses are most permissive?", "acceptedAnswer": { "@type": "Answer", "text": "Apache 2.0 and MIT are most permissive. Mistral 7B, Falcon 40B, Grok-1 use Apache 2.0. Phi-3 uses MIT. CC-BY-NC models prohibit commercial use." } },
+      { "@type": "Question", "name": "What does open source mean for LLMs?", "acceptedAnswer": { "@type": "Answer", "text": "Usually means open weights (downloadable model), not necessarily open training data or code. True open source like OLMo includes everything." } },
+      { "@type": "Question", "name": "Which open source LLM is best for coding?", "acceptedAnswer": { "@type": "Answer", "text": "DeepSeek Coder V2 leads coding benchmarks. Codestral 22B supports 80+ languages. StarCoder2 covers 600+ languages." } },
+      { "@type": "Question", "name": "Is LockML free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, LockML is completely free. Compare 30+ models, check license compatibility, no sign-up required." } }
+    ]
+  }
+  </script>
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
@@ -82,6 +96,36 @@
         </thead>
         <tbody id="table-body"></tbody>
       </table>
+    </div>
+
+    <div id="license-compare" class="license-compare-section" style="display:none;"></div>
+  </section>
+
+  <section class="faq-section">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What is the best open source LLM?</div>
+      <div class="faq-a">It depends on your use case. Llama 3.1 405B leads on benchmarks (87.3 MMLU) and is competitive with GPT-4. For cost efficiency, Llama 3.1 70B and Qwen 2 72B offer excellent performance-per-parameter. For edge deployment, Phi-3 Mini 3.8B punches above its weight class.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Can I use Llama commercially?</div>
+      <div class="faq-a">Yes, with conditions. The Llama 3/3.1 Community License allows commercial use for organizations with under 700 million monthly active users. Above that threshold, you need a separate license from Meta. You must also include attribution and comply with the Acceptable Use Policy.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">LLM license comparison — which are most permissive?</div>
+      <div class="faq-a">Apache 2.0 and MIT are the most permissive, allowing unrestricted commercial use. Models like Mistral 7B, Falcon 40B, Grok-1, and Arctic use Apache 2.0. Microsoft's Phi-3 uses MIT. Llama and Gemma have custom licenses with some restrictions. CC-BY-NC models like Command R+ prohibit commercial use entirely.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What does open source mean for LLMs?</div>
+      <div class="faq-a">In the LLM space, "open source" often means open weights — the model weights are downloadable but training data and code may not be. True open source (like OLMo from AI2) includes data, weights, code, and training logs. Always check the specific license for your use case.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Which open source LLM is best for coding?</div>
+      <div class="faq-a">DeepSeek Coder V2 leads on coding benchmarks, beating GPT-4 Turbo. Codestral 22B supports 80+ languages with fill-in-the-middle. StarCoder2 15B covers 600+ languages. For general coding, Llama 3.1 70B and Mixtral 8x22B are strong all-rounders.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Is LockML free to use?</div>
+      <div class="faq-a">Yes, LockML is completely free. Compare 30+ open-source models, check license compatibility, and find the right model for your project. No sign-up required.</div>
     </div>
   </section>
 
