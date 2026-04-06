@@ -5,13 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LockML — Open Source ML Model Comparison Table</title>
   <meta name="description" content="Compare 30+ open-source ML models side-by-side. Filter by parameters, license, and use case. Real benchmark data including MMLU scores.">
-  <link rel="canonical" href="https://lockml.com/">
-    <link rel="alternate" type="application/atom+xml" title="LockML — Open Source ML Model Comparison Table Blog Feed" href="/blog/feed.xml">
-  <meta property="og:title" content="LockML — Open Source ML Model Comparison Table">
-  <meta property="og:description" content="Compare 30+ open-source ML models side-by-side. Filter by parameters, license, and use case.">
-  <meta property="og:url" content="https://lockml.com/">
   <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:title" content="LockML — Open Source ML Model Comparison Table">
+  <meta property="og:description" content="Compare 30+ open-source ML models side-by-side. Filter by parameters, license, and use case. Real benchmark data including MMLU scores.">
+  <meta property="og:url" content="https://lockml.com/">
+  <meta property="og:image" content="https://lockml.com/assets/og-image.png">
+  <meta property="og:site_name" content="Zovo Tools">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="LockML — Open Source ML Model Comparison Table">
+  <meta name="twitter:description" content="Compare 30+ open-source ML models side-by-side. Filter by parameters, license, and use case.">
+  <meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+  <link rel="canonical" href="https://lockml.com/">
+  <link rel="alternate" hreflang="en" href="https://lockml.com/">
+  <link rel="alternate" hreflang="x-default" href="https://lockml.com/">
+  <link rel="alternate" type="application/atom+xml" title="LockML — Open Source ML Model Comparison Table Blog Feed" href="/blog/feed.xml">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -21,7 +28,20 @@
     "description": "Interactive comparison table for 30+ open-source ML models with filtering, sorting, and real benchmark data.",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Web",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+    "datePublished": "2026-04-05",
+    "dateModified": "2026-04-06",
+    "featureList": [
+      "30+ open-source ML models compared side-by-side",
+      "Filter by parameter count, license type, and use case",
+      "Sortable columns: model name, org, parameters, license, release date, MMLU score",
+      "Real benchmark data from official papers and Open LLM Leaderboard",
+      "License compatibility checker for commercial use",
+      "Use case tags: chat, code, RAG, multilingual, edge deployment",
+      "No sign-up required",
+      "100% browser-based, no data sent to servers"
+    ]
   }
   </script>
   <script type="application/ld+json">
@@ -34,7 +54,9 @@
       { "@type": "Question", "name": "Which LLM licenses are most permissive?", "acceptedAnswer": { "@type": "Answer", "text": "Apache 2.0 and MIT are most permissive. Mistral 7B, Falcon 40B, Grok-1 use Apache 2.0. Phi-3 uses MIT. CC-BY-NC models prohibit commercial use." } },
       { "@type": "Question", "name": "What does open source mean for LLMs?", "acceptedAnswer": { "@type": "Answer", "text": "Usually means open weights (downloadable model), not necessarily open training data or code. True open source like OLMo includes everything." } },
       { "@type": "Question", "name": "Which open source LLM is best for coding?", "acceptedAnswer": { "@type": "Answer", "text": "DeepSeek Coder V2 leads coding benchmarks. Codestral 22B supports 80+ languages. StarCoder2 covers 600+ languages." } },
-      { "@type": "Question", "name": "Is LockML free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, LockML is completely free. Compare 30+ models, check license compatibility, no sign-up required." } }
+      { "@type": "Question", "name": "Is LockML free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, LockML is completely free. Compare 30+ models, check license compatibility, no sign-up required." } },
+      { "@type": "Question", "name": "How often is LockML updated?", "acceptedAnswer": { "@type": "Answer", "text": "LockML is updated regularly as new open-source models are released. Benchmark data is sourced from official papers and the Open LLM Leaderboard. Check the last-updated date on the page for the most recent refresh." } },
+      { "@type": "Question", "name": "What benchmarks does LockML include?", "acceptedAnswer": { "@type": "Answer", "text": "LockML currently displays MMLU scores as the primary benchmark, along with parameter counts, release dates, licensing information, and use-case tags. MMLU is the most widely reported benchmark across open-source models, making it the most useful for cross-model comparison." } }
     ]
   }
   </script>
@@ -57,6 +79,7 @@
   <section class="hero">
     <h1>Open Source <span>ML Model</span> Comparison</h1>
     <p>Compare 30+ open-source models side-by-side. Real parameters, benchmarks, and licensing info. Filter, sort, and find the right model for your use case.</p>
+    <p style="font-size:0.9rem;color:var(--text-muted);">Built by <a href="/about.html" style="color:var(--accent);">Michael Lip</a></p>
   </section>
 
   <section class="tool-section">
@@ -106,32 +129,72 @@
     <div id="license-compare" class="license-compare-section" style="display:none;"></div>
   </section>
 
-  <section class="faq-section">
+  <div class="last-updated"><time datetime="2026-04-06">Last updated: April 6, 2026</time></div>
+
+  <section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+    <h2>How LockML Works</h2>
+
+    <p>LockML is an interactive comparison table for open-source machine learning models. It provides a single, filterable view of 30+ models with their parameter counts, benchmark scores (MMLU), release dates, licensing information, and use-case tags. Instead of visiting dozens of Hugging Face model cards and reading individual papers, you can compare all the major open-source models in one place and narrow the list to models that match your specific requirements.</p>
+
+    <p>The comparison table supports real-time filtering across multiple dimensions. The search box filters by model name or organization. The parameter slider lets you set a maximum model size based on your hardware constraints — if you have a single A100-80GB, slide it down to 70B to see only models you can run. The license dropdown filters by permissiveness: Apache 2.0, MIT, or restrictive/custom licenses. Use-case tag chips let you filter by task type: general chat, code generation, RAG, multilingual, or edge deployment. All filters work together, so you can quickly find something like "Apache 2.0 licensed coding models under 15B parameters."</p>
+
+    <p>Every column in the table is sortable. Click any header to sort ascending or descending. Sort by MMLU to find the highest-scoring models. Sort by parameters to find the most efficient models. Sort by release date to find the newest options. The data is compiled from official model announcements, Hugging Face model cards, and published benchmark papers, and is updated regularly as new models are released.</p>
+
+    <h3>Features</h3>
+
+    <p>LockML includes real-time search that filters the model table as you type, matching against model names and organization names. The parameter range slider provides instant filtering with a visual display of the current threshold. The license filter categorizes all models into three tiers: fully permissive (Apache 2.0, MIT), permissive with conditions (Llama Community, Gemma), and restrictive or non-commercial licenses. Use-case tag chips provide one-click filtering by task type. A results counter shows how many models match your current filter combination. The license comparison section provides detailed breakdowns of what each license allows and restricts for commercial use.</p>
+
+    <h3>Who Uses This</h3>
+
+    <p>LockML is built for ML engineers, data scientists, CTOs, and anyone evaluating open-source models for production use. Engineering teams use it to create shortlists of models that meet their licensing and infrastructure requirements before running evaluations. Startup CTOs use it to compare licensing terms across models to ensure commercial viability. Researchers use it to track the state of the art and identify new models worth evaluating. Infrastructure teams use it to scope hardware requirements based on model parameter counts. If you are working with closed-source AI APIs like Claude or GPT-4, you might find <a href="https://claudkit.com">ClaudKit</a> useful for building and testing API requests. For teams that need prompt templates optimized for specific tasks, <a href="https://claudhq.com">ClaudHQ</a> provides a library of 30+ tested templates that work across both open and closed models.</p>
+
+    <h3>Privacy</h3>
+
+    <p>Everything runs locally in your browser. LockML does not send any data to any server, does not use cookies for tracking, does not require authentication, and does not store any information about you or your model searches. The application is a static HTML, CSS, and JavaScript site hosted on GitHub Pages. The complete source code is open source on <a href="https://github.com/theluckystrike/lockml.com">GitHub</a>.</p>
+  </section>
+
+  <section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
     <h2>Frequently Asked Questions</h2>
-    <div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">What is the best open source LLM?</div>
-      <div class="faq-a">It depends on your use case. Llama 3.1 405B leads on benchmarks (87.3 MMLU) and is competitive with GPT-4. For cost efficiency, Llama 3.1 70B and Qwen 2 72B offer excellent performance-per-parameter. For edge deployment, Phi-3 Mini 3.8B punches above its weight class.</div>
-    </div>
-    <div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">Can I use Llama commercially?</div>
-      <div class="faq-a">Yes, with conditions. The Llama 3/3.1 Community License allows commercial use for organizations with under 700 million monthly active users. Above that threshold, you need a separate license from Meta. You must also include attribution and comply with the Acceptable Use Policy.</div>
-    </div>
-    <div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">LLM license comparison — which are most permissive?</div>
-      <div class="faq-a">Apache 2.0 and MIT are the most permissive, allowing unrestricted commercial use. Models like Mistral 7B, Falcon 40B, Grok-1, and Arctic use Apache 2.0. Microsoft's Phi-3 uses MIT. Llama and Gemma have custom licenses with some restrictions. CC-BY-NC models like Command R+ prohibit commercial use entirely.</div>
-    </div>
-    <div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">What does open source mean for LLMs?</div>
-      <div class="faq-a">In the LLM space, "open source" often means open weights — the model weights are downloadable but training data and code may not be. True open source (like OLMo from AI2) includes data, weights, code, and training logs. Always check the specific license for your use case.</div>
-    </div>
-    <div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">Which open source LLM is best for coding?</div>
-      <div class="faq-a">DeepSeek Coder V2 leads on coding benchmarks, beating GPT-4 Turbo. Codestral 22B supports 80+ languages with fill-in-the-middle. StarCoder2 15B covers 600+ languages. For general coding, Llama 3.1 70B and Mixtral 8x22B are strong all-rounders.</div>
-    </div>
-    <div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">Is LockML free to use?</div>
-      <div class="faq-a">Yes, LockML is completely free. Compare 30+ open-source models, check license compatibility, and find the right model for your project. No sign-up required.</div>
-    </div>
+
+    <details>
+      <summary>What is the best open source LLM?</summary>
+      <p>It depends on your use case. Llama 3.1 405B leads on benchmarks (87.3 MMLU) and is competitive with GPT-4. For cost efficiency, Llama 3.1 70B and Qwen 2 72B offer excellent performance-per-parameter. For edge deployment, Phi-3 Mini 3.8B punches above its weight class.</p>
+    </details>
+
+    <details>
+      <summary>Can I use Llama commercially?</summary>
+      <p>Yes, with conditions. The Llama 3/3.1 Community License allows commercial use for organizations with under 700 million monthly active users. Above that threshold, you need a separate license from Meta. You must also include attribution and comply with the Acceptable Use Policy.</p>
+    </details>
+
+    <details>
+      <summary>LLM license comparison — which are most permissive?</summary>
+      <p>Apache 2.0 and MIT are the most permissive, allowing unrestricted commercial use. Models like Mistral 7B, Falcon 40B, Grok-1, and Arctic use Apache 2.0. Microsoft's Phi-3 uses MIT. Llama and Gemma have custom licenses with some restrictions. CC-BY-NC models like Command R+ prohibit commercial use entirely.</p>
+    </details>
+
+    <details>
+      <summary>What does open source mean for LLMs?</summary>
+      <p>In the LLM space, "open source" often means open weights — the model weights are downloadable but training data and code may not be. True open source (like OLMo from AI2) includes data, weights, code, and training logs. Always check the specific license for your use case.</p>
+    </details>
+
+    <details>
+      <summary>Which open source LLM is best for coding?</summary>
+      <p>DeepSeek Coder V2 leads on coding benchmarks, beating GPT-4 Turbo. Codestral 22B supports 80+ languages with fill-in-the-middle. StarCoder2 15B covers 600+ languages. For general coding, Llama 3.1 70B and Mixtral 8x22B are strong all-rounders.</p>
+    </details>
+
+    <details>
+      <summary>Is LockML free to use?</summary>
+      <p>Yes, LockML is completely free. Compare 30+ open-source models, check license compatibility, and find the right model for your project. No sign-up required. Everything runs in your browser.</p>
+    </details>
+
+    <details>
+      <summary>How often is LockML updated?</summary>
+      <p>LockML is updated regularly as new open-source models are released. Benchmark data is sourced from official papers and the Open LLM Leaderboard. Check the last-updated date on the page for the most recent data refresh.</p>
+    </details>
+
+    <details>
+      <summary>What benchmarks does LockML include?</summary>
+      <p>LockML currently displays MMLU scores as the primary benchmark, along with parameter counts, release dates, licensing information, and use-case tags. MMLU is the most widely reported benchmark across open-source models, making it the most useful for cross-model comparison.</p>
+    </details>
   </section>
 
   <footer>

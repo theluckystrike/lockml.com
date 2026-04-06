@@ -5,9 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>How to Choose the Right ML Model for Your Use Case — LockML</title>
   <meta name="description" content="A practical framework for choosing between open-source ML models. Covers parameters, licensing, deployment, benchmarks, and cost.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="How to Choose the Right ML Model for Your Use Case">
+  <meta property="og:description" content="A practical framework for choosing between open-source ML models. Covers parameters, licensing, deployment, benchmarks, and cost.">
+  <meta property="og:url" content="https://lockml.com/blog/how-to-choose-ml-model.html">
+  <meta property="og:image" content="https://lockml.com/assets/og-image.png">
+  <meta property="og:site_name" content="Zovo Tools">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to Choose the Right ML Model for Your Use Case">
+  <meta name="twitter:description" content="A practical framework for choosing between open-source ML models.">
+  <meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
   <link rel="canonical" href="https://lockml.com/blog/how-to-choose-ml-model.html">
-    <link rel="alternate" type="application/atom+xml" title="LockML — Open Source ML Model Comparison Table Blog Feed" href="/blog/feed.xml">
+  <link rel="alternate" hreflang="en" href="https://lockml.com/blog/how-to-choose-ml-model.html">
+  <link rel="alternate" hreflang="x-default" href="https://lockml.com/blog/how-to-choose-ml-model.html">
+  <link rel="alternate" type="application/atom+xml" title="LockML — Open Source ML Model Comparison Table Blog Feed" href="/blog/feed.xml">
   <link rel="stylesheet" href="/assets/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "How to Choose the Right ML Model for Your Use Case",
+    "description": "A practical framework for choosing between open-source ML models. Covers parameters, licensing, deployment, benchmarks, and cost.",
+    "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+    "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+    "datePublished": "2025-01-15",
+    "dateModified": "2026-04-06"
+  }
+  </script>
 </head>
 <body>
   <nav class="nav">
@@ -26,6 +50,7 @@
   <article class="page-content">
     <h1>How to Choose the Right ML Model for Your Use Case</h1>
     <div class="blog-meta">Published January 2025 &middot; 12 min read</div>
+    <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:2rem;">By <a href="/about.html" style="color:var(--accent);">Michael Lip</a></p>
 
     <p>With over 30 competitive open-source ML models available, choosing the right one is no longer a simple decision. This guide provides a practical framework for evaluating models based on what actually matters: your specific requirements, infrastructure, and budget.</p>
 
@@ -53,7 +78,7 @@
       <li><strong>70B models:</strong> 2x A100-80GB or 4x A100-40GB</li>
       <li><strong>180B+ models:</strong> 8+ A100-80GB (full node)</li>
     </ul>
-    <p>Quantization (GPTQ, AWQ, GGUF) can reduce requirements by 2-4x with acceptable quality loss. A 70B model quantized to 4-bit can run on a single A100-80GB. Tools like <a href="https://epochpilot.com" rel="nofollow">EpochPilot</a> can help you track and manage your training and inference infrastructure.</p>
+    <p>Quantization (GPTQ, AWQ, GGUF) can reduce requirements by 2-4x with acceptable quality loss. A 70B model quantized to 4-bit can run on a single A100-80GB.</p>
 
     <h2>Step 3: Check the License</h2>
     <p>Licensing is often the deciding factor for commercial deployments. The landscape breaks down roughly as follows:</p>
@@ -98,7 +123,7 @@ print(f"Accuracy: {accuracy:.1%}")</code></pre>
 
     <h2>Step 5: Consider Total Cost of Ownership</h2>
     <p>Self-hosting is not always cheaper than API access. Factor in GPU rental costs ($2-8/hr for A100s), engineering time for deployment and maintenance, and the opportunity cost of building inference infrastructure.</p>
-    <p>A rough breakpoint: if you are making fewer than 100K requests per day, API access (through providers like Groq, Together, or Fireworks) is usually more cost-effective. Above that, self-hosting with optimized inference (vLLM, TensorRT-LLM) starts to make financial sense. Run the numbers with <a href="https://kickllm.com" rel="nofollow">KickLLM's cost calculator</a> to compare your options and with <a href="https://zovo.one">ML resources</a> for broader infrastructure guidance.</p>
+    <p>A rough breakpoint: if you are making fewer than 100K requests per day, API access (through providers like Groq, Together, or Fireworks) is usually more cost-effective. Above that, self-hosting with optimized inference (vLLM, TensorRT-LLM) starts to make financial sense. If you are evaluating closed-source API costs alongside self-hosting, <a href="https://claudkit.com">ClaudKit</a> includes a pricing estimator for the Claude API that helps you compare the economics. For prompt optimization that reduces token usage regardless of which model you choose, the <a href="https://claudhq.com">ClaudHQ prompt library</a> has templates designed to get maximum output quality from minimum tokens.</p>
 
     <h2>Decision Matrix</h2>
     <p>Here is a quick reference for common scenarios:</p>
