@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Model License Guide — Understanding Open Source AI Licenses | LockML</title>
+<meta name="description" content="Complete guide to ML model licenses. Compare Apache 2.0, MIT, Llama Community, Gemma, and 15+ AI licenses with a permissions matrix for commercial use.">
+<link rel="canonical" href="https://lockml.com/research/ml-model-license-guide.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/research/ml-model-license-guide.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/research/ml-model-license-guide.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ML Model License Guide — Understanding Open Source AI Licenses">
+<meta property="og:description" content="Complete guide to ML model licenses. Compare Apache 2.0, MIT, Llama Community, Gemma, and 15+ AI licenses with permissions matrix.">
+<meta property="og:url" content="https://lockml.com/research/ml-model-license-guide.html">
+<meta property="og:site_name" content="LockML">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ML Model License Guide — Understanding Open Source AI Licenses">
+<meta name="twitter:description" content="Compare Apache 2.0, MIT, Llama Community, Gemma, and 15+ AI licenses with permissions matrix.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "ML Model License Comparison Guide 2026",
+  "description": "Comprehensive comparison of open-source and proprietary ML model licenses including Apache 2.0, MIT, Llama Community License, Gemma License, and others with a permissions matrix.",
+  "url": "https://lockml.com/research/ml-model-license-guide.html",
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "creator": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "datePublished": "2026-04-10",
+  "dateModified": "2026-04-10",
+  "temporalCoverage": "2023/2026",
+  "distribution": [
+    { "@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "https://lockml.com/research/ml-model-license-guide.html" },
+    { "@type": "DataDownload", "encodingFormat": "text/csv", "contentUrl": "https://lockml.com/research/ml-model-license-guide.html" }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I use Llama 3 commercially?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, the Llama 3/3.1 Community License allows commercial use for organizations with fewer than 700 million monthly active users. Above that threshold, you need a separate license from Meta. You must include the attribution notice 'Built with Llama' in your product and comply with the Acceptable Use Policy, which prohibits certain harmful use cases."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the most permissive ML model license?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Apache 2.0 and MIT are the most permissive licenses. Apache 2.0 grants patent rights and allows commercial use, modification, and redistribution with minimal requirements (attribution and license notice). MIT is even simpler with just attribution required. Models using Apache 2.0 include Mistral 7B, Falcon 40B, Grok-1, and Arctic. Microsoft's Phi-3/Phi-4 use MIT."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between open-weights and open-source for AI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Open-weights means the model weights are downloadable and usable, but training data, training code, and evaluation code may not be available. True open-source means all components are available: weights, training data, training code, and documentation. Most 'open-source' LLMs like Llama and Mistral are technically open-weights. OLMo from AI2 and Pythia from EleutherAI are examples of truly open-source models."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I fine-tune and redistribute a model with a custom license?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It depends on the specific license. Apache 2.0 and MIT allow unrestricted fine-tuning and redistribution. The Llama Community License allows fine-tuning and redistribution but requires naming derivative models 'Llama [variant]' and maintaining the license. The Gemma License allows fine-tuning but restricts redistribution of the original weights. CC-BY-NC licenses prohibit any commercial use of fine-tuned derivatives."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which license should I choose for my own ML model?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "If you want maximum adoption, use Apache 2.0 — it provides patent protection and is well-understood by legal teams. If you want simplicity, use MIT. If you want to prevent large companies from competing with your model, consider a license with a user threshold (like Llama's 700M MAU limit). If you want attribution for research, use CC-BY-4.0. Avoid creating custom licenses unless you have legal counsel, as they create friction for adoption."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  .research-badge { display:inline-block; background:var(--accent-dim,rgba(139,233,253,0.1)); color:var(--accent,#8be9fd); padding:4px 12px; border-radius:var(--radius,8px); font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1rem; }
+  .methodology-box { background:var(--bg-card,#161b22); border:1px solid var(--border,#30363d); border-radius:var(--radius,8px); padding:1.25rem; margin:1.5rem 0; }
+  .methodology-box h3 { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--accent,#8be9fd); margin-bottom:0.75rem; }
+  .data-table-wrap { overflow-x:auto; margin:1.5rem 0; border:1px solid var(--border,#30363d); border-radius:var(--radius,8px); }
+  .data-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+  .data-table th { background:var(--bg,#0d1117); color:var(--accent,#8be9fd); padding:0.6rem 0.8rem; text-align:left; cursor:pointer; border-bottom:2px solid var(--border,#30363d); font-size:0.75rem; text-transform:uppercase; }
+  .data-table td { padding:0.5rem 0.8rem; border-bottom:1px solid var(--border,#30363d); color:var(--text,#c9d1d9); }
+  .data-table tr:hover td { background:rgba(139,233,253,0.03); }
+  .download-btns { display:flex; gap:0.5rem; margin:1rem 0; }
+  .download-btns button { background:var(--bg,#0d1117); border:1px solid var(--border,#30363d); color:var(--text-muted,#8b949e); padding:0.4rem 1rem; border-radius:var(--radius,8px); cursor:pointer; font-size:0.8rem; }
+  .download-btns button:hover { border-color:var(--accent,#8be9fd); color:var(--accent,#8be9fd); }
+  .perm-yes { color:#7ee787; }
+  .perm-no { color:#ff7b72; }
+  .perm-cond { color:#ffa657; }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="nav-logo">lockml</a>
+    <ul class="nav-links">
+      <li><a href="/">Tool</a></li>
+      <li><a href="/blog/">Blog</a></li>
+      <li><a href="/about.html">About</a></li>
+    </ul>
+      <div class="nav-right">
+      <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+      <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+    </div>
+  </nav>
+
+<main class="container" style="max-width:1100px;margin:0 auto;padding:0 1.5rem;">
+  <div class="hero">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a> <span>/</span> <a href="/research/">Research</a> <span>/</span> <span>ML Model License Guide</span></nav>
+    <span class="research-badge">Original Research</span>
+    <h1>ML Model License Guide — Understanding Open Source AI Licenses</h1>
+    <p>Comprehensive comparison of ML model licenses with a permissions matrix. Covers Apache 2.0, MIT, Llama Community, Gemma, CC-BY-NC, and 10+ other license types used in open-source AI.</p>
+    <p style="font-size:0.85rem;color:var(--text-muted);">By <a href="/about.html">Michael Lip</a> · Updated April 2026</p>
+  </div>
+
+  <div class="methodology-box">
+    <h3>Methodology</h3>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin:0;">License terms are sourced from the official license text of each model as published on Hugging Face, GitHub, or the provider's website. Permissions are interpreted based on the plain text of each license. This is not legal advice — consult a lawyer for production use. Model examples are current as of April 2026. Stack Overflow data was fetched via the public API on April 10, 2026.</p>
+  </div>
+
+  <div class="download-btns">
+    <button onclick="downloadData('json')">Download JSON</button>
+    <button onclick="downloadData('csv')">Download CSV</button>
+  </div>
+
+  <h2>License Permissions Matrix</h2>
+
+  <div class="data-table-wrap">
+    <table class="data-table" id="main-table">
+      <thead>
+        <tr>
+          <th onclick="sortTable(0)">License</th>
+          <th onclick="sortTable(1)">Commercial Use</th>
+          <th onclick="sortTable(2)">Fine-tuning</th>
+          <th onclick="sortTable(3)">Redistribution</th>
+          <th onclick="sortTable(4)">Patent Grant</th>
+          <th onclick="sortTable(5)">Attribution Req.</th>
+          <th>Example Models</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Apache 2.0</td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>Mistral 7B, Falcon 40B, Grok-1, Arctic, Qwen 2.5</td>
+        </tr>
+        <tr>
+          <td>MIT</td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-no">No</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>Phi-3, Phi-4, OLMo</td>
+        </tr>
+        <tr>
+          <td>Llama 3.1 Community</td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>Llama 3, Llama 3.1, Llama 3.3</td>
+        </tr>
+        <tr>
+          <td>Gemma License</td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>Gemma 2, Gemma 2 27B</td>
+        </tr>
+        <tr>
+          <td>CC-BY-4.0</td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-no">No</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>OpenAssistant, Dolly 2.0 (data)</td>
+        </tr>
+        <tr>
+          <td>CC-BY-NC-4.0</td>
+          <td><span class="perm-no">No</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-cond">Non-commercial</span></td>
+          <td><span class="perm-no">No</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>Command R+ (original), some Stability models</td>
+        </tr>
+        <tr>
+          <td>OpenRAIL-M</td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-no">No</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>BLOOM, Stable Diffusion 2.x</td>
+        </tr>
+        <tr>
+          <td>Stability Community</td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-no">No</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>Stable Diffusion 3, SDXL Turbo</td>
+        </tr>
+        <tr>
+          <td>DeepSeek License</td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-no">No</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>DeepSeek V3, DeepSeek R1</td>
+        </tr>
+        <tr>
+          <td>Mistral Research</td>
+          <td><span class="perm-no">No</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-no">No</span></td>
+          <td><span class="perm-no">No</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>Mistral Large (weights-only)</td>
+        </tr>
+        <tr>
+          <td>GPL-3.0</td>
+          <td><span class="perm-cond">Copyleft</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-cond">Must share alike</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>GPT-J training code, some tools</td>
+        </tr>
+        <tr>
+          <td>Yi License</td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-no">No</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>Yi-Large, Yi-34B</td>
+        </tr>
+        <tr>
+          <td>Cohere C4AI</td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td><span class="perm-cond">Conditional</span></td>
+          <td><span class="perm-no">No</span></td>
+          <td><span class="perm-yes">Yes</span></td>
+          <td>Command R, Command R+ (v2)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>License Conditions Detail</h2>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>License</th>
+          <th>Key Restriction</th>
+          <th>User Limit</th>
+          <th>Derivative Naming</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Llama 3.1 Community</td><td>700M MAU threshold for separate license</td><td>700M MAU</td><td>Must include "Llama" in name</td></tr>
+        <tr><td>Gemma License</td><td>Prohibited harmful uses; redistribution requires same license</td><td>None specified</td><td>No requirement</td></tr>
+        <tr><td>OpenRAIL-M</td><td>Behavioral use restrictions (no harm, surveillance, discrimination)</td><td>None</td><td>No requirement</td></tr>
+        <tr><td>Stability Community</td><td>Revenue threshold; no competing products</td><td>$1M revenue</td><td>No requirement</td></tr>
+        <tr><td>DeepSeek License</td><td>No competing model training; usage limits</td><td>Varies</td><td>No requirement</td></tr>
+        <tr><td>CC-BY-NC-4.0</td><td>No commercial use of any kind</td><td>N/A</td><td>No requirement</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="faq-section" style="max-width:800px;margin:2rem auto;">
+    <h2>Frequently Asked Questions</h2>
+    <details>
+      <summary>Can I use Llama 3 commercially?</summary>
+      <p>Yes, the Llama 3/3.1 Community License allows commercial use for organizations with fewer than 700 million monthly active users. Above that threshold, you need a separate license from Meta. You must include the attribution notice "Built with Llama" in your product and comply with the Acceptable Use Policy, which prohibits certain harmful use cases.</p>
+    </details>
+    <details>
+      <summary>What is the most permissive ML model license?</summary>
+      <p>Apache 2.0 and MIT are the most permissive licenses. Apache 2.0 grants patent rights and allows commercial use, modification, and redistribution with minimal requirements (attribution and license notice). MIT is even simpler with just attribution required. Models using Apache 2.0 include Mistral 7B, Falcon 40B, Grok-1, and Arctic.</p>
+    </details>
+    <details>
+      <summary>What is the difference between open-weights and open-source for AI?</summary>
+      <p>Open-weights means the model weights are downloadable and usable, but training data, training code, and evaluation code may not be available. True open-source means all components are available: weights, training data, training code, and documentation. Most "open-source" LLMs like Llama and Mistral are technically open-weights. OLMo from AI2 is a truly open-source model.</p>
+    </details>
+    <details>
+      <summary>Can I fine-tune and redistribute a model with a custom license?</summary>
+      <p>It depends on the specific license. Apache 2.0 and MIT allow unrestricted fine-tuning and redistribution. The Llama Community License allows fine-tuning and redistribution but requires naming derivative models with "Llama" and maintaining the license. The Gemma License allows fine-tuning but has redistribution conditions. CC-BY-NC licenses prohibit any commercial use of fine-tuned derivatives.</p>
+    </details>
+    <details>
+      <summary>Which license should I choose for my own ML model?</summary>
+      <p>If you want maximum adoption, use Apache 2.0 — it provides patent protection and is well-understood by legal teams. If you want simplicity, use MIT. If you want to prevent large companies from competing with your model, consider a license with a user threshold (like Llama's 700M MAU limit). If you want attribution for research, use CC-BY-4.0. Avoid creating custom licenses unless you have legal counsel.</p>
+    </details>
+  </section>
+</main>
+
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-brand">Zovo Tools</div>
+        <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+        <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+        <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> · 47/500 founding spots</div>
+    </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+    <div class="zovo-network-inner">
+        <h3 class="zovo-network-title">Explore More Tools</h3>
+        <div class="zovo-network-links">
+            <a href="https://abwex.com">ABWex — A/B Testing</a>
+            <a href="https://claudflow.com">ClaudFlow — Workflows</a>
+            <a href="https://claudhq.com">ClaudHQ — Prompts</a>
+            <a href="https://claudkit.com">ClaudKit — API</a>
+            <a href="https://enhio.com">Enhio — Text Tools</a>
+            <a href="https://epochpilot.com">EpochPilot — Timestamps</a>
+            <a href="https://gen8x.com">Gen8X — Color Tools</a>
+            <a href="https://gpt0x.com">GPT0X — AI Models</a>
+            <a href="https://heytensor.com">HeyTensor — ML Tools</a>
+            <a href="https://invokebot.com">InvokeBot — Webhooks</a>
+            <a href="https://kappafy.com">Kappafy — JSON</a>
+            <a href="https://kappakit.com">KappaKit — Dev Toolkit</a>
+            <a href="https://kickllm.com">KickLLM — LLM Costs</a>
+            <a href="https://krzen.com">Krzen — Image Tools</a>
+            <a href="https://lochbot.com">LochBot — Security</a>
+            <a href="https://ml3x.com">ML3X — Matrix Math</a>
+        </div>
+    </div>
+</nav>
+
+<script>
+function sortTable(n){const t=document.getElementById('main-table'),b=t.tBodies[0],rows=Array.from(b.rows);let asc=t.getAttribute('data-sort-col')==n&&t.getAttribute('data-sort-dir')==='asc'?false:true;rows.sort((a,c)=>{let x=a.cells[n].textContent.trim(),y=c.cells[n].textContent.trim();const xn=parseFloat(x.replace(/[^0-9.\-]/g,'')),yn=parseFloat(y.replace(/[^0-9.\-]/g,''));if(!isNaN(xn)&&!isNaN(yn))return asc?xn-yn:yn-xn;return asc?x.localeCompare(y):y.localeCompare(x);});rows.forEach(r=>b.appendChild(r));t.setAttribute('data-sort-col',n);t.setAttribute('data-sort-dir',asc?'asc':'desc');}
+function downloadData(format){const entries=document.querySelectorAll('#main-table tbody tr');const data=Array.from(entries).map(el=>{const cells=el.querySelectorAll('td');if(cells.length<2)return null;return{name:cells[0]?.textContent?.trim(),category:cells[1]?.textContent?.trim(),detail:cells[2]?.textContent?.trim()?.substring(0,200)};}).filter(d=>d&&d.name);let content,type,ext;if(format==='json'){content=JSON.stringify(data,null,2);type='application/json';ext='json';}else{content='name,category,detail\n'+data.map(d=>`"${(d.name||'').replace(/"/g,'""')}","${(d.category||'').replace(/"/g,'""')}","${(d.detail||'').replace(/"/g,'""')}"`).join('\n');type='text/csv';ext='csv';}const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=document.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.'+ext;a.click();}
+</script>
+<script src="/assets/js/share.js"></script>
+</body>
+</html>
