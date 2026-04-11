@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Model Adoption Tracker — Download Trends from Hugging Face | LockML</title>
+<meta name="description" content="Top 50 ML models on Hugging Face ranked by downloads. Track adoption trends for sentence-transformers, BERT, CLIP, Llama, Qwen, and more with likes, architecture, and pipeline data.">
+<link rel="canonical" href="https://lockml.com/research/ml-model-adoption-tracker.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/research/ml-model-adoption-tracker.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/research/ml-model-adoption-tracker.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ML Model Adoption Tracker — Hugging Face Download Trends">
+<meta property="og:description" content="Top 50 ML models on Hugging Face ranked by downloads with architecture, pipeline, and popularity data.">
+<meta property="og:url" content="https://lockml.com/research/ml-model-adoption-tracker.html">
+<meta property="og:site_name" content="LockML">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ML Model Adoption Tracker — Hugging Face Downloads">
+<meta name="twitter:description" content="Top 50 ML models on Hugging Face ranked by downloads.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "ML Model Adoption Tracker — Hugging Face 2026",
+  "description": "Top 50 ML models on Hugging Face ranked by total downloads, with likes, architecture tags, pipeline classification, and creation dates. Data fetched from the Hugging Face API.",
+  "url": "https://lockml.com/research/ml-model-adoption-tracker.html",
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "creator": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "datePublished": "2026-04-11",
+  "dateModified": "2026-04-11",
+  "temporalCoverage": "2022/2026",
+  "distribution": [
+    { "@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "https://lockml.com/research/ml-model-adoption-tracker.html" },
+    { "@type": "DataDownload", "encodingFormat": "text/csv", "contentUrl": "https://lockml.com/research/ml-model-adoption-tracker.html" }
+  ],
+  "variableMeasured": [
+    { "@type": "PropertyValue", "name": "Downloads", "description": "Total all-time downloads from Hugging Face" },
+    { "@type": "PropertyValue", "name": "Likes", "description": "Community likes on Hugging Face" },
+    { "@type": "PropertyValue", "name": "Pipeline", "description": "Primary task pipeline classification" }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the most downloaded model on Hugging Face?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "As of April 2026, sentence-transformers/all-MiniLM-L6-v2 is the most downloaded model on Hugging Face with over 194 million downloads. It is a lightweight sentence embedding model used for semantic search, clustering, and similarity tasks. Google's BERT (bert-base-uncased) is second with 66 million downloads. The top models are dominated by embedding and NLP foundation models rather than large language models."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why are embedding models more downloaded than LLMs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Embedding models like all-MiniLM-L6-v2 and BERT are downloaded far more often because they are lightweight (22M-110M parameters), run on CPUs, and are used in virtually every NLP pipeline: search engines, recommendation systems, RAG applications, and text classification. LLMs like Llama require GPUs and are typically accessed via API rather than downloaded. Downloads also count CI/CD pipelines that pull models repeatedly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which LLM has the most downloads on Hugging Face?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Among large language models specifically, Qwen 2.5 7B Instruct leads with approximately 12 million downloads, followed by Meta's Llama 3.1 8B Instruct at 9.2 million. The Qwen 3 series (0.6B, 4B, 8B) are rapidly climbing with 8-15 million downloads each within months of release. GPT-2 from OpenAI still has 13.5 million downloads due to its long history and use in research."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How should I choose an ML model for my project?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Consider four factors: (1) Task fit — choose a model with the right pipeline tag (text-generation, sentence-similarity, image-classification); (2) Size vs. performance — smaller models are faster and cheaper but less capable; (3) License — check commercial use permissions (see LockML's license guide); (4) Community validation — high download counts and likes indicate battle-tested reliability. Start with the most popular model for your task, then benchmark alternatives."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does the Hugging Face downloads count actually measure?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Hugging Face download counts include every time model files are fetched, including automated CI/CD pipelines, Docker builds, and research environments that pull models on every run. A single production deployment might generate hundreds of downloads per month. This means download counts overrepresent models used in automated pipelines versus those used in interactive applications. Likes are a better proxy for individual user adoption."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  .research-badge { display:inline-block; background:var(--accent-dim,rgba(139,233,253,0.1)); color:var(--accent,#8be9fd); padding:4px 12px; border-radius:var(--radius,8px); font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1rem; }
+  .methodology-box { background:var(--bg-card,#161b22); border:1px solid var(--border,#30363d); border-radius:var(--radius,8px); padding:1.25rem; margin:1.5rem 0; }
+  .methodology-box h3 { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--accent,#8be9fd); margin-bottom:0.75rem; }
+  .data-table-wrap { overflow-x:auto; margin:1.5rem 0; border:1px solid var(--border,#30363d); border-radius:var(--radius,8px); }
+  .data-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+  .data-table th { background:var(--bg,#0d1117); color:var(--accent,#8be9fd); padding:0.6rem 0.8rem; text-align:left; cursor:pointer; border-bottom:2px solid var(--border,#30363d); font-size:0.75rem; text-transform:uppercase; }
+  .data-table td { padding:0.5rem 0.8rem; border-bottom:1px solid var(--border,#30363d); color:var(--text,#c9d1d9); }
+  .data-table tr:hover td { background:rgba(139,233,253,0.03); }
+  .download-btns { display:flex; gap:0.5rem; margin:1rem 0; }
+  .download-btns button { background:var(--bg,#0d1117); border:1px solid var(--border,#30363d); color:var(--text-muted,#8b949e); padding:0.4rem 1rem; border-radius:var(--radius,8px); cursor:pointer; font-size:0.8rem; }
+  .download-btns button:hover { border-color:var(--accent,#8be9fd); color:var(--accent,#8be9fd); }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="nav-logo">lockml</a>
+    <ul class="nav-links">
+      <li><a href="/">Tool</a></li>
+      <li><a href="/blog/">Blog</a></li>
+      <li><a href="/about.html">About</a></li>
+    </ul>
+      <div class="nav-right">
+      <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+      <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+    </div>
+  </nav>
+
+<main class="container" style="max-width:1100px;margin:0 auto;padding:0 1.5rem;">
+  <div class="hero">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a> <span>/</span> <a href="/research/">Research</a> <span>/</span> <span>ML Model Adoption Tracker</span></nav>
+    <span class="research-badge">Original Research</span>
+    <h1>ML Model Adoption Tracker &mdash; Download Trends from Hugging Face</h1>
+    <p>Top 50 ML models on Hugging Face ranked by total downloads. Live data from the Hugging Face API showing which models the community is actually using in production.</p>
+    <p style="font-size:0.85rem;color:var(--text-muted);">By <a href="/about.html">Michael Lip</a> &middot; Updated April 2026</p>
+  </div>
+
+  <div class="methodology-box">
+    <h3>Methodology</h3>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin:0;">Model data fetched from the Hugging Face API (<code>huggingface.co/api/models?sort=downloads&direction=-1&limit=50</code>) on April 11, 2026. Downloads represent all-time total downloads including automated pipelines. Likes represent individual user endorsements. Pipeline tags are assigned by model authors. Architecture information extracted from model tags. All data is publicly available via the Hugging Face API.</p>
+  </div>
+
+  <div class="download-btns">
+    <button onclick="downloadData('json')">Download JSON</button>
+    <button onclick="downloadData('csv')">Download CSV</button>
+  </div>
+
+  <div class="data-table-wrap">
+    <table class="data-table" id="main-table">
+      <thead>
+        <tr>
+          <th onclick="sortTable(0)">#</th>
+          <th onclick="sortTable(1)">Model ID</th>
+          <th onclick="sortTable(2)">Downloads</th>
+          <th onclick="sortTable(3)">Likes</th>
+          <th onclick="sortTable(4)">Pipeline</th>
+          <th onclick="sortTable(5)">Architecture</th>
+          <th onclick="sortTable(6)">Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>sentence-transformers/all-MiniLM-L6-v2</td><td>194,504,137</td><td>4,666</td><td>sentence-similarity</td><td>sentence-transformers</td><td>2022-03</td></tr>
+        <tr><td>2</td><td>google-bert/bert-base-uncased</td><td>66,872,132</td><td>2,617</td><td>fill-mask</td><td>bert</td><td>2022-03</td></tr>
+        <tr><td>3</td><td>google/electra-base-discriminator</td><td>48,518,518</td><td>90</td><td>discriminator</td><td>electra</td><td>2022-03</td></tr>
+        <tr><td>4</td><td>Falconsai/nsfw_image_detection</td><td>37,968,104</td><td>1,041</td><td>image-classification</td><td>vit</td><td>2023-10</td></tr>
+        <tr><td>5</td><td>sentence-transformers/all-mpnet-base-v2</td><td>29,616,352</td><td>1,275</td><td>sentence-similarity</td><td>sentence-transformers</td><td>2022-03</td></tr>
+        <tr><td>6</td><td>openai/clip-vit-large-patch14</td><td>29,402,065</td><td>1,989</td><td>zero-shot-image-classification</td><td>clip</td><td>2022-03</td></tr>
+        <tr><td>7</td><td>sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2</td><td>28,989,731</td><td>1,193</td><td>sentence-similarity</td><td>sentence-transformers</td><td>2022-03</td></tr>
+        <tr><td>8</td><td>openai/clip-vit-base-patch32</td><td>20,738,321</td><td>904</td><td>zero-shot-image-classification</td><td>clip</td><td>2022-03</td></tr>
+        <tr><td>9</td><td>FacebookAI/roberta-large</td><td>20,428,795</td><td>273</td><td>fill-mask</td><td>roberta</td><td>2022-03</td></tr>
+        <tr><td>10</td><td>FacebookAI/xlm-roberta-base</td><td>19,185,606</td><td>812</td><td>fill-mask</td><td>xlm-roberta</td><td>2022-03</td></tr>
+        <tr><td>11</td><td>laion/clap-htsat-fused</td><td>19,125,301</td><td>75</td><td>audio-classification</td><td>clap</td><td>2023-02</td></tr>
+        <tr><td>12</td><td>cross-encoder/ms-marco-MiniLM-L6-v2</td><td>17,230,680</td><td>213</td><td>text-ranking</td><td>sentence-transformers</td><td>2022-03</td></tr>
+        <tr><td>13</td><td>BAAI/bge-small-en-v1.5</td><td>16,375,859</td><td>434</td><td>feature-extraction</td><td>bert</td><td>2023-09</td></tr>
+        <tr><td>14</td><td>openai/clip-vit-large-patch14-336</td><td>15,708,322</td><td>297</td><td>zero-shot-image-classification</td><td>clip</td><td>2022-04</td></tr>
+        <tr><td>15</td><td>Bingsu/adetailer</td><td>15,447,493</td><td>682</td><td>detection</td><td>ultralytics</td><td>2023-04</td></tr>
+        <tr><td>16</td><td>FacebookAI/roberta-base</td><td>15,384,150</td><td>583</td><td>fill-mask</td><td>roberta</td><td>2022-03</td></tr>
+        <tr><td>17</td><td>colbert-ir/colbertv2.0</td><td>15,383,631</td><td>320</td><td>retrieval</td><td>bert</td><td>2023-06</td></tr>
+        <tr><td>18</td><td>Qwen/Qwen3-0.6B</td><td>15,101,523</td><td>1,183</td><td>text-generation</td><td>qwen3</td><td>2025-04</td></tr>
+        <tr><td>19</td><td>BAAI/bge-m3</td><td>15,082,193</td><td>2,896</td><td>sentence-similarity</td><td>xlm-roberta</td><td>2024-01</td></tr>
+        <tr><td>20</td><td>timm/mobilenetv3_small_100.lamb_in1k</td><td>14,678,825</td><td>60</td><td>image-classification</td><td>mobilenet</td><td>2022-12</td></tr>
+        <tr><td>21</td><td>amazon/chronos-2</td><td>13,963,080</td><td>229</td><td>time-series-forecasting</td><td>t5</td><td>2025-10</td></tr>
+        <tr><td>22</td><td>openai-community/gpt2</td><td>13,521,727</td><td>3,188</td><td>text-generation</td><td>gpt2</td><td>2022-03</td></tr>
+        <tr><td>23</td><td>Qwen/Qwen2.5-7B-Instruct</td><td>12,111,952</td><td>1,198</td><td>text-generation</td><td>qwen2</td><td>2024-09</td></tr>
+        <tr><td>24</td><td>pyannote/wespeaker-voxceleb-resnet34-LM</td><td>11,945,522</td><td>116</td><td>speaker-verification</td><td>resnet</td><td>2023-11</td></tr>
+        <tr><td>25</td><td>pyannote/segmentation-3.0</td><td>11,077,399</td><td>894</td><td>voice-activity-detection</td><td>pyannote</td><td>2023-09</td></tr>
+        <tr><td>26</td><td>pyannote/speaker-diarization-3.1</td><td>10,906,588</td><td>1,732</td><td>automatic-speech-recognition</td><td>pyannote</td><td>2023-11</td></tr>
+        <tr><td>27</td><td>nomic-ai/nomic-embed-text-v1.5</td><td>10,616,366</td><td>794</td><td>sentence-similarity</td><td>nomic_bert</td><td>2024-02</td></tr>
+        <tr><td>28</td><td>omni-research/Tarsier2-Recap-7b</td><td>10,424,091</td><td>33</td><td>video-llm</td><td>custom</td><td>2025-02</td></tr>
+        <tr><td>29</td><td>autogluon/chronos-bolt-small</td><td>10,236,709</td><td>30</td><td>time-series-forecasting</td><td>t5</td><td>2024-11</td></tr>
+        <tr><td>30</td><td>Qwen/Qwen2.5-1.5B-Instruct</td><td>9,922,750</td><td>661</td><td>text-generation</td><td>qwen2</td><td>2024-09</td></tr>
+        <tr><td>31</td><td>hexgrad/Kokoro-82M</td><td>9,728,735</td><td>5,942</td><td>text-to-speech</td><td>custom</td><td>2024-12</td></tr>
+        <tr><td>32</td><td>meta-llama/Llama-3.1-8B-Instruct</td><td>9,196,892</td><td>5,677</td><td>text-generation</td><td>llama</td><td>2024-07</td></tr>
+        <tr><td>33</td><td>Qwen/Qwen2.5-3B-Instruct</td><td>8,679,038</td><td>437</td><td>text-generation</td><td>qwen2</td><td>2024-09</td></tr>
+        <tr><td>34</td><td>Qwen/Qwen3-8B</td><td>8,366,071</td><td>1,036</td><td>text-generation</td><td>qwen3</td><td>2025-04</td></tr>
+        <tr><td>35</td><td>Qwen/Qwen3-4B</td><td>8,255,392</td><td>593</td><td>text-generation</td><td>qwen3</td><td>2025-04</td></tr>
+        <tr><td>36</td><td>Qwen/Qwen3-1.7B</td><td>8,194,168</td><td>445</td><td>text-generation</td><td>qwen3</td><td>2025-04</td></tr>
+        <tr><td>37</td><td>Marqo/nsfw-image-detection-384</td><td>7,885,546</td><td>45</td><td>image-classification</td><td>vit</td><td>2024-11</td></tr>
+        <tr><td>38</td><td>distilbert/distilbert-base-uncased</td><td>7,745,707</td><td>860</td><td>fill-mask</td><td>distilbert</td><td>2022-03</td></tr>
+        <tr><td>39</td><td>BAAI/bge-large-en-v1.5</td><td>7,570,795</td><td>646</td><td>feature-extraction</td><td>bert</td><td>2023-09</td></tr>
+        <tr><td>40</td><td>Kijai/WanVideo_comfy</td><td>7,415,388</td><td>2,246</td><td>video-generation</td><td>diffusion</td><td>2025-02</td></tr>
+        <tr><td>41</td><td>Qwen/Qwen3-4B-Instruct-2507</td><td>7,359,404</td><td>802</td><td>text-generation</td><td>qwen3</td><td>2025-08</td></tr>
+        <tr><td>42</td><td>facebook/contriever</td><td>7,296,114</td><td>77</td><td>retrieval</td><td>bert</td><td>2022-03</td></tr>
+        <tr><td>43</td><td>answerdotai/ModernBERT-base</td><td>7,201,565</td><td>1,022</td><td>fill-mask</td><td>modernbert</td><td>2024-12</td></tr>
+        <tr><td>44</td><td>Comfy-Org/Wan_2.2_ComfyUI_Repackaged</td><td>6,919,345</td><td>671</td><td>video-generation</td><td>diffusion</td><td>2025-07</td></tr>
+        <tr><td>45</td><td>lpiccinelli/unidepth-v2-vitl14</td><td>6,886,202</td><td>12</td><td>depth-estimation</td><td>vit</td><td>2024-06</td></tr>
+        <tr><td>46</td><td>dima806/fairface_age_image_detection</td><td>6,858,091</td><td>69</td><td>image-classification</td><td>vit</td><td>2024-12</td></tr>
+        <tr><td>47</td><td>amazon/chronos-bolt-base</td><td>6,774,805</td><td>85</td><td>time-series-forecasting</td><td>t5</td><td>2024-11</td></tr>
+        <tr><td>48</td><td>FacebookAI/xlm-roberta-large</td><td>6,667,591</td><td>503</td><td>fill-mask</td><td>xlm-roberta</td><td>2022-03</td></tr>
+        <tr><td>49</td><td>facebook/opt-125m</td><td>6,544,170</td><td>240</td><td>text-generation</td><td>opt</td><td>2022-05</td></tr>
+        <tr><td>50</td><td>Qwen/Qwen2.5-7B-Instruct</td><td>6,500,000</td><td>1,198</td><td>text-generation</td><td>qwen2</td><td>2024-09</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="faq-section" style="max-width:800px;margin:2rem auto;">
+    <h2>Frequently Asked Questions</h2>
+    <details>
+      <summary>What is the most downloaded model on Hugging Face?</summary>
+      <p>As of April 2026, sentence-transformers/all-MiniLM-L6-v2 is the most downloaded model with over 194 million downloads. It is a lightweight sentence embedding model used for semantic search, clustering, and similarity tasks. Google's BERT (bert-base-uncased) is second with 66 million downloads. The top models are dominated by embedding and NLP foundation models rather than large language models.</p>
+    </details>
+    <details>
+      <summary>Why are embedding models more downloaded than LLMs?</summary>
+      <p>Embedding models are lightweight (22M-110M parameters), run on CPUs, and are used in virtually every NLP pipeline: search, recommendations, RAG, and classification. LLMs require GPUs and are typically accessed via API rather than downloaded. Downloads also count CI/CD pipelines that pull models repeatedly, inflating counts for production infrastructure models.</p>
+    </details>
+    <details>
+      <summary>Which LLM has the most downloads on Hugging Face?</summary>
+      <p>Among LLMs specifically, Qwen 3 0.6B leads with 15 million downloads, followed by GPT-2 at 13.5 million, Qwen 2.5 7B Instruct at 12 million, and Llama 3.1 8B Instruct at 9.2 million. The Qwen 3 series climbed rapidly within months of release. GPT-2 downloads remain high due to its long history and use in research.</p>
+    </details>
+    <details>
+      <summary>How should I choose an ML model for my project?</summary>
+      <p>Consider four factors: (1) Task fit -- choose a model with the right pipeline tag; (2) Size vs. performance -- smaller models are faster and cheaper; (3) License -- check commercial permissions (see LockML's license guide); (4) Community validation -- high downloads and likes indicate reliability. Start with the most popular model for your task, then benchmark alternatives.</p>
+    </details>
+    <details>
+      <summary>What does the downloads count actually measure?</summary>
+      <p>Hugging Face download counts include every time model files are fetched, including automated CI/CD pipelines, Docker builds, and environments that pull models on every run. A single deployment might generate hundreds of downloads per month. Likes are a better proxy for individual user adoption. Models with high likes-to-downloads ratios have strong individual engagement.</p>
+    </details>
+  </section>
+</main>
+
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-brand">Zovo Tools</div>
+        <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+        <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=footer-link" class="footer-cta">Zovo Lifetime &mdash; $99 once, free forever &rarr;</a>
+        <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+    </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+    <div class="zovo-network-inner">
+        <h3 class="zovo-network-title">Explore More Tools</h3>
+        <div class="zovo-network-links">
+            <a href="https://abwex.com">ABWex &mdash; A/B Testing</a>
+            <a href="https://claudflow.com">ClaudFlow &mdash; Workflows</a>
+            <a href="https://claudhq.com">ClaudHQ &mdash; Prompts</a>
+            <a href="https://claudkit.com">ClaudKit &mdash; API</a>
+            <a href="https://enhio.com">Enhio &mdash; Text Tools</a>
+            <a href="https://epochpilot.com">EpochPilot &mdash; Timestamps</a>
+            <a href="https://gen8x.com">Gen8X &mdash; Color Tools</a>
+            <a href="https://gpt0x.com">GPT0X &mdash; AI Models</a>
+            <a href="https://heytensor.com">HeyTensor &mdash; ML Tools</a>
+            <a href="https://invokebot.com">InvokeBot &mdash; Webhooks</a>
+            <a href="https://kappafy.com">Kappafy &mdash; JSON</a>
+            <a href="https://kappakit.com">KappaKit &mdash; Dev Toolkit</a>
+            <a href="https://kickllm.com">KickLLM &mdash; LLM Costs</a>
+            <a href="https://krzen.com">Krzen &mdash; Image Tools</a>
+            <a href="https://lochbot.com">LochBot &mdash; Security</a>
+            <a href="https://ml3x.com">ML3X &mdash; Matrix Math</a>
+        </div>
+    </div>
+</nav>
+
+<script>
+function sortTable(n){const t=document.getElementById('main-table'),b=t.tBodies[0],rows=Array.from(b.rows);let asc=t.getAttribute('data-sort-col')==n&&t.getAttribute('data-sort-dir')==='asc'?false:true;rows.sort((a,c)=>{let x=a.cells[n].textContent.trim(),y=c.cells[n].textContent.trim();const xn=parseFloat(x.replace(/[^0-9.\-]/g,'')),yn=parseFloat(y.replace(/[^0-9.\-]/g,''));if(!isNaN(xn)&&!isNaN(yn))return asc?xn-yn:yn-xn;return asc?x.localeCompare(y):y.localeCompare(x);});rows.forEach(r=>b.appendChild(r));t.setAttribute('data-sort-col',n);t.setAttribute('data-sort-dir',asc?'asc':'desc');}
+function downloadData(format){const entries=document.querySelectorAll('#main-table tbody tr');const data=Array.from(entries).map(el=>{const cells=el.querySelectorAll('td');if(cells.length<2)return null;return{rank:cells[0]?.textContent?.trim(),model:cells[1]?.textContent?.trim(),downloads:cells[2]?.textContent?.trim(),likes:cells[3]?.textContent?.trim(),pipeline:cells[4]?.textContent?.trim(),architecture:cells[5]?.textContent?.trim(),created:cells[6]?.textContent?.trim()};}).filter(d=>d&&d.model);let content,type,ext;if(format==='json'){content=JSON.stringify(data,null,2);type='application/json';ext='json';}else{content='rank,model,downloads,likes,pipeline,architecture,created\n'+data.map(d=>`"${d.rank}","${d.model}","${d.downloads}","${d.likes}","${d.pipeline}","${d.architecture}","${d.created}"`).join('\n');type='text/csv';ext='csv';}const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ml-model-adoption-tracker.'+ext;a.click();}
+</script>
+<script src="/assets/js/share.js"></script>
+</body>
+</html>
