@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Model Security Checklist — Protect Your ML Pipeline (2026) | LockML</title>
+<meta name="description" content="Interactive ML model security checklist with 50+ controls across data security, model protection, inference, pipeline hardening, and monitoring. Score your ML security posture and export results.">
+<link rel="canonical" href="https://lockml.com/research/ml-model-security-checklist.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/research/ml-model-security-checklist.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/research/ml-model-security-checklist.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ML Model Security Checklist — Protect Your ML Pipeline (2026)">
+<meta property="og:description" content="Interactive ML security assessment with 50+ controls. Score your pipeline, identify gaps, and export actionable checklists.">
+<meta property="og:url" content="https://lockml.com/research/ml-model-security-checklist.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ML Model Security Checklist — Protect Your ML Pipeline (2026)">
+<meta name="twitter:description" content="Interactive ML security assessment with 50+ controls. Score your pipeline, identify gaps, and export actionable checklists.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "ML Model Security Checklist — Protect Your ML Pipeline (2026)",
+  "description": "Comprehensive ML model security checklist covering data security, model protection, inference hardening, pipeline security, and monitoring. Interactive assessment tool with scoring.",
+  "url": "https://lockml.com/research/ml-model-security-checklist.html",
+  "datePublished": "2026-05-16",
+  "dateModified": "2026-05-16",
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://lockml.com/research/ml-model-security-checklist.html" },
+  "image": "https://lockml.com/assets/og-image.png",
+  "keywords": ["ml model security checklist", "machine learning security best practices", "secure ml pipeline", "model theft prevention", "adversarial ml defense", "ml model vulnerability assessment"]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Secure Your ML Pipeline",
+  "description": "Step-by-step guide to securing machine learning models and pipelines against data poisoning, model theft, adversarial attacks, and supply chain vulnerabilities.",
+  "totalTime": "PT2H",
+  "estimatedCost": { "@type": "MonetaryAmount", "currency": "USD", "value": "0" },
+  "tool": [
+    { "@type": "HowToTool", "name": "ML Model Security Checklist (this page)" },
+    { "@type": "HowToTool", "name": "Dependency scanner (e.g., Snyk, Dependabot)" },
+    { "@type": "HowToTool", "name": "Model signing tool (e.g., Sigstore, Cosign)" }
+  ],
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Audit Data Security",
+      "text": "Encrypt training data at rest and in transit. Validate data sources, implement access controls, and hash datasets for integrity verification.",
+      "position": 1
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Protect Model Artifacts",
+      "text": "Sign model weights with cryptographic hashes, restrict access to model files, implement version control for all artifacts, and add watermarking for theft detection.",
+      "position": 2
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Harden Inference Endpoints",
+      "text": "Rate-limit API endpoints, validate and sanitize all inputs, monitor for adversarial examples, and implement output filtering to prevent information leakage.",
+      "position": 3
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Secure the Pipeline",
+      "text": "Pin all dependencies, scan for vulnerabilities in ML libraries, use reproducible builds, and validate pre-trained model provenance before use.",
+      "position": 4
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Monitor and Respond",
+      "text": "Set up drift detection, log all inference requests, define incident response procedures, and conduct regular security audits of the entire ML system.",
+      "position": 5
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What are the biggest security risks to ML models in 2026?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The top ML security risks in 2026 are data poisoning (manipulating training data to introduce backdoors), model extraction (stealing model weights through repeated API queries), adversarial examples (crafted inputs that cause misclassification), supply chain attacks (compromised dependencies or pre-trained models), and prompt injection for LLM-based systems. The OWASP ML Top 10 provides a standardized framework for categorizing these threats."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I prevent model theft and extraction attacks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Prevent model theft by: (1) rate-limiting API calls to prevent systematic querying, (2) monitoring for extraction patterns like sequential boundary-probing queries, (3) adding watermarks to model outputs for post-theft detection, (4) using differential privacy during training to limit what can be learned from outputs, (5) restricting prediction confidence scores (return top-1 class only, not full probability distributions), and (6) implementing query budgets per user/API key."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is data poisoning and how do I detect it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Data poisoning is the deliberate manipulation of training data to introduce vulnerabilities or backdoors into an ML model. Detection methods include: statistical analysis of training data distributions to find anomalies, comparing model behavior on clean vs. potentially poisoned validation sets, using influence functions to identify high-impact training samples, implementing data provenance tracking to verify source integrity, and running spectral signature analysis to detect inserted patterns. Prevention includes validating all data sources, using robust aggregation methods, and maintaining cryptographic hashes of approved datasets."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the EU AI Act affect ML model security requirements?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, the EU AI Act (effective August 2025, with full enforcement from August 2026) imposes security requirements especially for high-risk AI systems. These include: mandatory risk assessments, robustness testing against adversarial attacks, data governance requirements for training data quality and bias, logging and traceability of AI system decisions, human oversight mechanisms, and cybersecurity requirements proportionate to risk level. Non-compliance can result in fines up to 35 million EUR or 7% of global turnover."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I secure ML dependencies and the supply chain?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Secure your ML supply chain by: (1) pinning all dependency versions in requirements files, (2) scanning dependencies with tools like Snyk, Dependabot, or Safety, (3) verifying pre-trained model checksums against official sources, (4) using model signing (Sigstore/Cosign) for artifact integrity, (5) avoiding pickle-based model serialization (use SafeTensors instead), (6) auditing Hugging Face or other hub downloads before deployment, and (7) maintaining a software bill of materials (SBOM) for your ML stack."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is an adversarial example and how do I defend against it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "An adversarial example is a deliberately crafted input designed to cause an ML model to make incorrect predictions while appearing normal to humans. Defenses include: adversarial training (including adversarial examples in training data), input preprocessing and sanitization, ensemble methods that aggregate predictions from multiple models, certified defenses like randomized smoothing, input gradient monitoring to detect unusual patterns, and implementing confidence thresholds that reject low-confidence predictions rather than returning potentially wrong results."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  .research-badge { display:inline-block; background:var(--accent-dim,rgba(16,185,129,0.15)); color:var(--accent,#10B981); padding:4px 12px; border-radius:var(--radius,6px); font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1rem; }
+  .methodology-box { background:var(--bg-card,#141414); border:1px solid var(--border,#222); border-radius:var(--radius,6px); padding:1.25rem; margin:1.5rem 0; }
+  .methodology-box h3 { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--accent,#10B981); margin-bottom:0.75rem; }
+
+  /* Checklist Tool */
+  .checklist-tool { margin:2rem 0; }
+  .score-dashboard { display:grid; grid-template-columns:200px 1fr; gap:1.5rem; margin-bottom:2rem; padding:1.5rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); }
+  .score-circle-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .score-circle { position:relative; width:140px; height:140px; }
+  .score-circle svg { transform:rotate(-90deg); width:140px; height:140px; }
+  .score-circle .bg-ring { fill:none; stroke:var(--border); stroke-width:10; }
+  .score-circle .fg-ring { fill:none; stroke:var(--accent); stroke-width:10; stroke-linecap:round; transition:stroke-dashoffset 0.6s ease, stroke 0.3s; }
+  .score-number { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-family:var(--font-display); font-size:2rem; font-weight:700; color:var(--text); }
+  .score-label { font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem; text-transform:uppercase; letter-spacing:0.04em; font-weight:600; }
+  .risk-level { font-size:0.85rem; font-weight:600; margin-top:0.25rem; }
+  .risk-critical { color:#ef4444; }
+  .risk-high { color:#f97316; }
+  .risk-medium { color:#eab308; }
+  .risk-low { color:#22c55e; }
+  .risk-secure { color:#10B981; }
+
+  .category-bars { display:flex; flex-direction:column; gap:0.75rem; justify-content:center; }
+  .cat-bar { display:flex; align-items:center; gap:0.75rem; }
+  .cat-bar-label { font-size:0.8rem; color:var(--text-muted); width:140px; flex-shrink:0; font-weight:500; }
+  .cat-bar-track { flex:1; height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
+  .cat-bar-fill { height:100%; border-radius:4px; transition:width 0.5s ease, background 0.3s; }
+  .cat-bar-pct { font-family:var(--font-display); font-size:0.75rem; color:var(--text-muted); width:36px; text-align:right; }
+
+  .checklist-actions { display:flex; gap:0.5rem; margin:1rem 0; flex-wrap:wrap; }
+  .checklist-actions button { background:var(--bg); border:1px solid var(--border); color:var(--text-muted); padding:0.45rem 1rem; border-radius:var(--radius); cursor:pointer; font-size:0.8rem; font-family:var(--font-body); transition:all 0.15s; }
+  .checklist-actions button:hover { border-color:var(--accent); color:var(--accent); }
+
+  .checklist-category { margin-bottom:1.5rem; }
+  .checklist-category-header { display:flex; align-items:center; justify-content:space-between; padding:0.75rem 1rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius) var(--radius) 0 0; cursor:pointer; }
+  .checklist-category-header h3 { font-size:0.85rem; font-weight:600; margin:0; display:flex; align-items:center; gap:0.5rem; }
+  .checklist-category-header .cat-icon { font-size:1rem; }
+  .checklist-category-header .cat-count { font-size:0.75rem; color:var(--text-muted); font-family:var(--font-display); }
+  .checklist-items { border:1px solid var(--border); border-top:none; border-radius:0 0 var(--radius) var(--radius); }
+  .checklist-item { display:flex; align-items:flex-start; gap:0.75rem; padding:0.65rem 1rem; border-bottom:1px solid rgba(34,34,34,0.5); transition:background 0.1s; }
+  .checklist-item:last-child { border-bottom:none; }
+  .checklist-item:hover { background:var(--bg-hover); }
+  .checklist-item input[type="checkbox"] { margin-top:3px; accent-color:var(--accent); cursor:pointer; flex-shrink:0; width:16px; height:16px; }
+  .checklist-item label { font-size:0.88rem; color:var(--text); cursor:pointer; line-height:1.5; }
+  .checklist-item label .item-detail { display:block; font-size:0.78rem; color:var(--text-muted); margin-top:2px; }
+  .checklist-item.checked label { color:var(--text-muted); text-decoration:line-through; text-decoration-color:var(--border); }
+  .checklist-item .severity { font-size:0.65rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; padding:2px 6px; border-radius:3px; flex-shrink:0; margin-top:3px; }
+  .sev-critical { background:rgba(239,68,68,0.15); color:#ef4444; }
+  .sev-high { background:rgba(249,115,22,0.15); color:#f97316; }
+  .sev-medium { background:rgba(234,179,8,0.15); color:#eab308; }
+  .sev-low { background:rgba(34,197,94,0.15); color:#22c55e; }
+
+  .export-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; align-items:center; justify-content:center; }
+  .export-modal.active { display:flex; }
+  .export-content { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; max-width:700px; width:90%; max-height:80vh; overflow-y:auto; }
+  .export-content h3 { margin-bottom:1rem; font-family:var(--font-display); color:var(--accent); }
+  .export-content pre { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; overflow-x:auto; font-size:0.8rem; white-space:pre-wrap; word-break:break-word; }
+  .export-content .export-btns { display:flex; gap:0.5rem; margin-top:1rem; }
+  .export-content .export-btns button { padding:0.45rem 1rem; border-radius:var(--radius); cursor:pointer; font-size:0.8rem; font-family:var(--font-body); border:1px solid var(--border); }
+  .btn-copy { background:var(--accent); color:#000; border-color:var(--accent) !important; font-weight:600; }
+  .btn-close { background:var(--bg); color:var(--text-muted); }
+
+  /* OWASP table */
+  .owasp-table-wrap { overflow-x:auto; margin:1.5rem 0; border:1px solid var(--border); border-radius:var(--radius); }
+  .owasp-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+  .owasp-table th { background:var(--bg-card); color:var(--accent); padding:0.6rem 0.8rem; text-align:left; border-bottom:2px solid var(--border); font-size:0.75rem; text-transform:uppercase; }
+  .owasp-table td { padding:0.5rem 0.8rem; border-bottom:1px solid var(--border); color:var(--text); vertical-align:top; }
+  .owasp-table tr:hover td { background:rgba(16,185,129,0.03); }
+
+  /* Threat cards */
+  .threat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem; margin:1.5rem 0; }
+  .threat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem; }
+  .threat-card h4 { font-size:0.95rem; margin-bottom:0.5rem; }
+  .threat-card p { font-size:0.85rem; color:var(--text-muted); margin-bottom:0; }
+  .threat-card .threat-tag { font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem; }
+
+  @media (max-width:768px) {
+    .score-dashboard { grid-template-columns:1fr; text-align:center; }
+    .cat-bar-label { width:100px; font-size:0.75rem; }
+    .threat-grid { grid-template-columns:1fr; }
+    .checklist-actions { flex-direction:column; }
+    .checklist-actions button { width:100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<main class="page-content">
+  <span class="research-badge">Research</span>
+  <h1>ML Model Security Checklist</h1>
+  <p class="blog-meta">By <a href="https://zovo.one">Michael Lip</a> &middot; May 16, 2026 &middot; 12 min read</p>
+
+  <p>Machine learning models are valuable intellectual property and critical infrastructure. As organizations deploy ML systems in production, the attack surface expands from training data pipelines through inference endpoints. A single vulnerability in your ML pipeline can lead to data exfiltration, model theft, adversarial manipulation, or compliance violations under the EU AI Act.</p>
+
+  <p>This interactive checklist covers 50+ security controls across five categories. Use it to assess your current ML security posture, identify gaps, and build a remediation plan. Every control maps to real-world attack vectors documented by OWASP, MITRE ATLAS, and NIST AI RMF.</p>
+
+  <div class="methodology-box">
+    <h3>How to Use This Checklist</h3>
+    <p style="font-size:0.88rem;color:var(--text-muted);margin:0;">Check each control your organization has implemented. The tool calculates your overall security score (0-100), risk level per category, and generates an exportable Markdown report. Severity ratings (Critical / High / Medium / Low) indicate remediation priority. Start with unchecked Critical items. For the main LockML security analysis tool, visit the <a href="/">homepage</a>.</p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- INTERACTIVE CHECKLIST TOOL                   -->
+  <!-- ============================================ -->
+  <section class="checklist-tool" id="checklist-tool">
+    <h2>ML Security Assessment Tool</h2>
+
+    <div class="score-dashboard" id="scoreDashboard">
+      <div class="score-circle-wrap">
+        <div class="score-circle">
+          <svg viewBox="0 0 160 160">
+            <circle class="bg-ring" cx="80" cy="80" r="65"></circle>
+            <circle class="fg-ring" id="scoreRing" cx="80" cy="80" r="65" stroke-dasharray="408.4" stroke-dashoffset="408.4"></circle>
+          </svg>
+          <div class="score-number" id="scoreNumber">0</div>
+        </div>
+        <div class="score-label">Security Score</div>
+        <div class="risk-level risk-critical" id="riskLevel">Critical Risk</div>
+      </div>
+      <div class="category-bars" id="categoryBars"></div>
+    </div>
+
+    <div class="checklist-actions">
+      <button onclick="checkAll()">Check All</button>
+      <button onclick="uncheckAll()">Uncheck All</button>
+      <button onclick="checkCritical()">Auto-check Critical</button>
+      <button onclick="exportMarkdown()">Export as Markdown</button>
+    </div>
+
+    <div id="checklistContainer"></div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- ML SECURITY THREAT LANDSCAPE 2026            -->
+  <!-- ============================================ -->
+  <h2>ML Security Threat Landscape 2026</h2>
+
+  <p>The machine learning security landscape has shifted dramatically. In 2024, adversarial attacks were primarily academic concerns. By 2026, they are operational threats. MITRE ATLAS documents over 90 real-world case studies of ML-targeted attacks. The convergence of three trends has made ML model security a board-level concern:</p>
+
+  <div class="threat-grid">
+    <div class="threat-card">
+      <div class="threat-tag" style="color:#ef4444;">Trend 1</div>
+      <h4>Commoditized Attack Tooling</h4>
+      <p>Open-source adversarial ML libraries like ART, Foolbox, and TextAttack have lowered the barrier to entry. Attackers no longer need PhD-level knowledge to craft adversarial examples or run model extraction campaigns. Automated attack frameworks can probe thousands of endpoints per hour.</p>
+    </div>
+    <div class="threat-card">
+      <div class="threat-tag" style="color:#f97316;">Trend 2</div>
+      <h4>Expanding Attack Surface</h4>
+      <p>With LLMs embedded in customer-facing applications, every chat interface is a potential attack vector. RAG pipelines introduce data injection risks. Multi-modal models (vision + text + code) multiply the input channels an attacker can exploit. The average enterprise now deploys 35+ ML models in production.</p>
+    </div>
+    <div class="threat-card">
+      <div class="threat-tag" style="color:#eab308;">Trend 3</div>
+      <h4>Regulatory Pressure</h4>
+      <p>The EU AI Act entered enforcement in August 2025. NIST AI RMF is now the de facto US standard. Organizations deploying high-risk AI systems must demonstrate robustness testing, data governance, and incident response capabilities. Non-compliance penalties reach 7% of global revenue.</p>
+    </div>
+  </div>
+
+  <p>The cost of an ML security breach extends beyond traditional cyber incidents. Model theft eliminates competitive advantages built over years. Data poisoning can cause silent model degradation that goes undetected for months. Adversarial manipulation of safety-critical systems (autonomous vehicles, medical diagnosis, fraud detection) creates liability exposure that traditional cybersecurity insurance does not cover.</p>
+
+  <!-- ============================================ -->
+  <!-- OWASP ML TOP 10                              -->
+  <!-- ============================================ -->
+  <h2>OWASP ML Top 10 Mapped to Practical Defenses</h2>
+
+  <p>The OWASP Machine Learning Security Top 10 provides a standardized framework for categorizing ML-specific threats. Below, each risk category is mapped to concrete, implementable defenses that your engineering team can adopt immediately.</p>
+
+  <div class="owasp-table-wrap">
+    <table class="owasp-table">
+      <thead>
+        <tr>
+          <th>OWASP ML Risk</th>
+          <th>Attack Vector</th>
+          <th>Practical Defense</th>
+          <th>Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>ML01: Input Manipulation</strong></td>
+          <td>Adversarial examples, prompt injection, evasion attacks</td>
+          <td>Input validation, adversarial training, ensemble voting, confidence thresholds</td>
+          <td><span class="severity sev-critical">Critical</span></td>
+        </tr>
+        <tr>
+          <td><strong>ML02: Data Poisoning</strong></td>
+          <td>Backdoor insertion, label flipping, clean-label attacks</td>
+          <td>Data provenance tracking, statistical outlier detection, robust aggregation</td>
+          <td><span class="severity sev-critical">Critical</span></td>
+        </tr>
+        <tr>
+          <td><strong>ML03: Model Inversion</strong></td>
+          <td>Reconstructing training data from model outputs</td>
+          <td>Differential privacy, output perturbation, membership inference monitoring</td>
+          <td><span class="severity sev-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>ML04: Membership Inference</strong></td>
+          <td>Determining if a data point was in the training set</td>
+          <td>Differential privacy guarantees, regularization, confidence calibration</td>
+          <td><span class="severity sev-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>ML05: Model Theft</strong></td>
+          <td>API-based model extraction, side-channel analysis</td>
+          <td>Rate limiting, query budgets, watermarking, output truncation</td>
+          <td><span class="severity sev-critical">Critical</span></td>
+        </tr>
+        <tr>
+          <td><strong>ML06: AI Supply Chain</strong></td>
+          <td>Compromised pre-trained models, malicious dependencies</td>
+          <td>Model signing, SBOM, dependency scanning, SafeTensors format</td>
+          <td><span class="severity sev-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>ML07: Transfer Learning Attack</strong></td>
+          <td>Exploiting vulnerabilities inherited from base models</td>
+          <td>Base model auditing, fine-tuning validation, adversarial probing of transferred layers</td>
+          <td><span class="severity sev-medium">Medium</span></td>
+        </tr>
+        <tr>
+          <td><strong>ML08: Model Skewing</strong></td>
+          <td>Training-serving skew, concept drift exploitation</td>
+          <td>Drift detection pipelines, shadow models, continuous validation</td>
+          <td><span class="severity sev-medium">Medium</span></td>
+        </tr>
+        <tr>
+          <td><strong>ML09: Output Integrity</strong></td>
+          <td>Manipulating model outputs post-inference</td>
+          <td>Output signing, integrity checks, secure serving infrastructure</td>
+          <td><span class="severity sev-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>ML10: Model Poisoning</strong></td>
+          <td>Directly modifying model weights or parameters</td>
+          <td>Artifact integrity verification, access controls, cryptographic checksums</td>
+          <td><span class="severity sev-critical">Critical</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- DATA POISONING PREVENTION                    -->
+  <!-- ============================================ -->
+  <h2>Data Poisoning Prevention</h2>
+
+  <p>Data poisoning remains the most underestimated threat in machine learning security. Unlike inference-time attacks that require ongoing access, a successful poisoning attack embeds permanent vulnerabilities into the model itself. The model behaves normally on clean inputs but produces attacker-controlled outputs when triggered by specific patterns.</p>
+
+  <h3>Types of Data Poisoning</h3>
+
+  <p><strong>Backdoor attacks</strong> insert a trigger pattern (a specific pixel patch, word, or feature) into a subset of training samples, associating them with a target label. The resulting model achieves normal accuracy on clean data but misclassifies any input containing the trigger. In 2025, researchers demonstrated backdoor attacks that survived fine-tuning, making them persistent even when downstream users retrain on clean data.</p>
+
+  <p><strong>Clean-label attacks</strong> are more sophisticated. The attacker does not modify labels -- only subtly perturbs features in correctly-labeled data. This makes poisoned samples pass manual inspection. The perturbations shift decision boundaries in ways that benefit the attacker at inference time. Detection requires statistical methods beyond simple label-checking.</p>
+
+  <p><strong>Label-flipping attacks</strong> are the simplest form: the attacker changes labels on a fraction of training data. Even flipping 1-3% of labels can degrade model accuracy by 10-15% on targeted classes. This is particularly dangerous when training data is crowdsourced or scraped from the web.</p>
+
+  <h3>Defense Strategy</h3>
+
+  <ul>
+    <li><strong>Data provenance tracking:</strong> Maintain a cryptographic chain of custody for every training sample. Hash datasets at ingestion and verify before training. Use tools like DVC (Data Version Control) to track dataset lineage.</li>
+    <li><strong>Statistical anomaly detection:</strong> Run distribution analysis on incoming data batches. Flag samples that deviate significantly from established feature distributions. Use spectral signature analysis to detect inserted patterns.</li>
+    <li><strong>Robust aggregation:</strong> Use trimmed-mean or median aggregation instead of simple averaging when combining data from multiple sources. This limits the influence of any single poisoned source.</li>
+    <li><strong>Influence function analysis:</strong> After training, use influence functions to identify which training samples most strongly affect predictions on a validation set. High-influence outliers warrant manual review.</li>
+    <li><strong>Certified defenses:</strong> Techniques like randomized smoothing and DPSGD (Differentially Private Stochastic Gradient Descent) provide mathematical guarantees against a bounded number of poisoned samples.</li>
+  </ul>
+
+  <!-- ============================================ -->
+  <!-- MODEL EXTRACTION AND THEFT DEFENSE           -->
+  <!-- ============================================ -->
+  <h2>Model Extraction and Theft Defense</h2>
+
+  <p>Model extraction attacks aim to steal your model's functionality by querying it repeatedly and training a surrogate model on the input-output pairs. A well-executed extraction attack can replicate 90-99% of a model's accuracy using as few as 10,000 API queries. For models that cost millions to train, this represents a catastrophic loss of intellectual property.</p>
+
+  <h3>Attack Mechanics</h3>
+
+  <p>The attacker sends carefully chosen inputs to your model API and collects the predictions. By selecting inputs that maximize information gain (active learning), the attacker builds a training set for a clone model. Modern extraction attacks work even when the API only returns top-1 predictions without confidence scores. For LLMs, attackers can extract fine-tuning data, system prompts, and behavioral alignments.</p>
+
+  <h3>Layered Defense</h3>
+
+  <p><strong>Rate limiting and query budgets:</strong> Implement per-user query limits that reset daily. Track cumulative query patterns, not just instantaneous rates. A sophisticated attacker will throttle their queries to stay under simple rate limits, so use weekly and monthly aggregate tracking.</p>
+
+  <p><strong>Query pattern detection:</strong> Monitor for extraction signatures: systematic grid sampling across the input space, boundary-probing queries that test decision boundaries, and unusual input distributions that don't match legitimate traffic. Deploy anomaly detection on the query stream itself.</p>
+
+  <p><strong>Output truncation:</strong> Return only the minimum information needed. For classification, return the predicted class without confidence scores. For regression, round outputs to reduce precision. Never expose logits, embeddings, or intermediate layer activations through the API.</p>
+
+  <p><strong>Model watermarking:</strong> Embed verifiable watermarks in your model's behavior. If a stolen model surfaces, you can prove ownership by demonstrating that the watermark transfers to the clone. Techniques include training on specially crafted "key" inputs that produce predetermined outputs.</p>
+
+  <p><strong>Differential privacy:</strong> Training with differential privacy (epsilon < 10) limits how much any single training example influences outputs, making extraction less faithful. This is the strongest theoretical defense but comes with an accuracy-privacy tradeoff.</p>
+
+  <!-- ============================================ -->
+  <!-- ADVERSARIAL EXAMPLE DETECTION                -->
+  <!-- ============================================ -->
+  <h2>Adversarial Example Detection</h2>
+
+  <p>Adversarial examples are inputs crafted to fool ML models while appearing normal to humans. In computer vision, imperceptible pixel perturbations can cause misclassification with near-100% success rates. In NLP, synonym substitutions and character-level modifications bypass text classifiers and content moderation systems. In 2026, adversarial attacks against multi-modal models combine visual and textual perturbations for maximum effect.</p>
+
+  <h3>Detection Approaches</h3>
+
+  <p><strong>Input preprocessing:</strong> Apply transformations (JPEG compression, spatial smoothing, feature squeezing) to inputs before inference. Adversarial perturbations are often fragile and get destroyed by preprocessing. Compare model predictions on raw vs. preprocessed inputs -- divergence signals an adversarial example.</p>
+
+  <p><strong>Gradient monitoring:</strong> Adversarial inputs produce anomalous gradient patterns. Monitor the magnitude and direction of input gradients during inference. Legitimate inputs produce smooth, low-magnitude gradients. Adversarial inputs produce sharp, high-magnitude gradient spikes.</p>
+
+  <p><strong>Ensemble disagreement:</strong> Maintain an ensemble of models trained on the same task with different architectures or random seeds. Adversarial examples crafted for one model rarely transfer perfectly to all ensemble members. Flag inputs where ensemble predictions diverge significantly.</p>
+
+  <p><strong>Certified robustness:</strong> Randomized smoothing provides mathematically proven robustness within an L2 ball around each input. For any input, you can certify that no perturbation within the certified radius will change the prediction. This is the gold standard but applies primarily to classification tasks with continuous inputs.</p>
+
+  <p><strong>Confidence calibration:</strong> Well-calibrated models assign lower confidence to adversarial inputs. Apply temperature scaling or Platt calibration, then reject predictions below a confidence threshold. This is a lightweight defense that can be added to any existing model without retraining.</p>
+
+  <!-- ============================================ -->
+  <!-- SUPPLY CHAIN SECURITY                        -->
+  <!-- ============================================ -->
+  <h2>Supply Chain Security for ML</h2>
+
+  <p>The ML supply chain introduces unique risks beyond traditional software supply chain concerns. Pre-trained models are opaque binaries that can contain backdoors. Serialization formats like Python pickle allow arbitrary code execution on deserialization. Popular model hubs are targets for dependency confusion and typosquatting attacks.</p>
+
+  <h3>Dependency Risks</h3>
+
+  <p>ML projects typically depend on 200+ Python packages, each of which is a potential attack vector. In 2025, malicious packages mimicking popular ML libraries were found on PyPI with embedded cryptocurrency miners and data exfiltration code. The <code>torch-nightly</code> namespace attack demonstrated how even sophisticated engineering teams can be tricked into installing compromised packages.</p>
+
+  <ul>
+    <li><strong>Pin all versions:</strong> Use <code>pip freeze</code> or <code>poetry.lock</code> to pin exact dependency versions. Never use <code>>=</code> version specifiers in production requirements.</li>
+    <li><strong>Scan continuously:</strong> Integrate Snyk, Safety, or Dependabot into your CI/CD pipeline. Scan on every commit, not just weekly.</li>
+    <li><strong>Maintain an SBOM:</strong> Generate a Software Bill of Materials for your ML stack using tools like Syft or CycloneDX. This enables rapid vulnerability triage when new CVEs are published.</li>
+    <li><strong>Use private registries:</strong> Mirror approved packages in a private PyPI server (e.g., Artifactory, Nexus). Configure pip to install only from your private mirror.</li>
+  </ul>
+
+  <h3>Pre-trained Model Risks</h3>
+
+  <p>Downloading models from Hugging Face Hub, TensorFlow Hub, or PyTorch Hub is the ML equivalent of <code>curl | bash</code>. Pre-trained models can contain:</p>
+
+  <ul>
+    <li><strong>Backdoors:</strong> Trained triggers that produce attacker-controlled outputs on specific inputs</li>
+    <li><strong>Arbitrary code:</strong> Pickle-serialized models can execute arbitrary Python code during loading. A malicious <code>.pt</code> or <code>.pkl</code> file is functionally equivalent to a trojan</li>
+    <li><strong>Data leakage:</strong> Models may memorize and expose sensitive training data through extraction attacks</li>
+    <li><strong>Licensing violations:</strong> Using a model with restrictive licensing (e.g., non-commercial) in a commercial product creates legal liability</li>
+  </ul>
+
+  <p><strong>Mitigations:</strong> Use SafeTensors format instead of pickle for model serialization. Verify model checksums against official repository signatures. Run downloaded models through adversarial probing on a known-good validation set before deployment. Implement model signing with Sigstore/Cosign for internal model registries. Check the <a href="/research/ml-model-license-guide.html">ML Model License Guide</a> before integrating any pre-trained model.</p>
+
+  <!-- ============================================ -->
+  <!-- MONITORING AND INCIDENT RESPONSE             -->
+  <!-- ============================================ -->
+  <h2>Monitoring and Incident Response</h2>
+
+  <p>Traditional application monitoring (uptime, latency, error rates) is necessary but insufficient for ML systems. ML-specific monitoring must detect silent failures: models that continue serving predictions but produce degraded, biased, or manipulated outputs without throwing errors.</p>
+
+  <h3>What to Monitor</h3>
+
+  <p><strong>Input drift:</strong> Track the statistical distribution of inputs over time. Significant drift from training data distribution signals potential adversarial manipulation or natural concept drift. Use KL divergence, Population Stability Index (PSI), or Kolmogorov-Smirnov tests on feature distributions.</p>
+
+  <p><strong>Output distribution:</strong> Monitor the distribution of model predictions. A sudden shift in class distribution (e.g., fraud detection model suddenly flagging 2x more transactions) may indicate model manipulation or genuine environmental change. Both require investigation.</p>
+
+  <p><strong>Confidence distributions:</strong> Track the distribution of prediction confidence scores. A spike in low-confidence predictions may indicate adversarial probing. A cluster of predictions at exactly the decision boundary suggests targeted evasion attempts.</p>
+
+  <p><strong>Query patterns:</strong> Log all inference requests with timestamps, user identifiers, and input characteristics. Enable retroactive forensics when a breach is discovered. Store logs for at least 90 days, consistent with EU AI Act logging requirements for high-risk systems.</p>
+
+  <h3>Incident Response for ML</h3>
+
+  <p>Traditional incident response playbooks assume a binary state: compromised or not. ML incidents exist on a spectrum. A model can be partially compromised (backdoored on specific trigger patterns) while appearing fully functional on routine monitoring. Your ML incident response plan should include:</p>
+
+  <ol>
+    <li><strong>Detection:</strong> Automated alerts on drift metrics, anomalous query patterns, and performance degradation</li>
+    <li><strong>Containment:</strong> Ability to roll back to a known-good model version within minutes. Pre-stage validated rollback artifacts</li>
+    <li><strong>Analysis:</strong> Forensic comparison of suspect model behavior vs. baseline on a comprehensive test suite including adversarial probes</li>
+    <li><strong>Remediation:</strong> Retrain from verified clean data if poisoning is confirmed. Update access controls if extraction is detected. Patch inference pipeline if adversarial bypass is found</li>
+    <li><strong>Communication:</strong> Notify affected stakeholders. For regulated systems under the EU AI Act, file required incident reports within mandated timeframes</li>
+  </ol>
+
+  <!-- ============================================ -->
+  <!-- COMPLIANCE: EU AI ACT                        -->
+  <!-- ============================================ -->
+  <h2>Compliance Considerations: EU AI Act</h2>
+
+  <p>The EU AI Act is the world's first comprehensive AI regulation. Its security requirements directly impact ML engineering practices. Organizations deploying AI systems accessible to EU citizens must comply regardless of where the organization is headquartered.</p>
+
+  <h3>Risk Categories and Requirements</h3>
+
+  <p><strong>Unacceptable risk (banned):</strong> Social scoring systems, real-time biometric identification in public spaces (with limited law enforcement exceptions), manipulation techniques targeting vulnerable groups. If your ML system falls into this category, no amount of security hardening makes it compliant -- it must be discontinued.</p>
+
+  <p><strong>High risk:</strong> Systems used in critical infrastructure, education, employment, law enforcement, migration, and democratic processes. These systems require: conformity assessments before deployment, risk management systems, data governance documentation, technical documentation and logging, human oversight mechanisms, accuracy and robustness standards, and cybersecurity measures proportionate to the risk.</p>
+
+  <p><strong>Limited risk:</strong> Chatbots, emotion recognition systems, deep fakes. These require transparency obligations -- users must be informed they are interacting with an AI system.</p>
+
+  <p><strong>Minimal risk:</strong> Spam filters, video game AI, inventory management. No specific requirements beyond existing law.</p>
+
+  <h3>Security-Specific Obligations</h3>
+
+  <p>For high-risk AI systems, the EU AI Act mandates:</p>
+
+  <ul>
+    <li><strong>Robustness testing:</strong> Systems must be resilient to errors, faults, and attempts to alter their use or performance by unauthorized third parties. This includes adversarial robustness testing.</li>
+    <li><strong>Data governance:</strong> Training, validation, and testing datasets must meet quality criteria. Data collection practices must be documented. Bias testing is mandatory.</li>
+    <li><strong>Logging:</strong> Automatic recording of events during system operation for traceability. Logs must be retained and made available to authorities on request.</li>
+    <li><strong>Accuracy metrics:</strong> Declared levels of accuracy must be maintained throughout the system's lifecycle. Performance degradation triggers compliance obligations.</li>
+    <li><strong>Cybersecurity:</strong> The system must be designed to achieve appropriate levels of accuracy, robustness, and cybersecurity, and to perform consistently in those respects throughout its lifecycle.</li>
+  </ul>
+
+  <p>Non-compliance penalties scale with severity: up to 35 million EUR or 7% of worldwide annual turnover for prohibited AI practices, and up to 15 million EUR or 3% for other infringements. The checklist above maps directly to these compliance requirements.</p>
+
+  <!-- ============================================ -->
+  <!-- FAQ SECTION                                  -->
+  <!-- ============================================ -->
+  <section class="faq-section" style="padding:0;max-width:100%;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What are the biggest security risks to ML models in 2026?</div>
+      <div class="faq-a">The top ML security risks in 2026 are data poisoning (manipulating training data to introduce backdoors), model extraction (stealing model weights through repeated API queries), adversarial examples (crafted inputs that cause misclassification), supply chain attacks (compromised dependencies or pre-trained models), and prompt injection for LLM-based systems. The OWASP ML Top 10 provides a standardized framework for categorizing these threats.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How do I prevent model theft and extraction attacks?</div>
+      <div class="faq-a">Prevent model theft by: (1) rate-limiting API calls to prevent systematic querying, (2) monitoring for extraction patterns like sequential boundary-probing queries, (3) adding watermarks to model outputs for post-theft detection, (4) using differential privacy during training to limit what can be learned from outputs, (5) restricting prediction confidence scores (return top-1 class only, not full probability distributions), and (6) implementing query budgets per user/API key.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What is data poisoning and how do I detect it?</div>
+      <div class="faq-a">Data poisoning is the deliberate manipulation of training data to introduce vulnerabilities or backdoors into an ML model. Detection methods include: statistical analysis of training data distributions to find anomalies, comparing model behavior on clean vs. potentially poisoned validation sets, using influence functions to identify high-impact training samples, implementing data provenance tracking to verify source integrity, and running spectral signature analysis to detect inserted patterns.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Does the EU AI Act affect ML model security requirements?</div>
+      <div class="faq-a">Yes, the EU AI Act (effective August 2025, with full enforcement from August 2026) imposes security requirements especially for high-risk AI systems. These include mandatory risk assessments, robustness testing against adversarial attacks, data governance requirements, logging and traceability, human oversight, and cybersecurity requirements. Non-compliance can result in fines up to 35 million EUR or 7% of global turnover.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How do I secure ML dependencies and the supply chain?</div>
+      <div class="faq-a">Secure your ML supply chain by: (1) pinning all dependency versions, (2) scanning with Snyk, Dependabot, or Safety, (3) verifying pre-trained model checksums, (4) using model signing (Sigstore/Cosign), (5) avoiding pickle-based serialization (use SafeTensors), (6) auditing hub downloads before deployment, and (7) maintaining a software bill of materials (SBOM).</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What is an adversarial example and how do I defend against it?</div>
+      <div class="faq-a">An adversarial example is a deliberately crafted input designed to cause incorrect predictions while appearing normal to humans. Defenses include adversarial training, input preprocessing and sanitization, ensemble methods, certified defenses like randomized smoothing, gradient monitoring, and confidence thresholds that reject uncertain predictions.</div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-brand">Zovo Tools</div>
+        <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+        <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=footer-link" class="footer-cta">Zovo Lifetime &mdash; $99 once, free forever &rarr;</a>
+        <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+    </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+    <div class="zovo-network-inner">
+        <h3 class="zovo-network-title">Explore More Tools</h3>
+        <div class="zovo-network-links">
+            <a href="https://abwex.com">ABWex &mdash; A/B Testing</a>
+            <a href="https://claudflow.com">ClaudFlow &mdash; Workflows</a>
+            <a href="https://claudhq.com">ClaudHQ &mdash; AI Code Tools & Fixes</a>
+            <a href="https://claudkit.com">ClaudKit &mdash; API</a>
+            <a href="https://enhio.com">Enhio &mdash; Text Tools</a>
+            <a href="https://epochpilot.com">EpochPilot &mdash; Timestamps</a>
+            <a href="https://gen8x.com">Gen8X &mdash; Color Tools</a>
+            <a href="https://gpt0x.com">GPT0X &mdash; AI Models</a>
+            <a href="https://heytensor.com">HeyTensor &mdash; ML Tools</a>
+            <a href="https://invokebot.com">InvokeBot &mdash; Webhooks</a>
+            <a href="https://kappafy.com">Kappafy &mdash; JSON</a>
+            <a href="https://kappakit.com">KappaKit &mdash; Dev Toolkit</a>
+            <a href="https://kickllm.com">KickLLM &mdash; LLM Costs</a>
+            <a href="https://krzen.com">Krzen &mdash; Image Tools</a>
+            <a href="https://lochbot.com">LochBot &mdash; Security</a>
+            <a href="https://ml3x.com">ML3X &mdash; Matrix Math</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Export Modal -->
+<div class="export-modal" id="exportModal">
+  <div class="export-content">
+    <h3>Exported Checklist (Markdown)</h3>
+    <pre id="exportOutput"></pre>
+    <div class="export-btns">
+      <button class="btn-copy" onclick="copyExport()">Copy to Clipboard</button>
+      <button class="btn-close" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const CATEGORIES = [
+    {
+      id: 'data',
+      name: 'Data Security',
+      icon: '\u{1F5C4}',
+      items: [
+        { text: 'Training data encrypted at rest (AES-256 or equivalent)', detail: 'Prevents unauthorized access to raw training datasets stored on disk or cloud storage.', severity: 'critical' },
+        { text: 'Training data encrypted in transit (TLS 1.3)', detail: 'Protects data during transfer between storage, preprocessing, and training infrastructure.', severity: 'critical' },
+        { text: 'Data access controls with principle of least privilege', detail: 'Only personnel who need training data for their role can access it. Use IAM policies, not shared credentials.', severity: 'critical' },
+        { text: 'Data provenance tracking and chain of custody', detail: 'Cryptographic hashes at ingestion, version control with DVC or similar tools, full audit trail.', severity: 'high' },
+        { text: 'Statistical anomaly detection on incoming data batches', detail: 'Automated checks for distribution shifts, outliers, and suspicious patterns in new data.', severity: 'high' },
+        { text: 'Data validation pipeline with schema enforcement', detail: 'Reject data that does not conform to expected schemas, types, and ranges before it enters training.', severity: 'high' },
+        { text: 'PII detection and redaction in training data', detail: 'Scan for personally identifiable information using NER, regex, and DLP tools. Redact or anonymize.', severity: 'critical' },
+        { text: 'Dataset versioning with immutable snapshots', detail: 'Every training run references a specific, immutable dataset version. Enables reproducibility and forensics.', severity: 'medium' },
+        { text: 'Data retention policies defined and enforced', detail: 'Training data is deleted according to schedule. Compliant with GDPR right-to-erasure and EU AI Act.', severity: 'medium' },
+        { text: 'Synthetic data usage documented and validated', detail: 'If synthetic data is used, generation methods are documented and validated for bias and quality.', severity: 'low' }
+      ]
+    },
+    {
+      id: 'model',
+      name: 'Model Protection',
+      icon: '\u{1F512}',
+      items: [
+        { text: 'Model artifacts signed with cryptographic hashes', detail: 'SHA-256 or better hash of model weights verified before every load. Prevents tampering.', severity: 'critical' },
+        { text: 'Model registry with access controls and audit logging', detail: 'Centralized model store (MLflow, Weights & Biases, etc.) with role-based access and change tracking.', severity: 'high' },
+        { text: 'SafeTensors format used instead of pickle', detail: 'Pickle allows arbitrary code execution. SafeTensors is a safe serialization format for model weights.', severity: 'critical' },
+        { text: 'Model watermarking for theft detection', detail: 'Embed verifiable marks in model behavior that transfer to cloned models, enabling ownership proof.', severity: 'medium' },
+        { text: 'Differential privacy applied during training', detail: 'DPSGD or similar techniques limit what can be inferred about individual training samples from model outputs.', severity: 'high' },
+        { text: 'Model versioning with rollback capability', detail: 'Every deployed model version is archived. Rollback to previous version possible within minutes.', severity: 'high' },
+        { text: 'Pre-trained model provenance verified before use', detail: 'Checksums verified against official sources. Model hub downloads audited before integration.', severity: 'critical' },
+        { text: 'Model cards maintained with security metadata', detail: 'Document known vulnerabilities, adversarial robustness evaluations, and intended use constraints.', severity: 'medium' },
+        { text: 'Intellectual property classification assigned to models', detail: 'Models classified by sensitivity level. Export controls applied to high-value models.', severity: 'low' },
+        { text: 'Model compression does not introduce vulnerabilities', detail: 'Pruning, quantization, and distillation tested for adversarial robustness regression.', severity: 'medium' }
+      ]
+    },
+    {
+      id: 'inference',
+      name: 'Inference Security',
+      icon: '\u{1F6E1}',
+      items: [
+        { text: 'API rate limiting per user/key with aggregate tracking', detail: 'Per-minute, per-hour, and per-day limits. Track cumulative patterns to detect slow extraction.', severity: 'critical' },
+        { text: 'Input validation and sanitization', detail: 'Reject malformed inputs, enforce type/range constraints, sanitize text inputs against injection.', severity: 'critical' },
+        { text: 'Output truncation (no logits/embeddings exposed)', detail: 'Return only necessary prediction information. Never expose raw probabilities, logits, or internal representations.', severity: 'high' },
+        { text: 'Adversarial example detection at inference', detail: 'Input preprocessing, gradient monitoring, or ensemble disagreement to flag adversarial inputs.', severity: 'high' },
+        { text: 'Confidence thresholds with rejection option', detail: 'Predictions below a calibrated confidence threshold are rejected rather than returned with uncertain results.', severity: 'medium' },
+        { text: 'Query pattern monitoring for extraction attempts', detail: 'Detect systematic probing: grid sampling, boundary walking, and active learning patterns in query streams.', severity: 'high' },
+        { text: 'Authentication and authorization on all endpoints', detail: 'Every inference request authenticated. API keys rotated regularly. No anonymous access to production models.', severity: 'critical' },
+        { text: 'Input/output logging for forensics', detail: 'All inference requests logged with timestamps, user IDs, and input/output pairs. 90-day minimum retention.', severity: 'high' },
+        { text: 'Prompt injection defenses (for LLM systems)', detail: 'System prompt isolation, input/output filtering, instruction hierarchy enforcement for LLM applications.', severity: 'critical' },
+        { text: 'DDoS protection on inference endpoints', detail: 'WAF, CDN-level rate limiting, auto-scaling with cost caps to prevent resource exhaustion attacks.', severity: 'medium' }
+      ]
+    },
+    {
+      id: 'pipeline',
+      name: 'Pipeline Security',
+      icon: '\u{1F527}',
+      items: [
+        { text: 'All dependency versions pinned in lockfiles', detail: 'requirements.txt with exact versions, poetry.lock, or conda environment.yml. No floating versions.', severity: 'critical' },
+        { text: 'Dependency vulnerability scanning in CI/CD', detail: 'Snyk, Safety, Dependabot, or Trivy running on every commit. Block merges with critical vulnerabilities.', severity: 'critical' },
+        { text: 'Private package registry for ML dependencies', detail: 'Internal PyPI mirror (Artifactory, Nexus) with approved packages only. Prevents supply chain attacks.', severity: 'high' },
+        { text: 'Reproducible training builds', detail: 'Docker containers with pinned base images, deterministic training seeds, and locked random states.', severity: 'medium' },
+        { text: 'CI/CD pipeline hardened (no secrets in logs)', detail: 'Secrets managed via vault, not environment variables. Pipeline logs scrubbed of credentials and data samples.', severity: 'high' },
+        { text: 'Infrastructure as Code for ML environments', detail: 'Terraform, Pulumi, or CloudFormation for all training and serving infrastructure. Version controlled.', severity: 'medium' },
+        { text: 'Network segmentation for training infrastructure', detail: 'Training GPU clusters isolated from production serving. No direct internet access from training nodes.', severity: 'high' },
+        { text: 'Software Bill of Materials (SBOM) maintained', detail: 'CycloneDX or SPDX format SBOM generated for every model release. Enables rapid CVE triage.', severity: 'medium' },
+        { text: 'Container images scanned before deployment', detail: 'Trivy, Grype, or Snyk scanning of Docker images used for training and serving.', severity: 'high' },
+        { text: 'Feature store access controls implemented', detail: 'Feature engineering pipelines have separate access controls from raw data. Audit trail on feature access.', severity: 'medium' }
+      ]
+    },
+    {
+      id: 'monitoring',
+      name: 'Monitoring & Response',
+      icon: '\u{1F4CA}',
+      items: [
+        { text: 'Input drift detection with automated alerts', detail: 'KL divergence, PSI, or KS tests on input features. Alerts when drift exceeds threshold.', severity: 'critical' },
+        { text: 'Output distribution monitoring', detail: 'Track prediction class distributions, confidence histograms, and output statistics over time.', severity: 'high' },
+        { text: 'Model performance degradation alerts', detail: 'Continuous evaluation on holdout set. Alert when accuracy, F1, or AUC drops below acceptable threshold.', severity: 'critical' },
+        { text: 'Bias and fairness monitoring in production', detail: 'Track demographic parity, equalized odds, and other fairness metrics across protected groups.', severity: 'high' },
+        { text: 'Incident response playbook for ML-specific events', detail: 'Documented procedures for model compromise, data poisoning discovery, extraction detection, and rollback.', severity: 'high' },
+        { text: 'Regular adversarial robustness testing (red team)', detail: 'Quarterly adversarial testing using ART, Foolbox, or manual red team exercises against production models.', severity: 'high' },
+        { text: 'Model rollback tested and verified', detail: 'Rollback procedure tested regularly. Confirmed to work within defined RTO (Recovery Time Objective).', severity: 'medium' },
+        { text: 'Security audit of ML systems at least annually', detail: 'Comprehensive review of data pipelines, model artifacts, access controls, and monitoring coverage.', severity: 'medium' },
+        { text: 'Compliance documentation maintained (EU AI Act)', detail: 'Risk assessments, data governance docs, logging configurations, and conformity records kept current.', severity: 'high' },
+        { text: 'Stakeholder communication plan for ML incidents', detail: 'Defined escalation paths, notification templates, and regulatory reporting procedures for AI incidents.', severity: 'medium' }
+      ]
+    }
+  ];
+
+  const container = document.getElementById('checklistContainer');
+  const categoryBars = document.getElementById('categoryBars');
+
+  // Build category bars
+  CATEGORIES.forEach(function(cat) {
+    var bar = document.createElement('div');
+    bar.className = 'cat-bar';
+    bar.innerHTML = '<span class="cat-bar-label">' + cat.icon + ' ' + cat.name + '</span>' +
+      '<div class="cat-bar-track"><div class="cat-bar-fill" id="bar-' + cat.id + '" style="width:0%;background:var(--border);"></div></div>' +
+      '<span class="cat-bar-pct" id="pct-' + cat.id + '">0%</span>';
+    categoryBars.appendChild(bar);
+  });
+
+  // Build checklist
+  CATEGORIES.forEach(function(cat) {
+    var section = document.createElement('div');
+    section.className = 'checklist-category';
+
+    var header = document.createElement('div');
+    header.className = 'checklist-category-header';
+    header.innerHTML = '<h3><span class="cat-icon">' + cat.icon + '</span> ' + cat.name + '</h3>' +
+      '<span class="cat-count" id="count-' + cat.id + '">0/' + cat.items.length + '</span>';
+
+    var items = document.createElement('div');
+    items.className = 'checklist-items';
+
+    cat.items.forEach(function(item, i) {
+      var id = cat.id + '-' + i;
+      var div = document.createElement('div');
+      div.className = 'checklist-item';
+      div.id = 'item-' + id;
+
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.id = 'cb-' + id;
+      cb.dataset.cat = cat.id;
+      cb.dataset.severity = item.severity;
+      cb.addEventListener('change', function() {
+        div.classList.toggle('checked', cb.checked);
+        updateScores();
+      });
+
+      var label = document.createElement('label');
+      label.htmlFor = 'cb-' + id;
+      label.innerHTML = item.text + '<span class="item-detail">' + item.detail + '</span>';
+
+      var sev = document.createElement('span');
+      sev.className = 'severity sev-' + item.severity;
+      sev.textContent = item.severity.charAt(0).toUpperCase() + item.severity.slice(1);
+
+      div.appendChild(cb);
+      div.appendChild(label);
+      div.appendChild(sev);
+      items.appendChild(div);
+    });
+
+    section.appendChild(header);
+    section.appendChild(items);
+    container.appendChild(section);
+  });
+
+  function getColor(pct) {
+    if (pct >= 90) return '#10B981';
+    if (pct >= 70) return '#22c55e';
+    if (pct >= 50) return '#eab308';
+    if (pct >= 30) return '#f97316';
+    return '#ef4444';
+  }
+
+  function getRiskLabel(pct) {
+    if (pct >= 90) return { text: 'Secure', cls: 'risk-secure' };
+    if (pct >= 70) return { text: 'Low Risk', cls: 'risk-low' };
+    if (pct >= 50) return { text: 'Medium Risk', cls: 'risk-medium' };
+    if (pct >= 30) return { text: 'High Risk', cls: 'risk-high' };
+    return { text: 'Critical Risk', cls: 'risk-critical' };
+  }
+
+  function updateScores() {
+    var totalChecked = 0;
+    var totalItems = 0;
+
+    CATEGORIES.forEach(function(cat) {
+      var cbs = document.querySelectorAll('input[data-cat="' + cat.id + '"]');
+      var checked = 0;
+      cbs.forEach(function(cb) { if (cb.checked) checked++; });
+      var pct = Math.round((checked / cbs.length) * 100);
+
+      document.getElementById('bar-' + cat.id).style.width = pct + '%';
+      document.getElementById('bar-' + cat.id).style.background = getColor(pct);
+      document.getElementById('pct-' + cat.id).textContent = pct + '%';
+      document.getElementById('count-' + cat.id).textContent = checked + '/' + cbs.length;
+
+      totalChecked += checked;
+      totalItems += cbs.length;
+    });
+
+    var overallPct = Math.round((totalChecked / totalItems) * 100);
+    var circumference = 2 * Math.PI * 65;
+    var offset = circumference - (overallPct / 100) * circumference;
+
+    document.getElementById('scoreNumber').textContent = overallPct;
+    var ring = document.getElementById('scoreRing');
+    ring.style.strokeDashoffset = offset;
+    ring.style.stroke = getColor(overallPct);
+
+    var risk = getRiskLabel(overallPct);
+    var riskEl = document.getElementById('riskLevel');
+    riskEl.textContent = risk.text;
+    riskEl.className = 'risk-level ' + risk.cls;
+  }
+
+  window.checkAll = function() {
+    document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(function(cb) {
+      cb.checked = true;
+      cb.closest('.checklist-item').classList.add('checked');
+    });
+    updateScores();
+  };
+
+  window.uncheckAll = function() {
+    document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(function(cb) {
+      cb.checked = false;
+      cb.closest('.checklist-item').classList.remove('checked');
+    });
+    updateScores();
+  };
+
+  window.checkCritical = function() {
+    document.querySelectorAll('.checklist-item input[data-severity="critical"]').forEach(function(cb) {
+      cb.checked = true;
+      cb.closest('.checklist-item').classList.add('checked');
+    });
+    updateScores();
+  };
+
+  window.exportMarkdown = function() {
+    var lines = [];
+    lines.push('# ML Model Security Assessment Report');
+    lines.push('');
+    lines.push('**Generated:** ' + new Date().toISOString().split('T')[0]);
+    lines.push('**Tool:** [LockML Security Checklist](https://lockml.com/research/ml-model-security-checklist.html)');
+    lines.push('');
+
+    var totalChecked = 0;
+    var totalItems = 0;
+
+    CATEGORIES.forEach(function(cat) {
+      var cbs = document.querySelectorAll('input[data-cat="' + cat.id + '"]');
+      var checked = 0;
+      cbs.forEach(function(cb) { if (cb.checked) checked++; });
+      totalChecked += checked;
+      totalItems += cbs.length;
+    });
+
+    var overallPct = Math.round((totalChecked / totalItems) * 100);
+    lines.push('## Overall Score: ' + overallPct + '/100 (' + getRiskLabel(overallPct).text + ')');
+    lines.push('');
+
+    CATEGORIES.forEach(function(cat) {
+      var cbs = document.querySelectorAll('input[data-cat="' + cat.id + '"]');
+      var checked = 0;
+      cbs.forEach(function(cb) { if (cb.checked) checked++; });
+      var pct = Math.round((checked / cbs.length) * 100);
+      lines.push('### ' + cat.icon + ' ' + cat.name + ' (' + pct + '%)');
+      lines.push('');
+
+      cat.items.forEach(function(item, i) {
+        var id = cat.id + '-' + i;
+        var cb = document.getElementById('cb-' + id);
+        var mark = cb.checked ? 'x' : ' ';
+        var sevLabel = '[' + item.severity.toUpperCase() + ']';
+        lines.push('- [' + mark + '] ' + sevLabel + ' ' + item.text);
+      });
+      lines.push('');
+    });
+
+    lines.push('---');
+    lines.push('*Generated by [LockML](https://lockml.com) | Part of [Zovo Tools](https://zovo.one/tools)*');
+
+    document.getElementById('exportOutput').textContent = lines.join('\n');
+    document.getElementById('exportModal').classList.add('active');
+  };
+
+  window.copyExport = function() {
+    var text = document.getElementById('exportOutput').textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      var btn = document.querySelector('.btn-copy');
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
+    });
+  };
+
+  window.closeExport = function() {
+    document.getElementById('exportModal').classList.remove('active');
+  };
+
+  // Close modal on outside click
+  document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExport();
+  });
+
+  // Initialize
+  updateScores();
+})();
+</script>
+</body>
+</html>
