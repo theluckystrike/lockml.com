@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Extraction Prevention — Rate Limiting &amp; Watermarking for ML APIs (2026) | LockML</title>
+<meta name="description" content="Prevent ML model extraction attacks with rate limiting strategies and output watermarking. Interactive demo showing query pattern detection, extraction time calculator, and watermark fingerprinting simulator.">
+<link rel="canonical" href="https://lockml.com/research/model-extraction-prevention.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/research/model-extraction-prevention.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/research/model-extraction-prevention.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Model Extraction Prevention — Rate Limiting &amp; Watermarking for ML APIs (2026)">
+<meta property="og:description" content="Prevent model extraction with rate limiting and watermarking. Interactive query pattern detection, extraction time calculator, and output fingerprinting.">
+<meta property="og:url" content="https://lockml.com/research/model-extraction-prevention.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Model Extraction Prevention — Rate Limiting &amp; Watermarking for ML APIs (2026)">
+<meta name="twitter:description" content="Prevent model extraction with rate limiting and watermarking. Interactive tools for query pattern analysis and extraction time estimation.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Model Extraction Prevention — Rate Limiting & Watermarking for ML APIs (2026)",
+  "description": "Comprehensive guide to preventing ML model extraction attacks through rate limiting, query pattern detection, and output watermarking. Includes interactive calculators and simulators.",
+  "url": "https://lockml.com/research/model-extraction-prevention.html",
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://lockml.com/research/model-extraction-prevention.html" },
+  "image": "https://lockml.com/assets/og-image.png",
+  "keywords": ["model extraction attack", "ML model theft prevention", "API rate limiting ML", "model watermarking", "query pattern detection", "model fingerprinting", "ML API security"]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a model extraction attack?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A model extraction attack (also called model stealing) is when an attacker reconstructs a functionally equivalent copy of a machine learning model by systematically querying its API and using the input-output pairs to train a surrogate model. The attacker sends carefully chosen inputs, observes the model's predictions (especially confidence scores), and trains their own model to replicate the behavior. This can steal months of expensive training work and proprietary data insights."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does rate limiting prevent model extraction?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Rate limiting prevents model extraction by restricting the number of queries an attacker can make in a given time window. Since extraction requires thousands to millions of queries (depending on model complexity), strict rate limits make full extraction impractically slow. A typical defense uses per-user query budgets (e.g., 100 queries/minute), sliding window limits, and escalating throttling for sustained high-volume querying. Combined with query pattern detection, rate limiting can block extraction attempts before significant model information is leaked."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is model output watermarking?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Model output watermarking embeds imperceptible signatures in model predictions that can later identify stolen models. When the model returns predictions, small, structured perturbations are added to confidence scores that are statistically detectable but do not significantly affect prediction quality. If a stolen surrogate model is found, testing it with specific trigger inputs reveals the watermark pattern, proving it was trained on your model's outputs. Watermarking provides post-theft detection rather than prevention."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many queries are needed to extract an ML model?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The number of queries depends on model complexity. For linear models or decision trees, a few hundred to a few thousand queries may suffice. For neural networks, extraction typically requires 10K-100K queries for image classifiers and potentially millions for large language models. The query count scales with the number of model parameters, input dimensionality, and the desired fidelity of the surrogate model. Returning only top-1 predictions (not confidence scores) increases the required queries by 5-10x."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What query patterns indicate a model extraction attempt?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Key indicators include: (1) unusually high query volumes from a single user/API key, (2) systematic input patterns like grid searches or boundary-probing queries near decision boundaries, (3) low entropy in input distribution (attacker uses structured synthetic inputs rather than natural data), (4) sequential queries with small perturbations (gradient estimation), (5) queries requesting full probability distributions rather than top-1 predictions, and (6) sustained querying over extended periods without normal usage patterns (no browsing, no pauses)."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Research", "item": "https://lockml.com/research/" },
+    { "@type": "ListItem", "position": 3, "name": "Model Extraction Prevention", "item": "https://lockml.com/research/model-extraction-prevention.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .tool-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .tool-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+  .tool-card h3{font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem}
+  .tool-card p.tool-desc{color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem}
+
+  .viz-canvas{border:1px solid var(--border);border-radius:var(--radius);display:block;margin:0 auto;max-width:100%;background:var(--bg)}
+  .viz-label{text-align:center;font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem;margin-bottom:1.5rem}
+
+  .param-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+  .param-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+  .param-box label{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;display:block;margin-bottom:0.4rem}
+  .param-box .pval{font-family:var(--font-display);font-size:0.85rem;color:var(--accent);margin-bottom:0.3rem}
+  .param-box input[type="range"]{width:100%}
+  .param-box input[type="number"]{width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:0.4rem;border-radius:var(--radius);font-family:var(--font-display);font-size:0.85rem}
+
+  .results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;margin:1.5rem 0}
+  .result-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
+  .result-box .r-label{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;font-weight:600}
+  .result-box .r-value{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text);margin:0.25rem 0}
+  .result-box .r-unit{font-size:0.72rem;color:var(--text-muted)}
+  .result-box.danger{border-color:rgba(239,68,68,0.3)}
+  .result-box.danger .r-value{color:#ef4444}
+  .result-box.safe{border-color:rgba(16,185,129,0.3)}
+  .result-box.safe .r-value{color:#10B981}
+
+  .query-log{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;font-family:var(--font-display);font-size:0.75rem;max-height:200px;overflow-y:auto;margin:1rem 0}
+  .log-entry{padding:0.2rem 0;border-bottom:1px solid rgba(34,34,34,0.3);display:flex;gap:0.5rem}
+  .log-time{color:var(--text-muted);width:60px;flex-shrink:0}
+  .log-msg{color:var(--text)}
+  .log-warn{color:#eab308}
+  .log-alert{color:#ef4444;font-weight:600}
+  .log-ok{color:var(--accent)}
+
+  .sim-controls{display:flex;gap:0.75rem;margin:1rem 0;flex-wrap:wrap}
+  .sim-btn{padding:0.5rem 1.25rem;border-radius:var(--radius);font-size:0.82rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);transition:all 0.15s}
+  .sim-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .sim-btn.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+  .sim-btn.primary:hover{opacity:0.85}
+  .sim-btn.danger{background:rgba(239,68,68,0.15);color:#ef4444;border-color:rgba(239,68,68,0.3)}
+
+  .watermark-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1rem 0}
+  .wm-panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+  .wm-panel h4{font-size:0.9rem;margin-bottom:0.75rem;color:var(--accent)}
+  .wm-output{font-family:var(--font-display);font-size:0.78rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;margin-top:0.5rem;overflow-x:auto}
+  .wm-bar{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem}
+  .wm-bar-label{font-size:0.78rem;color:var(--text-muted);width:70px;text-align:right;flex-shrink:0}
+  .wm-bar-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+  .wm-bar-fill{height:100%;border-radius:4px;transition:width 0.3s}
+  .wm-bar-pct{font-family:var(--font-display);font-size:0.72rem;color:var(--text-muted);width:45px}
+
+  .detection-meter{margin:1rem 0;padding:1rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius)}
+  .det-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem}
+  .det-label{font-size:0.8rem;font-weight:600}
+  .det-value{font-family:var(--font-display);font-size:0.85rem;font-weight:700}
+  .det-track{height:12px;background:var(--border);border-radius:6px;overflow:hidden}
+  .det-fill{height:100%;border-radius:6px;transition:width 0.5s,background 0.3s}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .param-row{grid-template-columns:1fr}
+    .watermark-grid{grid-template-columns:1fr}
+    .results-grid{grid-template-columns:1fr 1fr}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+    .sim-controls{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/research/">Research</a><span>/</span>Model Extraction Prevention
+</div>
+
+<section class="hero">
+  <h1>Model <span>Extraction</span> Prevention</h1>
+  <p>Defend your ML APIs against model theft. Interactive tools for rate limit calculation, query pattern detection, and output watermarking simulation. Estimate how long extraction would take and how to detect it.</p>
+</section>
+
+<div class="tool-container">
+
+  <div class="tool-card">
+    <h3>Extraction Time Calculator</h3>
+    <p class="tool-desc">Estimate how long it would take an attacker to fully extract your model given your rate limiting configuration. Adjust parameters to find the right balance between usability and security.</p>
+
+    <div class="param-row">
+      <div class="param-box">
+        <label>Max Queries / Minute <span class="pval" id="qpmDisplay">60</span></label>
+        <input type="range" id="qpmSlider" min="1" max="500" value="60" step="1">
+      </div>
+      <div class="param-box">
+        <label>Avg Response Time (ms) <span class="pval" id="rtDisplay">50</span></label>
+        <input type="range" id="rtSlider" min="10" max="2000" value="50" step="10">
+      </div>
+      <div class="param-box">
+        <label>Model Parameters (M) <span class="pval" id="paramsDisplay">70</span></label>
+        <input type="range" id="paramsSlider" min="1" max="500" value="70" step="1">
+      </div>
+      <div class="param-box">
+        <label>Output Type</label>
+        <select id="outputType" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:0.4rem;border-radius:var(--radius);font-size:0.85rem">
+          <option value="probs">Full Probabilities</option>
+          <option value="top5">Top-5 Labels</option>
+          <option value="top1">Top-1 Label Only</option>
+          <option value="binary">Binary (yes/no)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="results-grid" id="extractionResults"></div>
+
+    <canvas id="extractionViz" class="viz-canvas" width="800" height="260"></canvas>
+    <div class="viz-label">Extraction progress over time with different rate limiting strategies</div>
+  </div>
+
+  <div class="tool-card">
+    <h3>Query Pattern Detection Simulator</h3>
+    <p class="tool-desc">Watch how different query patterns are detected by an anomaly detection system. Normal usage patterns versus extraction attack patterns. Click to simulate different attack types.</p>
+
+    <div class="sim-controls">
+      <button class="sim-btn primary" onclick="simulateNormal()">Simulate Normal Traffic</button>
+      <button class="sim-btn danger" onclick="simulateGridSearch()">Simulate Grid Search Attack</button>
+      <button class="sim-btn danger" onclick="simulateBoundaryProbe()">Simulate Boundary Probing</button>
+      <button class="sim-btn danger" onclick="simulateGradientEst()">Simulate Gradient Estimation</button>
+      <button class="sim-btn" onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <canvas id="patternViz" class="viz-canvas" width="800" height="240"></canvas>
+    <div class="viz-label">Query distribution heatmap: normal (green) vs. suspicious (red) patterns</div>
+
+    <div class="detection-meter">
+      <div class="det-header">
+        <span class="det-label">Extraction Threat Level</span>
+        <span class="det-value" id="threatLevel">0%</span>
+      </div>
+      <div class="det-track"><div class="det-fill" id="threatFill" style="width:0%;background:var(--accent)"></div></div>
+    </div>
+
+    <div class="query-log" id="queryLog">
+      <div class="log-entry"><span class="log-time">00:00</span><span class="log-msg log-ok">System initialized. Monitoring query patterns...</span></div>
+    </div>
+  </div>
+
+  <div class="tool-card">
+    <h3>Output Watermarking Simulator</h3>
+    <p class="tool-desc">See how imperceptible perturbations in model outputs can fingerprint and later identify stolen models. Compare original vs. watermarked outputs and test detection.</p>
+
+    <div class="param-row" style="grid-template-columns:1fr 1fr">
+      <div class="param-box">
+        <label>Watermark Strength <span class="pval" id="wmStrengthDisplay">0.02</span></label>
+        <input type="range" id="wmStrengthSlider" min="1" max="100" value="20" step="1">
+      </div>
+      <div class="param-box">
+        <label>Number of Trigger Inputs <span class="pval" id="wmTriggersDisplay">10</span></label>
+        <input type="range" id="wmTriggersSlider" min="3" max="50" value="10" step="1">
+      </div>
+    </div>
+
+    <div class="watermark-grid">
+      <div class="wm-panel">
+        <h4>Original Model Output</h4>
+        <div id="originalBars"></div>
+        <div class="wm-output" id="originalOutput"></div>
+      </div>
+      <div class="wm-panel">
+        <h4>Watermarked Output</h4>
+        <div id="watermarkedBars"></div>
+        <div class="wm-output" id="watermarkedOutput"></div>
+      </div>
+    </div>
+
+    <div class="sim-controls" style="justify-content:center">
+      <button class="sim-btn primary" onclick="newPrediction()">Generate New Prediction</button>
+      <button class="sim-btn" onclick="testDetection()">Test Watermark Detection</button>
+    </div>
+
+    <div class="detection-meter" id="wmDetection" style="display:none">
+      <div class="det-header">
+        <span class="det-label">Watermark Detection Confidence</span>
+        <span class="det-value" id="wmDetValue">0%</span>
+      </div>
+      <div class="det-track"><div class="det-fill" id="wmDetFill" style="width:0%;background:var(--accent)"></div></div>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>Understanding Model Extraction Attacks</h2>
+
+  <p>Model extraction is one of the most economically damaging attacks on ML systems. A well-trained model represents months of compute time, expensive training data curation, and proprietary algorithmic insights. An attacker who can replicate your model's behavior by querying its API effectively steals all of that investment. Unlike traditional software theft, model extraction does not require access to source code or weights — only access to the model's input-output interface. This makes any ML model served via an API a potential target.</p>
+
+  <p>The attack works by sending carefully chosen inputs to the target model and collecting the corresponding outputs (predictions and confidence scores). The attacker then trains their own "surrogate" or "student" model on this synthetic dataset, using the target model's outputs as ground truth labels. With enough query-response pairs, the surrogate model converges to a functional copy that replicates the target's behavior across the input space. The fidelity of the copy depends on the number of queries, the information content of each response (full probability distributions leak more than top-1 labels), and the complexity of the target model.</p>
+
+  <h3>Rate Limiting Strategies</h3>
+
+  <p>Rate limiting is the first line of defense against model extraction. The goal is to make full extraction impractically slow while still allowing legitimate usage. The extraction time calculator above helps you find the right balance. For a 70M parameter image classifier returning full probability distributions, a skilled attacker needs roughly 50,000-100,000 queries for a high-fidelity copy. At 60 queries per minute, that takes 14-28 hours. At 10 queries per minute, it takes 3.5-7 days. At 1 query per minute, extraction takes over a month and becomes economically unviable.</p>
+
+  <p>Effective rate limiting uses multiple layers: per-API-key limits (e.g., 100 queries/minute), per-IP limits to prevent key rotation, daily and monthly query budgets per user, and escalating throttling where sustained high-volume usage triggers progressively stricter limits. The key insight is that legitimate users rarely need to make thousands of sequential queries, while extraction attackers always do. The difference in query patterns is detectable.</p>
+
+  <h3>Query Pattern Detection</h3>
+
+  <p>Beyond simple rate limits, monitoring query patterns can detect extraction attempts with high accuracy. Normal users exhibit natural patterns: variable query rates, diverse input types, browsing pauses, and organic input distributions. Extraction attackers exhibit systematic patterns: constant high query rates, structured synthetic inputs (grid searches, uniform distributions), sequential queries with small perturbations (gradient estimation), and requests for full probability distributions rather than top-1 predictions.</p>
+
+  <p>The pattern detection simulator above demonstrates four query types. Normal traffic shows clustered queries with natural pauses and diverse inputs. Grid search attacks show uniform coverage of the input space. Boundary probing concentrates queries near decision boundaries where the model changes its prediction, as these are the most informative for training a surrogate. Gradient estimation uses pairs of similar inputs with tiny perturbations to numerically estimate the model's gradients, which enables more efficient surrogate training.</p>
+
+  <p>Detection algorithms include statistical tests on query distributions (Kolmogorov-Smirnov test against expected user distributions), anomaly detection on query timing patterns (constant rate vs. bursty), input similarity analysis (flagging sequences of nearly identical inputs), and information-theoretic measures (detecting queries that maximize information gain about the model). When a suspicious pattern is detected, the system can throttle the user, inject noise into outputs, or alert security teams.</p>
+
+  <h3>Output Watermarking</h3>
+
+  <p>Watermarking provides a post-theft detection mechanism. The idea is to embed an imperceptible signature in the model's outputs that will be learned by any surrogate model trained on those outputs. When a suspected stolen model is discovered, you test it with a set of secret "trigger" inputs and check whether the outputs match the expected watermark pattern. If they do, you have strong evidence that the model was trained on your outputs.</p>
+
+  <p>The watermark works by slightly perturbing the model's confidence scores for specific trigger inputs. For example, on a particular trigger image, the model might report 91.3% confidence instead of 91.0%. These perturbations are small enough to not affect prediction quality but large enough to be statistically detectable across multiple trigger inputs. The watermark key (which trigger inputs to use and what perturbation pattern to expect) is kept secret. An attacker cannot remove the watermark without knowing the key, and the perturbation pattern propagates through knowledge distillation to the surrogate model.</p>
+
+  <p>The watermark strength parameter controls the tradeoff between detectability and output quality impact. Stronger watermarks are easier to detect but may measurably affect output quality. Weaker watermarks preserve quality but require more trigger inputs for reliable detection. The simulator above lets you experiment with this tradeoff, comparing original and watermarked outputs to see how the perturbations manifest in confidence scores.</p>
+
+  <h3>Defense in Depth</h3>
+
+  <p>No single defense stops a determined attacker. The most effective approach combines rate limiting (slowing extraction), query pattern detection (detecting extraction attempts), output perturbation (reducing information per query), watermarking (enabling post-theft detection), and access controls (limiting who can query the model and what information is returned). Specifically: return top-1 predictions only (not full probability distributions), add random noise to confidence scores, implement per-user query budgets, monitor for anomalous patterns, and watermark outputs.</p>
+
+  <p>For high-value models, additional defenses include requiring CAPTCHA for sustained high-volume queries, implementing adaptive rate limits that tighten when suspicious patterns are detected, using proof-of-work challenges to increase the cost of automated querying, and deploying honeypot inputs that trigger alerts if seen in surrogate model training data. The <a href="/tools/threat-model-generator.html">ML Threat Model Generator</a> can help you systematically identify which extraction defenses are most important for your specific deployment, and the <a href="/research/ml-model-security-checklist.html">ML Security Checklist</a> includes extraction-specific controls to verify.</p>
+
+  <h3>Legal and Business Considerations</h3>
+
+  <p>Model extraction exists in a legal gray area. While terms of service typically prohibit automated querying and reverse engineering, enforcement across jurisdictions is challenging. The EU AI Act and various trade secret laws may provide legal recourse, but technical defenses remain the primary protection. Watermarking creates evidence for legal proceedings by demonstrating that a competitor's model was derived from your outputs. Rate limiting and query budgets also serve a business purpose beyond security: they prevent free-riders from consuming compute resources without contributing revenue, aligning security incentives with business incentives.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What is a model extraction attack?</summary>
+    <p>A model extraction attack reconstructs a copy of your ML model by systematically querying its API and training a surrogate on the input-output pairs. The attacker sends chosen inputs, collects predictions and confidence scores, and uses them as training data. With enough queries, the surrogate replicates the original model's behavior without ever accessing its weights or code. This effectively steals months of training investment.</p>
+  </details>
+
+  <details>
+    <summary>How does rate limiting prevent model extraction?</summary>
+    <p>Rate limiting restricts queries per time window, making full extraction impractically slow. Since extraction requires thousands to millions of queries, strict limits (10-100 queries/minute) force attackers to spend days or weeks on extraction, making it economically unviable. Multi-layer rate limiting (per-key, per-IP, daily budgets) combined with escalating throttling provides the strongest defense.</p>
+  </details>
+
+  <details>
+    <summary>What is model output watermarking?</summary>
+    <p>Output watermarking embeds imperceptible signatures in predictions. Small, structured perturbations are added to confidence scores that propagate when a surrogate model is trained on those outputs. Testing a suspected stolen model with secret trigger inputs reveals the watermark pattern, proving derivation. Watermarking provides post-theft evidence rather than prevention, complementing rate limiting and query detection.</p>
+  </details>
+
+  <details>
+    <summary>How many queries are needed to extract an ML model?</summary>
+    <p>It depends on model complexity and output type. Linear models need hundreds of queries, neural classifiers need 10K-100K, and LLMs may need millions. Returning only top-1 labels (not confidence scores) increases required queries 5-10x. Model complexity (number of parameters, output classes) scales the requirement. Use the extraction time calculator above to estimate for your specific configuration.</p>
+  </details>
+
+  <details>
+    <summary>What query patterns indicate a model extraction attempt?</summary>
+    <p>Key indicators: unusually high query volume from one user, systematic synthetic inputs (grid searches, uniform distributions), sequential queries with tiny perturbations (gradient estimation), requests for full probability distributions, constant query rate without natural pauses, and low input diversity compared to legitimate users. Detection systems using statistical tests and anomaly detection can flag these patterns automatically.</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/tools/threat-model-generator.html">ML Threat Model Generator</a></h3>
+      <p>STRIDE-based threat modeling covering information disclosure and model extraction risks with mitigation recommendations.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/answers/ml-privacy-techniques.html">Differential Privacy Calculator</a></h3>
+      <p>Explore epsilon/delta parameters. Differential privacy during training limits what can be extracted from model outputs.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/research/ml-model-security-checklist.html">ML Security Checklist</a></h3>
+      <p>50+ security controls including model extraction defenses, API hardening, and output filtering best practices.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var simTimer = null;
+  var threatScore = 0;
+  var queryPoints = [];
+  var logEntries = [];
+  var wmKey = [];
+
+  function getQpm() { return parseInt(document.getElementById('qpmSlider').value); }
+  function getRt() { return parseInt(document.getElementById('rtSlider').value); }
+  function getParams() { return parseInt(document.getElementById('paramsSlider').value); }
+  function getOutputType() { return document.getElementById('outputType').value; }
+  function getWmStrength() { return parseInt(document.getElementById('wmStrengthSlider').value) / 1000; }
+  function getWmTriggers() { return parseInt(document.getElementById('wmTriggersSlider').value); }
+
+  function outputMultiplier() {
+    var t = getOutputType();
+    if (t === 'probs') return 1;
+    if (t === 'top5') return 2;
+    if (t === 'top1') return 5;
+    return 10;
+  }
+
+  function formatDuration(minutes) {
+    if (minutes < 60) return Math.round(minutes) + ' min';
+    if (minutes < 1440) return (minutes / 60).toFixed(1) + ' hours';
+    if (minutes < 43200) return (minutes / 1440).toFixed(1) + ' days';
+    return (minutes / 43200).toFixed(1) + ' months';
+  }
+
+  function updateExtraction() {
+    var qpm = getQpm();
+    var rt = getRt();
+    var params = getParams();
+    var mult = outputMultiplier();
+
+    var baseQueries = Math.round(params * 1000 * mult * 0.7);
+    var maxQpmByRt = Math.floor(60000 / rt);
+    var effectiveQpm = Math.min(qpm, maxQpmByRt);
+    var extractionMinutes = baseQueries / effectiveQpm;
+    var queriesPerDay = effectiveQpm * 60 * 24;
+    var costPerQuery = 0.001;
+    var extractionCost = baseQueries * costPerQuery;
+
+    document.getElementById('qpmDisplay').textContent = qpm;
+    document.getElementById('rtDisplay').textContent = rt;
+    document.getElementById('paramsDisplay').textContent = params + 'M';
+
+    var container = document.getElementById('extractionResults');
+    var isSafe = extractionMinutes > 10080;
+
+    container.innerHTML =
+      '<div class="result-box"><div class="r-label">Queries Required</div><div class="r-value">' + (baseQueries/1000).toFixed(0) + 'K</div><div class="r-unit">for high-fidelity copy</div></div>' +
+      '<div class="result-box"><div class="r-label">Effective Rate</div><div class="r-value">' + effectiveQpm + '</div><div class="r-unit">queries / minute</div></div>' +
+      '<div class="result-box ' + (isSafe ? 'safe' : 'danger') + '"><div class="r-label">Extraction Time</div><div class="r-value">' + formatDuration(extractionMinutes) + '</div><div class="r-unit">' + (isSafe ? 'Impractical' : 'Feasible') + '</div></div>' +
+      '<div class="result-box"><div class="r-label">Attacker Cost</div><div class="r-value">$' + extractionCost.toFixed(0) + '</div><div class="r-unit">at $0.001/query</div></div>';
+
+    drawExtractionViz(baseQueries, qpm, effectiveQpm, extractionMinutes);
+  }
+
+  function drawExtractionViz(totalQ, qpm, effQpm, totalMin) {
+    var c = document.getElementById('extractionViz');
+    var ctx = c.getContext('2d');
+    var W = c.width, H = c.height;
+    ctx.clearRect(0,0,W,H);
+
+    var pad = {l:60,r:30,t:20,b:40};
+    var gW = W-pad.l-pad.r, gH = H-pad.t-pad.b;
+
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.l, pad.t);
+    ctx.lineTo(pad.l, pad.t + gH);
+    ctx.lineTo(pad.l + gW, pad.t + gH);
+    ctx.stroke();
+
+    var maxTime = Math.min(totalMin * 1.5, 10080);
+    var strategies = [
+      { name: 'No Rate Limit', rate: 1000, color: '#ef4444' },
+      { name: 'Your Config (' + qpm + '/min)', rate: effQpm, color: '#eab308' },
+      { name: 'Strict (10/min)', rate: 10, color: '#10B981' }
+    ];
+
+    strategies.forEach(function(s) {
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (var t = 0; t <= maxTime; t += maxTime/200) {
+        var progress = Math.min(1, (t * s.rate) / totalQ);
+        var x = pad.l + (t / maxTime) * gW;
+        var y = pad.t + gH - progress * gH;
+        if (t === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    });
+
+    ctx.setLineDash([4,4]);
+    ctx.strokeStyle = '#888';
+    ctx.lineWidth = 1;
+    var fullY = pad.t;
+    ctx.beginPath();
+    ctx.moveTo(pad.l, fullY);
+    ctx.lineTo(pad.l + gW, fullY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.font = '10px IBM Plex Sans';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#888';
+    ctx.fillText('100% Extracted', pad.l - 5, fullY + 4);
+
+    ctx.font = '10px IBM Plex Sans';
+    strategies.forEach(function(s, i) {
+      ctx.fillStyle = s.color;
+      ctx.textAlign = 'left';
+      ctx.fillText(s.name, pad.l + 10, pad.t + 15 + i * 14);
+    });
+
+    ctx.fillStyle = '#888';
+    ctx.textAlign = 'center';
+    for (var i = 0; i <= 4; i++) {
+      var t = maxTime * i / 4;
+      ctx.fillText(formatDuration(t), pad.l + gW * i / 4, pad.t + gH + 15);
+    }
+    ctx.textAlign = 'right';
+    for (var i = 0; i <= 4; i++) {
+      ctx.fillText((i * 25) + '%', pad.l - 5, pad.t + gH - gH * i / 4 + 4);
+    }
+  }
+
+  function drawPatternViz() {
+    var c = document.getElementById('patternViz');
+    var ctx = c.getContext('2d');
+    var W = c.width, H = c.height;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0,0,W,H);
+
+    var cellW = W / 40;
+    var cellH = H / 24;
+
+    queryPoints.forEach(function(p) {
+      var gx = Math.floor(p.x * 40);
+      var gy = Math.floor(p.y * 24);
+      var alpha = p.suspicious ? 0.6 : 0.3;
+      ctx.fillStyle = p.suspicious ? 'rgba(239,68,68,' + alpha + ')' : 'rgba(16,185,129,' + alpha + ')';
+      ctx.fillRect(gx * cellW, gy * cellH, cellW - 1, cellH - 1);
+    });
+  }
+
+  function addLog(msg, type) {
+    var t = new Date();
+    var ts = t.getMinutes().toString().padStart(2,'0') + ':' + t.getSeconds().toString().padStart(2,'0');
+    var cls = type === 'warn' ? 'log-warn' : type === 'alert' ? 'log-alert' : type === 'ok' ? 'log-ok' : 'log-msg';
+    var log = document.getElementById('queryLog');
+    var entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = '<span class="log-time">' + ts + '</span><span class="' + cls + '">' + msg + '</span>';
+    log.appendChild(entry);
+    log.scrollTop = log.scrollHeight;
+    if (log.children.length > 50) log.removeChild(log.firstChild);
+  }
+
+  function updateThreat(score) {
+    threatScore = Math.max(0, Math.min(100, score));
+    document.getElementById('threatLevel').textContent = threatScore.toFixed(0) + '%';
+    var fill = document.getElementById('threatFill');
+    fill.style.width = threatScore + '%';
+    if (threatScore < 30) fill.style.background = 'var(--accent)';
+    else if (threatScore < 60) fill.style.background = '#eab308';
+    else fill.style.background = '#ef4444';
+  }
+
+  function simulateTraffic(generator, count, interval, type) {
+    if (simTimer) clearInterval(simTimer);
+    var i = 0;
+    simTimer = setInterval(function() {
+      if (i >= count) { clearInterval(simTimer); simTimer = null; return; }
+      var p = generator(i, count);
+      queryPoints.push(p);
+      if (queryPoints.length > 500) queryPoints.shift();
+
+      if (p.suspicious) {
+        var newThreat = threatScore + (100 - threatScore) * 0.05;
+        updateThreat(newThreat);
+        if (i % 10 === 0) addLog(type + ' pattern detected: anomalous query distribution', 'warn');
+        if (threatScore > 70 && i % 20 === 0) addLog('ALERT: High extraction probability. Recommend throttling.', 'alert');
+      } else {
+        updateThreat(threatScore * 0.98);
+      }
+
+      drawPatternViz();
+      i++;
+    }, interval);
+  }
+
+  window.simulateNormal = function() {
+    addLog('Simulating normal user traffic...', 'ok');
+    updateThreat(0);
+    simulateTraffic(function(i) {
+      return {
+        x: 0.3 + Math.random() * 0.4 + (Math.random() - 0.5) * 0.2,
+        y: 0.3 + Math.random() * 0.4 + (Math.random() - 0.5) * 0.2,
+        suspicious: false
+      };
+    }, 100, 80, 'Normal');
+  };
+
+  window.simulateGridSearch = function() {
+    addLog('Simulating grid search extraction attack...', 'warn');
+    simulateTraffic(function(i, total) {
+      var cols = Math.ceil(Math.sqrt(total));
+      return {
+        x: (i % cols) / cols,
+        y: Math.floor(i / cols) / cols,
+        suspicious: true
+      };
+    }, 100, 50, 'Grid search');
+  };
+
+  window.simulateBoundaryProbe = function() {
+    addLog('Simulating decision boundary probing attack...', 'warn');
+    var angle = 0;
+    simulateTraffic(function(i) {
+      angle += 0.15;
+      var r = 0.3 + Math.sin(i * 0.1) * 0.1;
+      return {
+        x: 0.5 + r * Math.cos(angle),
+        y: 0.5 + r * Math.sin(angle),
+        suspicious: true
+      };
+    }, 100, 50, 'Boundary probe');
+  };
+
+  window.simulateGradientEst = function() {
+    addLog('Simulating gradient estimation attack...', 'warn');
+    var baseX = 0.3 + Math.random() * 0.4;
+    var baseY = 0.3 + Math.random() * 0.4;
+    simulateTraffic(function(i) {
+      var dx = (Math.random() - 0.5) * 0.02;
+      var dy = (Math.random() - 0.5) * 0.02;
+      if (i % 20 === 0) { baseX = 0.2 + Math.random() * 0.6; baseY = 0.2 + Math.random() * 0.6; }
+      return {
+        x: Math.max(0, Math.min(1, baseX + dx)),
+        y: Math.max(0, Math.min(1, baseY + dy)),
+        suspicious: true
+      };
+    }, 100, 50, 'Gradient estimation');
+  };
+
+  window.clearLog = function() {
+    document.getElementById('queryLog').innerHTML = '<div class="log-entry"><span class="log-time">00:00</span><span class="log-msg log-ok">Log cleared. Monitoring query patterns...</span></div>';
+    queryPoints = [];
+    updateThreat(0);
+    drawPatternViz();
+    if (simTimer) { clearInterval(simTimer); simTimer = null; }
+  };
+
+  var CLASSES = ['cat', 'dog', 'bird', 'car', 'tree'];
+  var currentPrediction = null;
+
+  function generatePrediction() {
+    var scores = {};
+    var total = 0;
+    CLASSES.forEach(function(c, i) {
+      scores[c] = Math.random() * (i === 0 ? 5 : 1);
+      total += scores[c];
+    });
+    CLASSES.forEach(function(c) { scores[c] /= total; });
+    return scores;
+  }
+
+  function watermarkScores(scores) {
+    var strength = getWmStrength();
+    var wm = {};
+    CLASSES.forEach(function(c, i) {
+      var perturbation = (wmKey[i] || 0) * strength;
+      wm[c] = Math.max(0.001, scores[c] + perturbation);
+    });
+    var total = 0;
+    CLASSES.forEach(function(c) { total += wm[c]; });
+    CLASSES.forEach(function(c) { wm[c] /= total; });
+    return wm;
+  }
+
+  function renderBars(containerId, scores) {
+    var container = document.getElementById(containerId);
+    var sorted = CLASSES.slice().sort(function(a,b){ return scores[b] - scores[a]; });
+    var html = '';
+    sorted.forEach(function(c) {
+      var pct = (scores[c] * 100).toFixed(2);
+      var isTop = scores[c] === Math.max.apply(null, CLASSES.map(function(k){return scores[k];}));
+      var color = isTop ? 'var(--accent)' : 'var(--border)';
+      html += '<div class="wm-bar"><div class="wm-bar-label">' + c + '</div>' +
+        '<div class="wm-bar-track"><div class="wm-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
+        '<div class="wm-bar-pct">' + pct + '%</div></div>';
+    });
+    container.innerHTML = html;
+  }
+
+  function renderOutput(containerId, scores) {
+    var el = document.getElementById(containerId);
+    var lines = CLASSES.map(function(c) {
+      return '"' + c + '": ' + scores[c].toFixed(6);
+    });
+    el.textContent = '{\n  ' + lines.join(',\n  ') + '\n}';
+  }
+
+  window.newPrediction = function() {
+    currentPrediction = generatePrediction();
+    var wm = watermarkScores(currentPrediction);
+    renderBars('originalBars', currentPrediction);
+    renderBars('watermarkedBars', wm);
+    renderOutput('originalOutput', currentPrediction);
+    renderOutput('watermarkedOutput', wm);
+    document.getElementById('wmDetection').style.display = 'none';
+  };
+
+  window.testDetection = function() {
+    var triggers = getWmTriggers();
+    var strength = getWmStrength();
+    var matchCount = 0;
+
+    for (var t = 0; t < triggers; t++) {
+      var pred = generatePrediction();
+      var wm = watermarkScores(pred);
+      var match = true;
+      CLASSES.forEach(function(c, i) {
+        var expected = (wmKey[i] || 0) * strength;
+        var actual = wm[c] - pred[c];
+        if (Math.abs(actual - expected) > strength * 0.5) match = false;
+      });
+      if (match) matchCount++;
+    }
+
+    var confidence = Math.min(100, (matchCount / triggers) * 100);
+    document.getElementById('wmDetection').style.display = 'block';
+    document.getElementById('wmDetValue').textContent = confidence.toFixed(0) + '%';
+    var fill = document.getElementById('wmDetFill');
+    fill.style.width = confidence + '%';
+    fill.style.background = confidence > 80 ? 'var(--accent)' : confidence > 50 ? '#eab308' : '#ef4444';
+  };
+
+  for (var i = 0; i < CLASSES.length; i++) {
+    wmKey.push((Math.random() - 0.5) * 2);
+  }
+
+  document.getElementById('qpmSlider').addEventListener('input', updateExtraction);
+  document.getElementById('rtSlider').addEventListener('input', updateExtraction);
+  document.getElementById('paramsSlider').addEventListener('input', updateExtraction);
+  document.getElementById('outputType').addEventListener('change', updateExtraction);
+
+  document.getElementById('wmStrengthSlider').addEventListener('input', function() {
+    document.getElementById('wmStrengthDisplay').textContent = getWmStrength().toFixed(3);
+    if (currentPrediction) newPrediction();
+  });
+  document.getElementById('wmTriggersSlider').addEventListener('input', function() {
+    document.getElementById('wmTriggersDisplay').textContent = getWmTriggers();
+  });
+
+  updateExtraction();
+  drawPatternViz();
+  newPrediction();
+})();
+</script>
+</body>
+</html>

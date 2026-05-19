@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Red Team Checklist — Interactive Red Teaming Methodology &amp; Exercise Builder (2026) | LockML</title>
+<meta name="description" content="Comprehensive AI red teaming methodology with interactive exercise builder. Generate custom red team exercises across 8 attack categories including prompt injection, data poisoning, model extraction, adversarial attacks, and compliance gaps.">
+<link rel="canonical" href="https://lockml.com/answers/ai-red-team-checklist.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/answers/ai-red-team-checklist.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/answers/ai-red-team-checklist.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI Red Team Checklist — Interactive Red Teaming Methodology &amp; Exercise Builder (2026)">
+<meta property="og:description" content="Comprehensive AI red teaming methodology with interactive exercise builder. Generate custom red team exercises across 8 attack categories.">
+<meta property="og:url" content="https://lockml.com/answers/ai-red-team-checklist.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI Red Team Checklist — Interactive Red Teaming Methodology &amp; Exercise Builder (2026)">
+<meta name="twitter:description" content="Comprehensive AI red teaming methodology with interactive exercise builder. Generate custom red team exercises across 8 attack categories.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "AI Red Team Checklist & Exercise Builder",
+  "url": "https://lockml.com/answers/ai-red-team-checklist.html",
+  "description": "Comprehensive AI red teaming methodology with interactive exercise builder. Generate custom red team exercises across 8 attack categories including prompt injection, data poisoning, model extraction, adversarial attacks, and compliance gaps.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "featureList": [
+    "8 attack category coverage",
+    "40+ red team exercises",
+    "System-type specific exercises",
+    "Risk severity scoring",
+    "Time-boxed exercise plans",
+    "Finding documentation templates",
+    "EU AI Act compliance mapping",
+    "Export exercise plan as Markdown",
+    "No sign-up required",
+    "100% browser-based"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is AI red teaming and why is it important?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "AI red teaming is the practice of systematically testing AI systems for vulnerabilities, biases, and failure modes by adopting an adversarial mindset. Unlike traditional software security testing, AI red teaming covers unique attack surfaces: prompt injection, training data poisoning, model extraction, adversarial examples, bias exploitation, and compliance gaps. It is important because AI systems fail in ways that standard testing does not reveal. The White House Executive Order on AI (October 2023) mandates red teaming for frontier AI models, and the EU AI Act (enforced August 2026) requires ongoing risk assessment that includes adversarial testing for high-risk AI systems."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the 8 categories of AI red team exercises?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The eight categories are: (1) Prompt Injection — testing direct and indirect prompt injection, jailbreaks, and system prompt extraction. (2) Data Poisoning — attempting to corrupt training data through backdoor triggers, label manipulation, or pipeline compromise. (3) Model Extraction — systematic querying to steal model behavior or architecture. (4) Adversarial Inputs — crafting inputs that cause misclassification while appearing normal. (5) Privacy Attacks — membership inference, model inversion, and training data extraction. (6) Bias & Fairness — testing for discriminatory outputs across protected groups. (7) Infrastructure — container escape, API abuse, supply chain attacks. (8) Compliance — testing against EU AI Act, GDPR, and industry-specific requirements."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does an AI red team exercise typically take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Exercise duration depends on scope and system complexity. A focused single-category exercise (e.g., prompt injection testing for an LLM) takes 2-4 hours. A multi-category assessment covering the top 4 risk areas takes 1-2 days. A comprehensive 8-category red team engagement takes 3-5 days for a single AI system. For organizations with multiple AI systems, plan 1-2 weeks. Time-box each exercise to prevent scope creep: set a maximum duration, document findings as you go, and prioritize high-severity items for deeper investigation in follow-up sessions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who should be on an AI red team?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "An effective AI red team combines ML security expertise, domain knowledge, and traditional security skills. The ideal team includes: an ML engineer who understands model architectures and training pipelines, a security researcher familiar with adversarial ML literature, a domain expert who understands the business context and potential harms, a compliance specialist who maps findings to regulatory requirements, and a traditional penetration tester who covers infrastructure and API security. For LLM red teaming specifically, include people with diverse backgrounds and perspectives to test for bias and harmful content across demographics."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I prioritize which AI red team exercises to run first?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Prioritize based on three factors: (1) Attack surface exposure — external-facing AI systems (chatbots, APIs) face more threats than internal-only models. Start with internet-exposed systems. (2) Data sensitivity — models processing PII, financial data, or healthcare data should be tested first because the impact of a breach is highest. (3) Regulatory timeline — with the EU AI Act enforced August 2026, high-risk AI systems need compliance-focused red teaming before the deadline. Within each system, start with prompt injection (if applicable) and adversarial input testing because these are the most commonly exploited attack vectors, then move to privacy attacks and infrastructure security."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Answers", "item": "https://lockml.com/answers/" },
+    { "@type": "ListItem", "position": 3, "name": "AI Red Team Checklist", "item": "https://lockml.com/answers/ai-red-team-checklist.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .tool-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .tool-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+
+  .system-selector{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin-bottom:1.5rem}
+  .sys-btn{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;cursor:pointer;transition:all 0.15s;text-align:center}
+  .sys-btn:hover{border-color:var(--accent)}
+  .sys-btn.active{background:var(--accent-dim);border-color:var(--accent)}
+  .sys-btn .s-icon{font-size:1.5rem;display:block;margin-bottom:0.4rem}
+  .sys-btn .s-label{font-size:0.85rem;font-weight:600;display:block}
+  .sys-btn .s-desc{font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.2rem}
+
+  .scope-checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.5rem;margin-bottom:1.5rem}
+  .scope-check{display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;cursor:pointer}
+  .scope-check input{accent-color:var(--accent)}
+
+  .generate-row{text-align:center;margin:1.5rem 0}
+  .btn-generate{padding:0.6rem 2rem;border-radius:var(--radius);font-size:0.9rem;font-weight:600;cursor:pointer;border:none;background:var(--accent);color:#000;font-family:var(--font-body);transition:opacity 0.15s}
+  .btn-generate:hover{opacity:0.85}
+
+  .results-panel{display:none}
+
+  .plan-header{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.75rem;margin-bottom:1.5rem}
+  .plan-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
+  .plan-stat .p-val{font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--accent)}
+  .plan-stat .p-label{font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem}
+
+  .exercise-section{margin-bottom:1.5rem}
+  .ex-header{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0;cursor:pointer}
+  .ex-header .ex-icon{font-size:1rem}
+  .ex-header .ex-name{font-weight:600;font-size:0.9rem;flex:1}
+  .ex-header .ex-count{font-size:0.75rem;color:var(--text-muted)}
+  .ex-items{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius)}
+
+  .exercise-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.75rem 1rem;border-bottom:1px solid rgba(34,34,34,0.5);font-size:0.88rem}
+  .exercise-item:last-child{border-bottom:none}
+  .exercise-item input[type="checkbox"]{margin-top:3px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+  .exercise-item .ex-content{flex:1}
+  .exercise-item .ex-title{font-weight:600;margin-bottom:0.2rem}
+  .exercise-item .ex-desc{color:var(--text-muted);font-size:0.82rem;margin-bottom:0.3rem}
+  .exercise-item .ex-meta{display:flex;gap:0.5rem;flex-wrap:wrap}
+  .ex-tag{font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;padding:2px 6px;border-radius:3px;white-space:nowrap}
+  .risk-critical{background:rgba(239,68,68,0.15);color:#ef4444}
+  .risk-high{background:rgba(249,115,22,0.15);color:#f97316}
+  .risk-medium{background:rgba(234,179,8,0.15);color:#eab308}
+  .risk-low{background:rgba(34,197,94,0.15);color:#22c55e}
+  .time-tag{background:rgba(99,102,241,0.15);color:#6366f1}
+
+  .progress-banner{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1.5rem;flex-wrap:wrap;gap:0.5rem}
+  .progress-banner .p-label{font-size:0.9rem;font-weight:600}
+  .progress-banner .p-bar-wrap{flex:1;min-width:200px;margin:0 1rem}
+  .p-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+  .p-bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease;background:var(--accent)}
+  .p-value{font-family:var(--font-display);font-size:1.1rem;font-weight:700}
+
+  .export-row{display:flex;gap:0.5rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap}
+  .btn-export{padding:0.5rem 1.5rem;border-radius:var(--radius);font-size:0.85rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);transition:all 0.15s}
+  .btn-export:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-export.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+  .btn-export.primary:hover{opacity:0.85}
+
+  .export-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+  .export-modal.active{display:flex}
+  .export-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;max-width:700px;width:90%;max-height:80vh;overflow-y:auto}
+  .export-content h3{margin-bottom:1rem;font-family:var(--font-display);color:var(--accent)}
+  .export-content pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow-x:auto;font-size:0.8rem;white-space:pre-wrap;word-break:break-word}
+  .export-btns{display:flex;gap:0.5rem;margin-top:1rem}
+  .export-btns button{padding:0.45rem 1rem;border-radius:var(--radius);cursor:pointer;font-size:0.8rem;font-family:var(--font-body);border:1px solid var(--border)}
+  .btn-copy{background:var(--accent);color:#000;border-color:var(--accent) !important;font-weight:600}
+  .btn-close{background:var(--bg);color:var(--text-muted)}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .system-selector{grid-template-columns:1fr 1fr}
+    .plan-header{grid-template-columns:1fr 1fr}
+    .progress-banner{flex-direction:column;text-align:center}
+    .progress-banner .p-bar-wrap{margin:0.5rem 0;width:100%}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/answers/">Answers</a><span>/</span>AI Red Team Checklist
+</div>
+
+<section class="hero">
+  <h1>AI <span>Red Team</span> Checklist</h1>
+  <p>Generate a comprehensive red team exercise plan for your AI system. Select your system type, choose attack categories, and get time-boxed exercises with risk ratings, step-by-step instructions, and finding documentation templates.</p>
+</section>
+
+<div class="tool-container">
+  <div class="tool-card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem">Select Your AI System Type</h3>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem">Different AI systems have different attack surfaces. The exercise plan is tailored to your specific system type.</p>
+    <div class="system-selector" id="systemSelector">
+      <div class="sys-btn" data-sys="llm">
+        <span class="s-icon">&#128172;</span>
+        <span class="s-label">LLM / Chatbot</span>
+        <span class="s-desc">GPT, Claude, Llama, chatbots</span>
+      </div>
+      <div class="sys-btn" data-sys="vision">
+        <span class="s-icon">&#128065;</span>
+        <span class="s-label">Computer Vision</span>
+        <span class="s-desc">Classification, detection, OCR</span>
+      </div>
+      <div class="sys-btn" data-sys="tabular">
+        <span class="s-icon">&#128202;</span>
+        <span class="s-label">Tabular / Predictive</span>
+        <span class="s-desc">Credit scoring, fraud detection</span>
+      </div>
+      <div class="sys-btn" data-sys="recommender">
+        <span class="s-icon">&#127919;</span>
+        <span class="s-label">Recommender</span>
+        <span class="s-desc">Content, product, ad ranking</span>
+      </div>
+    </div>
+
+    <h4 style="font-size:0.92rem;margin-bottom:0.75rem">Attack Categories to Test</h4>
+    <div class="scope-checks" id="scopeChecks">
+      <label class="scope-check"><input type="checkbox" value="prompt" checked> Prompt Injection</label>
+      <label class="scope-check"><input type="checkbox" value="data" checked> Data Poisoning</label>
+      <label class="scope-check"><input type="checkbox" value="extraction" checked> Model Extraction</label>
+      <label class="scope-check"><input type="checkbox" value="adversarial" checked> Adversarial Inputs</label>
+      <label class="scope-check"><input type="checkbox" value="privacy" checked> Privacy Attacks</label>
+      <label class="scope-check"><input type="checkbox" value="bias"> Bias &amp; Fairness</label>
+      <label class="scope-check"><input type="checkbox" value="infra"> Infrastructure</label>
+      <label class="scope-check"><input type="checkbox" value="compliance"> Compliance</label>
+    </div>
+
+    <div class="generate-row">
+      <button class="btn-generate" onclick="generatePlan()">Generate Exercise Plan</button>
+    </div>
+  </div>
+
+  <div class="results-panel" id="resultsPanel">
+    <div class="plan-header" id="planHeader"></div>
+    <div class="progress-banner" id="progressBanner">
+      <span class="p-label">Exercises Completed:</span>
+      <div class="p-bar-wrap"><div class="p-bar"><div class="p-bar-fill" id="progressFill" style="width:0%"></div></div></div>
+      <span class="p-value" id="progressValue">0%</span>
+    </div>
+    <div id="exerciseSections"></div>
+    <div class="export-row">
+      <button class="btn-export primary" onclick="exportPlan()">Export Exercise Plan</button>
+      <button class="btn-export" onclick="resetPlan()">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<div id="exportModal" class="export-modal">
+  <div class="export-content">
+    <h3 id="exportTitle">Exercise Plan Export</h3>
+    <pre id="exportOutput"></pre>
+    <div class="export-btns">
+      <button class="btn-copy" onclick="copyExport()">Copy to Clipboard</button>
+      <button class="btn-close" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>The Complete Guide to AI Red Teaming</h2>
+
+  <p>AI red teaming has evolved from an informal practice to a regulatory requirement. The White House Executive Order on AI (October 2023) mandated red teaming for frontier AI models before deployment. The EU AI Act, which enters full enforcement in August 2026, requires high-risk AI systems to undergo ongoing risk assessment that includes adversarial testing. NIST's AI Risk Management Framework (AI RMF 1.0) explicitly recommends red teaming as a core practice in its "Test" function. Organizations deploying AI systems now face a choice between proactive red teaming and reactive incident response when vulnerabilities are exploited in production.</p>
+
+  <p>Unlike traditional cybersecurity red teaming which focuses on network penetration, privilege escalation, and data exfiltration, AI red teaming targets attack surfaces unique to machine learning: the training data pipeline, the model weights, the inference API, the output filtering, and the feedback loops that connect user interactions back to model improvement. A skilled AI red team can extract training data from a language model, cause an image classifier to misidentify stop signs as speed limit signs, manipulate a recommender system to promote specific content, or trick a fraud detection model into approving fraudulent transactions. Each of these attacks requires domain-specific expertise that traditional penetration testers may not possess.</p>
+
+  <h3>Prompt Injection: The Web's Newest Vulnerability Class</h3>
+
+  <p>For LLM-based systems, prompt injection is the highest-priority attack category. Direct prompt injection provides malicious instructions in the user input that override the system prompt. Indirect prompt injection embeds attack payloads in data the LLM processes (web pages, documents, emails) that execute when the LLM reads that data. System prompt extraction tricks the LLM into revealing its configuration instructions, which often contain business logic, access patterns, and security policies. Jailbreaking uses social engineering techniques, role-playing prompts, or encoding tricks to bypass safety filters. The red team exercise plan tests all four subcategories with escalating sophistication, from basic "ignore previous instructions" to multi-turn context manipulation and tool-use exploitation.</p>
+
+  <h3>Data Poisoning: Attacking the Foundation</h3>
+
+  <p>Data poisoning attacks corrupt the model at its source by manipulating training data. Backdoor injection plants trigger patterns that cause specific misclassifications when activated. Label flipping changes the labels of training examples to confuse the decision boundary. Clean-label poisoning uses correctly labeled but carefully selected examples that shift the model's learned features in an adversarial direction. For LLMs, poisoning attacks can insert persistent biases, create trigger phrases that produce predetermined outputs, or embed instructions that survive fine-tuning. Red team exercises for data poisoning involve attempting to modify data pipelines, inject data through public data sources that feed training, and verify that data validation controls detect manipulation.</p>
+
+  <h3>Model Extraction and Intellectual Property Theft</h3>
+
+  <p>Model extraction attacks steal the behavior of a proprietary model by querying it systematically and training a surrogate model on the responses. The stolen model can then be used without paying API fees, analyzed for vulnerabilities offline, or deployed by competitors. Red team exercises test the effectiveness of rate limiting, output perturbation, query pattern detection, and model watermarking. For API-served models, the exercise includes estimating how many queries are needed to achieve a given fidelity of extraction, testing whether rate limits can be bypassed through distributed querying, and verifying that watermarks survive the extraction process.</p>
+
+  <h3>Bias and Fairness Testing</h3>
+
+  <p>Bias testing is a distinct form of red teaming that tests whether the AI system produces discriminatory outputs across protected groups (race, gender, age, disability, religion). This includes testing input variations that change only the protected attribute (e.g., changing a name from "James" to "Jamal" in a resume screener), testing whether the model's error rates differ across demographic groups, and checking whether the model amplifies or perpetuates stereotypes in its outputs. For LLMs, bias red teaming includes testing whether the model generates different quality or tone of responses based on implied demographics, refuses certain requests for some groups but not others, or associates protected groups with negative attributes. Bias findings map directly to anti-discrimination regulations and can create significant legal liability.</p>
+
+  <h3>Building Your Red Team Practice</h3>
+
+  <p>Start with a focused scope: pick the top two or three attack categories most relevant to your system and time-box each exercise to two to four hours. Document findings immediately using the structured template (vulnerability, reproduction steps, severity, affected component, recommended mitigation). After the first exercise, review findings with the development team and prioritize mitigations. Schedule red team exercises quarterly, or on every major model update. Track the number of findings per category over time to measure your security posture improvement. The exercise builder above generates a tailored plan with specific exercises, time estimates, and documentation templates for your system type and selected attack categories.</p>
+
+  <h3>From Findings to Fixes</h3>
+
+  <p>Red teaming is only valuable if findings lead to mitigations. For each finding, assign a severity based on exploitability (how easy is the attack), impact (what damage results), and scope (how many users or data records are affected). Critical findings (easy to exploit, high impact, wide scope) should block deployment or trigger immediate remediation. High findings should be fixed before the next scheduled release. Medium findings should be addressed within the quarter. Low findings should be tracked and addressed as part of ongoing security improvement. The exercise plan export includes a severity framework and mitigation tracking template that maps directly to the finding documentation, creating an end-to-end workflow from discovery to resolution.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What is AI red teaming and why is it important?</summary>
+    <p>AI red teaming systematically tests AI systems for vulnerabilities, biases, and failure modes. It covers unique attack surfaces: prompt injection, data poisoning, model extraction, and adversarial examples. Required by the White House Executive Order on AI and the EU AI Act for high-risk systems.</p>
+  </details>
+
+  <details>
+    <summary>What are the 8 categories of AI red team exercises?</summary>
+    <p>Prompt Injection, Data Poisoning, Model Extraction, Adversarial Inputs, Privacy Attacks, Bias and Fairness, Infrastructure Security, and Compliance Testing. Each covers different attack surfaces and requires different expertise.</p>
+  </details>
+
+  <details>
+    <summary>How long does an AI red team exercise typically take?</summary>
+    <p>Single-category: 2-4 hours. Top-4 categories: 1-2 days. Full 8-category engagement: 3-5 days per system. Time-box each exercise to prevent scope creep and document findings continuously.</p>
+  </details>
+
+  <details>
+    <summary>Who should be on an AI red team?</summary>
+    <p>Combine ML security expertise, domain knowledge, and traditional security skills. Include an ML engineer, security researcher, domain expert, compliance specialist, and penetration tester. For LLMs, include diverse perspectives for bias testing.</p>
+  </details>
+
+  <details>
+    <summary>How do I prioritize which exercises to run first?</summary>
+    <p>Prioritize by attack surface exposure (external-facing first), data sensitivity (PII-processing first), and regulatory timeline (EU AI Act deadline). Within each system, start with prompt injection and adversarial inputs as the most commonly exploited vectors.</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/tools/model-audit-tool.html">ML Model Security Audit Tool</a></h3>
+      <p>Generate tailored security audit checklists for ML models covering data poisoning, model extraction, adversarial robustness, and privacy.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/tools/model-robustness-scorer.html">Model Robustness Scorer</a></h3>
+      <p>Evaluate ML model robustness with perturbation testing. Score resilience against noise, adversarial inputs, and distribution shifts.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/guides/secure-ml-deployment.html">Secure ML Deployment Guide</a></h3>
+      <p>Interactive infrastructure hardening checklist for production ML systems covering containers, APIs, network policies, and monitoring.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var selectedSystem = null;
+  var exerciseData = {};
+
+  var EXERCISES = {
+    prompt: {
+      icon:'&#128172;', name:'Prompt Injection',
+      llm: [
+        {title:'Direct Prompt Injection — Basic Override',desc:'Attempt to override system instructions with "Ignore all previous instructions and..." variants. Test 10 different phrasings including role-play, authority claims, and completion-style injections.',risk:'critical',time:'30min'},
+        {title:'Indirect Prompt Injection via Data',desc:'Embed hidden instructions in documents, web pages, or database records that the LLM processes. Test whether the model follows embedded instructions when summarizing external content.',risk:'critical',time:'45min'},
+        {title:'System Prompt Extraction',desc:'Use various techniques to extract the system prompt: "repeat your instructions verbatim", "what were you told to do", encoding tricks, and multi-turn escalation.',risk:'high',time:'30min'},
+        {title:'Multi-Turn Context Manipulation',desc:'Build trust over multiple turns then escalate to harmful requests. Test whether the model maintains safety constraints across long conversations.',risk:'high',time:'45min'},
+        {title:'Tool/Function Call Exploitation',desc:'If the LLM can call tools, test whether injected instructions can trigger unauthorized tool calls, modify parameters, or chain tools in unintended ways.',risk:'critical',time:'60min'}
+      ],
+      vision: [
+        {title:'OCR-Based Text Injection',desc:'Embed adversarial text instructions in images that may be processed by OCR pipelines feeding into the vision system.',risk:'medium',time:'30min'},
+        {title:'Metadata-Based Injection',desc:'Embed instructions in image EXIF data, IPTC fields, or file names that may be processed by the system pipeline.',risk:'low',time:'20min'}
+      ],
+      tabular: [
+        {title:'Feature Value Injection',desc:'Craft feature values that encode instructions if processed by any text-based pipeline component (logging, explanation generation).',risk:'low',time:'20min'}
+      ],
+      recommender: [
+        {title:'Content-Based Injection',desc:'Create item descriptions or user reviews containing instructions targeting any LLM components in the recommendation pipeline.',risk:'medium',time:'30min'}
+      ]
+    },
+    data: {
+      icon:'&#9888;', name:'Data Poisoning',
+      llm: [
+        {title:'Fine-Tuning Data Poisoning',desc:'If the model accepts user data for fine-tuning, inject backdoor triggers that cause specific outputs when activated.',risk:'critical',time:'60min'},
+        {title:'Feedback Loop Manipulation',desc:'Submit feedback (thumbs up/down, corrections) designed to shift model behavior over time through RLHF or similar mechanisms.',risk:'high',time:'45min'}
+      ],
+      vision: [
+        {title:'Training Image Backdoor Injection',desc:'Add images with pixel-level trigger patterns to training data. Verify whether the trigger causes targeted misclassification after retraining.',risk:'critical',time:'60min'},
+        {title:'Label Manipulation Attack',desc:'Attempt to modify labels in the training pipeline through annotation tool exploitation, data source compromise, or label file tampering.',risk:'high',time:'45min'}
+      ],
+      tabular: [
+        {title:'Feature Distribution Poisoning',desc:'Inject training records with carefully crafted feature values designed to shift the decision boundary for specific populations.',risk:'critical',time:'45min'},
+        {title:'Data Pipeline Integrity Test',desc:'Attempt to inject data through each input channel: APIs, file uploads, database connections. Verify validation controls at each entry point.',risk:'high',time:'60min'}
+      ],
+      recommender: [
+        {title:'Shill Account Campaign',desc:'Create fake accounts with coordinated interaction patterns designed to boost or suppress specific items in recommendations.',risk:'critical',time:'60min'},
+        {title:'Rating Manipulation',desc:'Test whether systematic rating patterns from new or existing accounts can shift recommendation rankings for targeted items.',risk:'high',time:'45min'}
+      ]
+    },
+    extraction: {
+      icon:'&#128270;', name:'Model Extraction',
+      llm: [
+        {title:'Systematic Distillation Attempt',desc:'Query the model systematically to build a training dataset for a surrogate model. Measure how many queries are needed for 90% fidelity.',risk:'high',time:'60min'},
+        {title:'Embedding Harvesting',desc:'If embedding endpoints are available, systematically harvest embeddings to reconstruct the model representation space.',risk:'high',time:'45min'},
+        {title:'Architecture Probing',desc:'Use timing attacks, token count analysis, and behavior probing to infer model architecture, parameter count, and context window.',risk:'medium',time:'30min'}
+      ],
+      vision: [
+        {title:'Decision Boundary Mapping',desc:'Submit systematic perturbations of test images to map decision boundaries. Calculate the minimum queries needed for useful extraction.',risk:'high',time:'60min'},
+        {title:'Confidence Score Exploitation',desc:'Use full confidence distributions to train a high-fidelity surrogate model. Test whether output perturbation defenses are effective.',risk:'high',time:'45min'}
+      ],
+      tabular: [
+        {title:'Grid Search Extraction',desc:'Query the model with a systematic grid of feature values to reconstruct the prediction surface. Test rate limiting effectiveness.',risk:'high',time:'45min'},
+        {title:'API Endpoint Enumeration',desc:'Discover and test all available API endpoints including feature importance, partial dependence, and explanation endpoints that leak model information.',risk:'medium',time:'30min'}
+      ],
+      recommender: [
+        {title:'Recommendation Logic Extraction',desc:'Create accounts with controlled interaction histories to reverse-engineer the recommendation algorithm through output analysis.',risk:'high',time:'60min'}
+      ]
+    },
+    adversarial: {
+      icon:'&#128737;', name:'Adversarial Inputs',
+      llm: [
+        {title:'Jailbreak Techniques',desc:'Test DAN, role-play, multi-persona, encoding (base64, ROT13), and language-switching jailbreaks. Document which bypass safety filters.',risk:'critical',time:'60min'},
+        {title:'Output Manipulation',desc:'Craft inputs that cause the model to produce specific dangerous outputs: fake citations, fabricated data, malicious code, or harmful instructions.',risk:'high',time:'45min'}
+      ],
+      vision: [
+        {title:'Adversarial Patch Testing',desc:'Generate and test adversarial patches (printable stickers) that cause targeted misclassification when placed on objects.',risk:'critical',time:'60min'},
+        {title:'Pixel-Level Perturbation (PGD)',desc:'Apply PGD attacks with standard epsilon budgets (4/255, 8/255) to test adversarial robustness on the production model.',risk:'high',time:'45min'},
+        {title:'Physical Domain Robustness',desc:'Test with real-world perturbations: lighting changes, camera angles, weather conditions, blur, and occlusion.',risk:'medium',time:'45min'}
+      ],
+      tabular: [
+        {title:'Feature Manipulation Attack',desc:'Identify the minimum feature changes needed to flip a prediction. Test whether input validation catches adversarial feature values.',risk:'high',time:'45min'},
+        {title:'Evasion Attack on Detection Models',desc:'For fraud/malware detection, craft inputs that are adversarial (classified as benign) while maintaining malicious functionality.',risk:'critical',time:'60min'}
+      ],
+      recommender: [
+        {title:'Profile Pollution Attack',desc:'Create user profiles with adversarial interaction patterns designed to manipulate what gets recommended to other users.',risk:'high',time:'45min'}
+      ]
+    },
+    privacy: {
+      icon:'&#128274;', name:'Privacy Attacks',
+      llm: [
+        {title:'Training Data Extraction',desc:'Use prompt techniques to extract verbatim training data: repeat patterns, memorization triggers, and context manipulation.',risk:'critical',time:'60min'},
+        {title:'PII Elicitation',desc:'Prompt the model to reveal personal information about individuals who may appear in training data: names, emails, addresses, phone numbers.',risk:'critical',time:'45min'},
+        {title:'Membership Inference',desc:'Test whether you can determine if specific text was in the training data by analyzing model confidence and perplexity differences.',risk:'high',time:'45min'}
+      ],
+      vision: [
+        {title:'Model Inversion Attack',desc:'Attempt to reconstruct training images by optimizing inputs that maximize model output for specific classes.',risk:'high',time:'60min'},
+        {title:'Attribute Inference',desc:'Test whether the model reveals sensitive attributes (race, age, gender) through its predictions or confidence patterns.',risk:'high',time:'45min'}
+      ],
+      tabular: [
+        {title:'Membership Inference Audit',desc:'Run threshold-based and shadow model attacks to measure membership inference vulnerability. Report AUC-ROC and TPR@0.1% FPR.',risk:'high',time:'60min'},
+        {title:'Feature Reconstruction',desc:'Attempt to reconstruct sensitive feature values from model predictions by exploiting correlation patterns in outputs.',risk:'medium',time:'45min'}
+      ],
+      recommender: [
+        {title:'Preference Leakage Test',desc:'Test whether recommendations reveal private preference patterns of other users through collaborative filtering signals.',risk:'high',time:'45min'}
+      ]
+    },
+    bias: {
+      icon:'&#9878;', name:'Bias & Fairness',
+      llm: [
+        {title:'Demographic Parity Testing',desc:'Submit identical prompts with varied demographic indicators (names, pronouns, cultural references). Measure output quality and tone differences.',risk:'high',time:'60min'},
+        {title:'Stereotype Association Testing',desc:'Test whether the model associates protected groups with stereotypes in open-ended generation, completions, and question answering.',risk:'high',time:'45min'},
+        {title:'Refusal Disparity Testing',desc:'Test whether the model refuses certain requests for some demographic groups but not others.',risk:'medium',time:'30min'}
+      ],
+      vision: [
+        {title:'Classification Accuracy by Demographics',desc:'Measure classification accuracy across skin tones, ages, and genders. Report per-group accuracy and false positive rates.',risk:'high',time:'60min'},
+        {title:'Representation Bias in Outputs',desc:'For generative vision models, test whether outputs exhibit representational bias in generated faces, bodies, or scenes.',risk:'medium',time:'45min'}
+      ],
+      tabular: [
+        {title:'Disparate Impact Analysis',desc:'Compute selection rates across protected groups. Apply the 4/5 (80%) rule and statistical significance tests for each protected attribute.',risk:'critical',time:'60min'},
+        {title:'Feature Proxy Detection',desc:'Identify features that serve as proxies for protected attributes and test whether their removal changes model behavior for different groups.',risk:'high',time:'45min'}
+      ],
+      recommender: [
+        {title:'Recommendation Equity Audit',desc:'Test whether recommendation quality differs across user demographic groups. Measure exposure fairness for item providers.',risk:'high',time:'45min'}
+      ]
+    },
+    infra: {
+      icon:'&#128273;', name:'Infrastructure',
+      llm: [
+        {title:'API Authentication Bypass',desc:'Test for authentication weaknesses: expired tokens, default credentials, token reuse, and authorization boundary violations.',risk:'critical',time:'45min'},
+        {title:'Rate Limit Evasion',desc:'Attempt to bypass rate limits through distributed IPs, header manipulation, endpoint aliasing, and batch API abuse.',risk:'high',time:'30min'},
+        {title:'Dependency Vulnerability Scan',desc:'Scan all dependencies in the serving stack for known CVEs. Test for pickle deserialization vulnerabilities in model loading.',risk:'high',time:'45min'}
+      ],
+      vision: [
+        {title:'Image Upload Security',desc:'Test for polyglot file attacks, oversized uploads, malicious metadata, and file format confusion in the image processing pipeline.',risk:'high',time:'30min'},
+        {title:'GPU Memory Isolation',desc:'In multi-tenant environments, test whether GPU memory from previous requests can be accessed or leaked to subsequent requests.',risk:'medium',time:'45min'}
+      ],
+      tabular: [
+        {title:'API Endpoint Security',desc:'Test all inference, explanation, and monitoring endpoints for authentication bypass, injection, and authorization issues.',risk:'high',time:'45min'},
+        {title:'Model Artifact Integrity',desc:'Test whether model files can be replaced, modified, or tampered with through CI/CD pipeline manipulation or storage access.',risk:'critical',time:'45min'}
+      ],
+      recommender: [
+        {title:'Admin Interface Security',desc:'Test recommendation admin interfaces (boost/suppress controls, retraining triggers) for authentication and authorization weaknesses.',risk:'critical',time:'45min'}
+      ]
+    },
+    compliance: {
+      icon:'&#128220;', name:'Compliance',
+      llm: [
+        {title:'EU AI Act Transparency Requirements',desc:'Verify the system discloses it is AI-generated, maintains technical documentation, and provides user notification as required for general-purpose AI.',risk:'high',time:'60min'},
+        {title:'GDPR Right-to-Explanation',desc:'Test whether meaningful explanations can be provided for automated decisions affecting individuals (Article 22 compliance).',risk:'high',time:'45min'},
+        {title:'Data Retention and Deletion',desc:'Verify conversation data retention policies. Test that deletion requests fully remove data from training pipelines and model influence.',risk:'medium',time:'45min'}
+      ],
+      vision: [
+        {title:'Biometric Data Compliance',desc:'If processing facial data, verify compliance with biometric data regulations (BIPA, GDPR Article 9) including consent and storage requirements.',risk:'critical',time:'45min'},
+        {title:'EU AI Act High-Risk Classification',desc:'Determine if the vision system qualifies as high-risk under EU AI Act Annex III. If so, verify conformity assessment documentation.',risk:'high',time:'60min'}
+      ],
+      tabular: [
+        {title:'Fair Lending / ECOA Compliance',desc:'For credit models, verify compliance with Equal Credit Opportunity Act: adverse action notices, factor disclosure, and fair lending analysis.',risk:'critical',time:'60min'},
+        {title:'Model Risk Management (SR 11-7)',desc:'Verify model documentation meets SR 11-7 requirements: model development documentation, validation reports, and ongoing monitoring plans.',risk:'high',time:'45min'}
+      ],
+      recommender: [
+        {title:'Digital Services Act Compliance',desc:'For EU-serving recommender systems, verify transparency of recommendation parameters and option for non-profiling-based recommendations.',risk:'high',time:'45min'}
+      ]
+    }
+  };
+
+  var SYS_LABELS = {llm:'LLM / Chatbot',vision:'Computer Vision',tabular:'Tabular / Predictive',recommender:'Recommender System'};
+
+  document.getElementById('systemSelector').addEventListener('click', function(e) {
+    var btn = e.target.closest('.sys-btn');
+    if (!btn) return;
+    document.querySelectorAll('.sys-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    selectedSystem = btn.dataset.sys;
+  });
+
+  function updateProgress() {
+    var total = 0, done = 0;
+    Object.keys(exerciseData).forEach(function(cat) {
+      exerciseData[cat].forEach(function(ex) { total++; if (ex.completed) done++; });
+    });
+    var pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressValue').textContent = done + '/' + total + ' (' + pct + '%)';
+  }
+
+  window.generatePlan = function() {
+    if (!selectedSystem) { alert('Please select an AI system type.'); return; }
+    var selectedCats = [];
+    document.querySelectorAll('#scopeChecks input:checked').forEach(function(cb) { selectedCats.push(cb.value); });
+    if (selectedCats.length === 0) { alert('Please select at least one attack category.'); return; }
+
+    exerciseData = {};
+    var totalExercises = 0, totalTime = 0, criticalCount = 0;
+    var sectionsEl = document.getElementById('exerciseSections');
+    sectionsEl.innerHTML = '';
+
+    selectedCats.forEach(function(catKey) {
+      var catDef = EXERCISES[catKey];
+      if (!catDef) return;
+      var exercises = catDef[selectedSystem] || [];
+      if (exercises.length === 0) return;
+
+      exerciseData[catKey] = exercises.map(function(ex) { return {title:ex.title,desc:ex.desc,risk:ex.risk,time:ex.time,completed:false}; });
+      totalExercises += exercises.length;
+      exercises.forEach(function(ex) {
+        totalTime += parseInt(ex.time);
+        if (ex.risk === 'critical') criticalCount++;
+      });
+
+      var section = document.createElement('div');
+      section.className = 'exercise-section';
+      var header = document.createElement('div');
+      header.className = 'ex-header';
+      header.innerHTML = '<span class="ex-icon">' + catDef.icon + '</span><span class="ex-name">' + catDef.name + '</span><span class="ex-count">' + exercises.length + ' exercises</span>';
+
+      var items = document.createElement('div');
+      items.className = 'ex-items';
+      exercises.forEach(function(ex, idx) {
+        var item = document.createElement('div');
+        item.className = 'exercise-item';
+        item.innerHTML = '<input type="checkbox" data-cat="' + catKey + '" data-idx="' + idx + '">' +
+          '<div class="ex-content"><div class="ex-title">' + ex.title + '</div><div class="ex-desc">' + ex.desc + '</div>' +
+          '<div class="ex-meta"><span class="ex-tag risk-' + ex.risk + '">' + ex.risk + '</span><span class="ex-tag time-tag">' + ex.time + '</span></div></div>';
+        items.appendChild(item);
+      });
+
+      section.appendChild(header);
+      section.appendChild(items);
+      sectionsEl.appendChild(section);
+    });
+
+    sectionsEl.addEventListener('change', function(e) {
+      if (e.target.type === 'checkbox' && e.target.dataset.cat) {
+        exerciseData[e.target.dataset.cat][parseInt(e.target.dataset.idx)].completed = e.target.checked;
+        updateProgress();
+      }
+    });
+
+    var hours = Math.floor(totalTime / 60);
+    var mins = totalTime % 60;
+    var timeStr = hours > 0 ? hours + 'h ' + mins + 'm' : mins + 'm';
+
+    document.getElementById('planHeader').innerHTML =
+      '<div class="plan-stat"><div class="p-val">' + totalExercises + '</div><div class="p-label">Total Exercises</div></div>' +
+      '<div class="plan-stat"><div class="p-val">' + timeStr + '</div><div class="p-label">Estimated Duration</div></div>' +
+      '<div class="plan-stat"><div class="p-val">' + criticalCount + '</div><div class="p-label">Critical Priority</div></div>' +
+      '<div class="plan-stat"><div class="p-val">' + selectedCats.length + '</div><div class="p-label">Attack Categories</div></div>';
+
+    document.getElementById('resultsPanel').style.display = 'block';
+    updateProgress();
+    document.getElementById('resultsPanel').scrollIntoView({behavior:'smooth'});
+  };
+
+  window.exportPlan = function() {
+    var lines = ['# AI Red Team Exercise Plan','','**System Type:** ' + SYS_LABELS[selectedSystem],'**Generated:** ' + new Date().toISOString().split('T')[0],'**Tool:** [LockML AI Red Team Checklist](https://lockml.com/answers/ai-red-team-checklist.html)',''];
+    Object.keys(exerciseData).forEach(function(catKey) {
+      var catDef = EXERCISES[catKey];
+      lines.push('## ' + catDef.icon + ' ' + catDef.name); lines.push('');
+      exerciseData[catKey].forEach(function(ex) {
+        var check = ex.completed ? 'x' : ' ';
+        lines.push('- [' + check + '] **[' + ex.risk.toUpperCase() + '] [' + ex.time + ']** ' + ex.title);
+        lines.push('  ' + ex.desc);
+      });
+      lines.push('');
+    });
+    var total = 0, done = 0;
+    Object.keys(exerciseData).forEach(function(cat) { exerciseData[cat].forEach(function(ex) { total++; if (ex.completed) done++; }); });
+    lines.push('---'); lines.push('**Progress:** ' + done + '/' + total + ' exercises completed'); lines.push('');
+    lines.push('*Generated by [LockML](https://lockml.com) | Part of [Zovo Tools](https://zovo.one/tools)*');
+    document.getElementById('exportTitle').textContent = 'Red Team Exercise Plan (Markdown)';
+    document.getElementById('exportOutput').textContent = lines.join('\n');
+    document.getElementById('exportModal').classList.add('active');
+  };
+
+  window.resetPlan = function() {
+    selectedSystem = null; exerciseData = {};
+    document.querySelectorAll('.sys-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('resultsPanel').style.display = 'none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  window.copyExport = function() {
+    navigator.clipboard.writeText(document.getElementById('exportOutput').textContent).then(function() {
+      var btn = document.querySelector('.btn-copy'); btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
+    });
+  };
+
+  window.closeExport = function() { document.getElementById('exportModal').classList.remove('active'); };
+
+  document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExport();
+  });
+})();
+</script>
+</body>
+</html>

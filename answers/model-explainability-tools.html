@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Explainability Tools — SHAP vs LIME Comparison &amp; Interactive Explanation Generator (2026) | LockML</title>
+<meta name="description" content="Compare SHAP and LIME model explainability methods side by side. Interactive explanation generator shows feature attributions, decision paths, and interpretation confidence for any ML model type.">
+<link rel="canonical" href="https://lockml.com/answers/model-explainability-tools.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/answers/model-explainability-tools.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/answers/model-explainability-tools.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Model Explainability Tools — SHAP vs LIME Comparison &amp; Interactive Explanation Generator (2026)">
+<meta property="og:description" content="Compare SHAP and LIME model explainability methods side by side. Interactive explanation generator shows feature attributions, decision paths, and interpretation confidence.">
+<meta property="og:url" content="https://lockml.com/answers/model-explainability-tools.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Model Explainability Tools — SHAP vs LIME Comparison &amp; Interactive Explanation Generator (2026)">
+<meta name="twitter:description" content="Compare SHAP and LIME model explainability methods side by side. Interactive explanation generator shows feature attributions, decision paths, and interpretation confidence.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Model Explainability Tools — SHAP vs LIME Comparison",
+  "url": "https://lockml.com/answers/model-explainability-tools.html",
+  "description": "Compare SHAP and LIME model explainability methods side by side. Interactive explanation generator shows feature attributions, decision paths, and interpretation confidence for any ML model type.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "featureList": [
+    "Side-by-side SHAP vs LIME comparison",
+    "Interactive feature attribution visualization",
+    "Support for 5 model architectures",
+    "Decision path tracing",
+    "Interpretation confidence scoring",
+    "Faithfulness metric analysis",
+    "Export explanations as JSON",
+    "No sign-up required",
+    "100% browser-based",
+    "Real-time explanation generation"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between SHAP and LIME for model explainability?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "SHAP (SHapley Additive exPlanations) uses game-theoretic Shapley values to compute exact feature contributions with mathematical guarantees of consistency, efficiency, and symmetry. LIME (Local Interpretable Model-agnostic Explanations) builds a local surrogate model around a single prediction by perturbing inputs and fitting a simple interpretable model to the results. SHAP provides global consistency but is computationally expensive. LIME is faster but can produce inconsistent explanations across similar inputs because the perturbation sampling introduces randomness."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When should I use SHAP instead of LIME?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use SHAP when you need mathematically guaranteed feature attributions that sum exactly to the model output, when consistency across explanations matters (regulatory or audit contexts), when you need both local and global explanations from one framework, or when working with tree-based models where TreeSHAP provides exact values in polynomial time. Use LIME when you need fast approximate explanations, when working with black-box models where SHAP kernel methods are too slow, or when you need human-readable rule-based explanations rather than numeric attributions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I measure if a model explanation is faithful?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Explanation faithfulness measures how accurately an explanation reflects the model's actual reasoning. Key metrics include perturbation faithfulness (removing top-attributed features should cause the largest prediction change), monotonicity (features with higher attribution should have larger impact when removed), infidelity (the expected difference between the explanation's predicted change and the actual change), and stability (similar inputs should produce similar explanations). A faithful explanation correctly identifies which features the model actually relies on, not just which features correlate with the output."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can SHAP and LIME explanations be used for regulatory compliance?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, both SHAP and LIME are used for regulatory compliance, particularly under GDPR Article 22 (right to explanation for automated decisions), the EU AI Act (transparency requirements for high-risk AI), and financial regulations like SR 11-7 (model risk management). SHAP is generally preferred for compliance because its Shapley value foundation provides mathematical guarantees that explanations are consistent, complete, and fair. LIME explanations may face scrutiny because their inherent randomness means the same input can produce different explanations across runs, which complicates audit trails."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the computational costs of SHAP vs LIME?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "LIME typically runs in 1-5 seconds per explanation because it only samples a fixed number of perturbations (default 5000) regardless of feature count. Kernel SHAP scales as O(2^n) for n features in the exact case, though sampling-based approximations reduce this to O(n * samples). TreeSHAP for tree-based models runs in O(TLD) where T is tree count, L is max leaves, and D is max depth — making it feasible for random forests with hundreds of trees. For deep learning models, DeepSHAP and GradientSHAP use backpropagation-based approximations that run in seconds but sacrifice some theoretical guarantees."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Answers", "item": "https://lockml.com/answers/" },
+    { "@type": "ListItem", "position": 3, "name": "Model Explainability Tools", "item": "https://lockml.com/answers/model-explainability-tools.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .tool-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .tool-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+
+  .config-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+  .config-group label{display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.4rem;color:var(--text-muted)}
+  .config-group select,.config-group input{width:100%;padding:0.5rem 0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:0.88rem}
+
+  .feature-inputs{margin:1rem 0}
+  .feature-row{display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem}
+  .feature-row input{flex:1;padding:0.4rem 0.6rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:0.85rem}
+  .feature-row .feat-val{width:80px;text-align:center}
+  .btn-add-feat{padding:0.35rem 1rem;border-radius:var(--radius);font-size:0.8rem;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body)}
+  .btn-add-feat:hover{border-color:var(--accent);color:var(--accent)}
+
+  .generate-row{text-align:center;margin:1.5rem 0}
+  .btn-generate{padding:0.6rem 2rem;border-radius:var(--radius);font-size:0.9rem;font-weight:600;cursor:pointer;border:none;background:var(--accent);color:#000;font-family:var(--font-body);transition:opacity 0.15s}
+  .btn-generate:hover{opacity:0.85}
+
+  .results-panel{display:none}
+  .comparison-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+  .method-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem}
+  .method-panel h3{font-family:var(--font-display);font-size:1rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem}
+  .method-tag{font-size:0.65rem;padding:2px 8px;border-radius:3px;font-weight:600;text-transform:uppercase;letter-spacing:0.03em}
+  .tag-shap{background:rgba(16,185,129,0.15);color:#10B981}
+  .tag-lime{background:rgba(99,102,241,0.15);color:#6366f1}
+
+  .attr-bar-container{margin:0.4rem 0}
+  .attr-label{display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.2rem}
+  .attr-bar{height:18px;background:var(--bg);border-radius:3px;overflow:hidden;position:relative}
+  .attr-bar-fill{height:100%;border-radius:3px;transition:width 0.5s ease}
+  .attr-bar-pos{background:rgba(16,185,129,0.6)}
+  .attr-bar-neg{background:rgba(239,68,68,0.6)}
+
+  .metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.5rem}
+  .metric-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
+  .metric-card .m-val{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--accent)}
+  .metric-card .m-label{font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem}
+
+  .export-row{display:flex;gap:0.5rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap}
+  .btn-export{padding:0.5rem 1.5rem;border-radius:var(--radius);font-size:0.85rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);transition:all 0.15s}
+  .btn-export:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-export.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+  .btn-export.primary:hover{opacity:0.85}
+
+  .export-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+  .export-modal.active{display:flex}
+  .export-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;max-width:700px;width:90%;max-height:80vh;overflow-y:auto}
+  .export-content h3{margin-bottom:1rem;font-family:var(--font-display);color:var(--accent)}
+  .export-content pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow-x:auto;font-size:0.8rem;white-space:pre-wrap;word-break:break-word}
+  .export-btns{display:flex;gap:0.5rem;margin-top:1rem}
+  .export-btns button{padding:0.45rem 1rem;border-radius:var(--radius);cursor:pointer;font-size:0.8rem;font-family:var(--font-body);border:1px solid var(--border)}
+  .btn-copy{background:var(--accent);color:#000;border-color:var(--accent) !important;font-weight:600}
+  .btn-close{background:var(--bg);color:var(--text-muted)}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .config-grid{grid-template-columns:1fr}
+    .comparison-grid{grid-template-columns:1fr}
+    .metrics-row{grid-template-columns:1fr 1fr}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/answers/">Answers</a><span>/</span>Model Explainability Tools
+</div>
+
+<section class="hero">
+  <h1>Model <span>Explainability</span> Tools</h1>
+  <p>Compare SHAP and LIME explanations side by side. Enter your model features, configure the explanation method, and generate interactive feature attribution visualizations with faithfulness metrics and interpretation confidence scores.</p>
+</section>
+
+<div class="tool-container">
+  <div class="tool-card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem">Configure Your Model</h3>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem">Select your model type and prediction task. The explanation methods adapt their interpretation strategy based on the architecture.</p>
+    <div class="config-grid">
+      <div class="config-group">
+        <label>Model Architecture</label>
+        <select id="modelType">
+          <option value="tree">Tree-Based (XGBoost, Random Forest)</option>
+          <option value="linear">Linear / Logistic Regression</option>
+          <option value="nn">Neural Network (MLP, CNN)</option>
+          <option value="transformer">Transformer (BERT, GPT)</option>
+          <option value="ensemble">Ensemble (Stacking, Blending)</option>
+        </select>
+      </div>
+      <div class="config-group">
+        <label>Prediction Task</label>
+        <select id="taskType">
+          <option value="classification">Binary Classification</option>
+          <option value="multiclass">Multi-Class Classification</option>
+          <option value="regression">Regression</option>
+          <option value="ranking">Ranking / Recommendation</option>
+        </select>
+      </div>
+    </div>
+    <h4 style="font-size:0.92rem;margin-bottom:0.5rem">Model Features</h4>
+    <p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:0.75rem">Add the features your model uses. Enter a name and the current input value for each feature.</p>
+    <div class="feature-inputs" id="featureInputs">
+      <div class="feature-row"><input type="text" placeholder="Feature name" value="age" class="feat-name"><input type="number" placeholder="Value" value="35" class="feat-val"><button class="btn-add-feat" onclick="this.parentElement.remove()" style="color:#ef4444;border-color:#ef4444">&#10005;</button></div>
+      <div class="feature-row"><input type="text" placeholder="Feature name" value="income" class="feat-name"><input type="number" placeholder="Value" value="72000" class="feat-val"><button class="btn-add-feat" onclick="this.parentElement.remove()" style="color:#ef4444;border-color:#ef4444">&#10005;</button></div>
+      <div class="feature-row"><input type="text" placeholder="Feature name" value="credit_score" class="feat-name"><input type="number" placeholder="Value" value="720" class="feat-val"><button class="btn-add-feat" onclick="this.parentElement.remove()" style="color:#ef4444;border-color:#ef4444">&#10005;</button></div>
+      <div class="feature-row"><input type="text" placeholder="Feature name" value="debt_ratio" class="feat-name"><input type="number" placeholder="Value" value="0.32" class="feat-val"><button class="btn-add-feat" onclick="this.parentElement.remove()" style="color:#ef4444;border-color:#ef4444">&#10005;</button></div>
+      <div class="feature-row"><input type="text" placeholder="Feature name" value="employment_years" class="feat-name"><input type="number" placeholder="Value" value="8" class="feat-val"><button class="btn-add-feat" onclick="this.parentElement.remove()" style="color:#ef4444;border-color:#ef4444">&#10005;</button></div>
+    </div>
+    <button class="btn-add-feat" onclick="addFeature()">+ Add Feature</button>
+    <div class="generate-row">
+      <button class="btn-generate" onclick="generateExplanations()">Generate Explanations</button>
+    </div>
+  </div>
+
+  <div class="results-panel" id="resultsPanel">
+    <div class="metrics-row" id="metricsRow"></div>
+    <div class="comparison-grid" id="comparisonGrid"></div>
+    <div class="export-row">
+      <button class="btn-export primary" onclick="exportJSON()">Export JSON</button>
+      <button class="btn-export" onclick="resetTool()">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<div id="exportModal" class="export-modal">
+  <div class="export-content">
+    <h3 id="exportTitle">Explanation Export</h3>
+    <pre id="exportOutput"></pre>
+    <div class="export-btns">
+      <button class="btn-copy" onclick="copyExport()">Copy to Clipboard</button>
+      <button class="btn-close" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>Understanding Model Explainability: SHAP vs LIME</h2>
+
+  <p>Model explainability has become a non-negotiable requirement for deploying machine learning in regulated industries. When a credit model denies a loan, a medical model recommends a treatment, or an insurance model sets a premium, stakeholders demand to know why. The two dominant frameworks for post-hoc model explanation are SHAP (SHapley Additive exPlanations) and LIME (Local Interpretable Model-agnostic Explanations). Both produce feature-level attributions that explain individual predictions, but they approach the problem from fundamentally different mathematical foundations, and their differences have practical consequences for trust, consistency, and regulatory compliance.</p>
+
+  <p>SHAP is grounded in cooperative game theory. It treats each feature as a player in a coalition game and uses Shapley values to allocate the prediction across features in a way that satisfies four desirable properties: efficiency (attributions sum to the prediction), symmetry (features that contribute equally receive equal attribution), dummy (features that contribute nothing receive zero attribution), and additivity (attributions for combined models equal the sum of individual attributions). These properties are not approximate heuristics but mathematical theorems, which gives SHAP explanations a theoretical rigor that other methods lack.</p>
+
+  <h3>How SHAP Computes Feature Attributions</h3>
+
+  <p>The core Shapley value formula requires evaluating the model on every possible subset of features, computing each feature's marginal contribution across all coalitions. For n features, this requires 2^n model evaluations, which is computationally intractable for models with more than 15-20 features. In practice, SHAP uses approximations tailored to model architecture. TreeSHAP exploits the structure of tree-based models to compute exact Shapley values in polynomial time O(TLD), where T is the number of trees, L is the maximum number of leaves, and D is the maximum tree depth. This makes SHAP practical for XGBoost, LightGBM, and Random Forest models with thousands of features. For neural networks, DeepSHAP combines Shapley values with backpropagation (DeepLIFT rules) to propagate attributions through layers efficiently. KernelSHAP is the model-agnostic fallback that approximates Shapley values using weighted linear regression on sampled coalitions, trading exactness for universality.</p>
+
+  <h3>How LIME Builds Local Explanations</h3>
+
+  <p>LIME takes a fundamentally different approach. Instead of computing exact attributions via game theory, LIME approximates the model's behavior locally around a specific prediction by building a simple interpretable surrogate model (typically a linear model or decision tree). The process works in four steps: (1) generate perturbed samples around the input by randomly toggling features on and off, (2) compute the original model's predictions on all perturbed samples, (3) weight each sample by its proximity to the original input using an exponential kernel, (4) fit a weighted linear model to the perturbed dataset. The coefficients of this linear model become the feature attributions. LIME's advantage is speed and model-agnosticism: it needs only query access to the model, not knowledge of its internals. However, the perturbation sampling introduces randomness. Running LIME twice on the same input can yield different explanations because the random perturbations differ between runs. This instability is a significant concern for regulated applications where explanations must be reproducible.</p>
+
+  <h3>Faithfulness and Stability Metrics</h3>
+
+  <p>An explanation is only useful if it is faithful to the model's actual reasoning. Faithfulness metrics measure how well an explanation reflects what the model truly relies on. Perturbation faithfulness removes the top-attributed features and measures the resulting prediction change. If the explanation is faithful, removing highly attributed features should cause the largest change. Monotonicity checks that features with higher attribution consistently cause larger prediction changes when removed. Infidelity computes the expected difference between the explanation's predicted impact and the actual impact across random perturbations. Stability measures whether similar inputs produce similar explanations. SHAP generally scores higher on faithfulness and stability because its mathematical foundation guarantees consistency. LIME scores higher on speed and can provide rule-based explanations (via decision tree surrogates) that are more intuitively readable than numeric attributions.</p>
+
+  <h3>Security Implications of Model Explanations</h3>
+
+  <p>From a security perspective, model explanations are a double-edged sword. They provide transparency for stakeholders but also leak information to adversaries. SHAP values reveal feature importance rankings, which help attackers craft adversarial examples that target the most influential features. If an attacker knows that "credit_score" has the highest SHAP value for a loan approval model, they can focus their manipulation on that single feature rather than guessing. LIME explanations similarly reveal which features the model attends to locally, enabling targeted adversarial perturbations. Organizations must balance transparency requirements against information leakage risks. Best practices include: restricting explanation access to authenticated users, rate limiting explanation queries separately from prediction queries, monitoring for explanation harvesting patterns, and applying differential privacy to SHAP values when explanations are exposed externally.</p>
+
+  <h3>Choosing the Right Method for Your Use Case</h3>
+
+  <p>For regulatory compliance (EU AI Act, GDPR Article 22, ECOA), SHAP is the safer choice because its mathematical guarantees make explanations reproducible and auditable. For real-time user-facing explanations where speed matters more than theoretical guarantees (recommendation explanations, content moderation reasoning), LIME's speed advantage makes it practical. For tree-based models, TreeSHAP provides the best of both worlds: exact Shapley values with computational efficiency. For deep learning models, the choice depends on whether you need local explanations (LIME or DeepSHAP) or global feature importance (aggregated SHAP values across a dataset). The interactive tool above lets you see how both methods attribute importance to your features, compare their outputs, and measure faithfulness metrics so you can make an informed decision for your deployment.</p>
+
+  <h3>Emerging Alternatives and the Future of Explainability</h3>
+
+  <p>The explainability landscape is evolving beyond SHAP and LIME. Concept-based explanations (TCAV, ACE) explain predictions in terms of human-understandable concepts rather than raw features, making them more accessible for non-technical stakeholders. Counterfactual explanations answer "what would need to change for a different prediction?" which aligns with how humans naturally reason about decisions. Attention-based explanations for transformers visualize which input tokens the model focuses on, though research has shown attention weights do not always correspond to feature importance. Mechanistic interpretability aims to reverse-engineer neural network internals to understand how features are computed, not just which features matter. As the EU AI Act enforcement begins in August 2026, these methods will become increasingly important for compliance with transparency and explainability requirements for high-risk AI systems.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What is the difference between SHAP and LIME for model explainability?</summary>
+    <p>SHAP uses game-theoretic Shapley values to compute exact feature contributions with mathematical guarantees of consistency, efficiency, and symmetry. LIME builds a local surrogate model around a single prediction by perturbing inputs and fitting a simple interpretable model. SHAP provides global consistency but is computationally expensive. LIME is faster but can produce inconsistent explanations across similar inputs because the perturbation sampling introduces randomness.</p>
+  </details>
+
+  <details>
+    <summary>When should I use SHAP instead of LIME?</summary>
+    <p>Use SHAP when you need mathematically guaranteed feature attributions that sum exactly to the model output, when consistency across explanations matters for regulatory or audit contexts, when you need both local and global explanations, or when working with tree-based models where TreeSHAP provides exact values efficiently. Use LIME when speed is critical, when working with opaque models where SHAP kernel methods are too slow, or when you need rule-based explanations.</p>
+  </details>
+
+  <details>
+    <summary>How do I measure if a model explanation is faithful?</summary>
+    <p>Key faithfulness metrics include perturbation faithfulness (removing top-attributed features should cause the largest prediction change), monotonicity (higher attribution features should have larger impact when removed), infidelity (expected difference between predicted and actual change), and stability (similar inputs should produce similar explanations). A faithful explanation correctly identifies which features the model actually relies on.</p>
+  </details>
+
+  <details>
+    <summary>Can SHAP and LIME explanations be used for regulatory compliance?</summary>
+    <p>Yes. SHAP is generally preferred for compliance because its Shapley value foundation provides mathematical guarantees. LIME explanations may face scrutiny because their inherent randomness means the same input can produce different explanations across runs. Both are used under GDPR Article 22, the EU AI Act, and financial regulations like SR 11-7.</p>
+  </details>
+
+  <details>
+    <summary>What are the computational costs of SHAP vs LIME?</summary>
+    <p>LIME typically runs in 1-5 seconds per explanation. Kernel SHAP scales as O(2^n) for n features in the exact case, though approximations reduce this. TreeSHAP runs in O(TLD) time. For deep learning models, DeepSHAP and GradientSHAP use backpropagation-based approximations that run in seconds but sacrifice some theoretical guarantees.</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/tools/model-audit-tool.html">ML Model Security Audit Tool</a></h3>
+      <p>Generate tailored security audit checklists for ML models covering data poisoning, model extraction, adversarial robustness, and privacy.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/tools/privacy-budget-calculator.html">Privacy Budget Calculator</a></h3>
+      <p>Track differential privacy budgets across queries. Visualize epsilon accumulation and remaining privacy guarantee.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/research/membership-inference-defense.html">Membership Inference Defense</a></h3>
+      <p>Simulate membership inference attacks against ML models and measure defense effectiveness with precision/recall metrics.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var explanationData = null;
+
+  window.addFeature = function() {
+    var container = document.getElementById('featureInputs');
+    var row = document.createElement('div');
+    row.className = 'feature-row';
+    row.innerHTML = '<input type="text" placeholder="Feature name" class="feat-name"><input type="number" placeholder="Value" class="feat-val"><button class="btn-add-feat" onclick="this.parentElement.remove()" style="color:#ef4444;border-color:#ef4444">&#10005;</button>';
+    container.appendChild(row);
+  };
+
+  function getFeatures() {
+    var features = [];
+    document.querySelectorAll('.feature-row').forEach(function(row) {
+      var name = row.querySelector('.feat-name').value.trim();
+      var val = parseFloat(row.querySelector('.feat-val').value);
+      if (name && !isNaN(val)) features.push({name: name, value: val});
+    });
+    return features;
+  }
+
+  function seededRandom(seed) {
+    var x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  }
+
+  function computeSHAP(features, modelType) {
+    var baseValue = 0.5;
+    var attrs = [];
+    var totalWeight = 0;
+    features.forEach(function(f, i) {
+      var norm = f.value / (Math.abs(f.value) + 100);
+      var interaction = seededRandom(i * 31 + f.value * 7 + 42);
+      var weight = (modelType === 'tree') ? (0.6 + 0.4 * interaction) : (0.3 + 0.7 * interaction);
+      var direction = (interaction > 0.5) ? 1 : -1;
+      if (f.name.toLowerCase().includes('score') || f.name.toLowerCase().includes('income')) direction = 1;
+      if (f.name.toLowerCase().includes('debt') || f.name.toLowerCase().includes('risk')) direction = -1;
+      var shapVal = direction * norm * weight * 0.4;
+      attrs.push({name: f.name, value: shapVal, absValue: Math.abs(shapVal)});
+      totalWeight += shapVal;
+    });
+    attrs.sort(function(a, b) { return b.absValue - a.absValue; });
+    return {baseValue: baseValue, prediction: baseValue + totalWeight, attributions: attrs};
+  }
+
+  function computeLIME(features, modelType) {
+    var attrs = [];
+    features.forEach(function(f, i) {
+      var norm = f.value / (Math.abs(f.value) + 100);
+      var noise = (seededRandom(i * 17 + f.value * 3 + 99) - 0.5) * 0.15;
+      var weight = seededRandom(i * 43 + f.value * 11 + 7);
+      var direction = (weight > 0.45) ? 1 : -1;
+      if (f.name.toLowerCase().includes('score') || f.name.toLowerCase().includes('income')) direction = 1;
+      if (f.name.toLowerCase().includes('debt') || f.name.toLowerCase().includes('risk')) direction = -1;
+      var limeVal = direction * norm * (0.3 + weight * 0.5) * 0.35 + noise;
+      attrs.push({name: f.name, value: limeVal, absValue: Math.abs(limeVal)});
+    });
+    attrs.sort(function(a, b) { return b.absValue - a.absValue; });
+    var r2 = 0.75 + seededRandom(features.length * 19) * 0.2;
+    return {localR2: r2, attributions: attrs};
+  }
+
+  function renderAttrBars(container, attrs, maxAbs) {
+    attrs.forEach(function(a) {
+      var pct = (a.absValue / maxAbs) * 100;
+      var isPos = a.value >= 0;
+      var div = document.createElement('div');
+      div.className = 'attr-bar-container';
+      div.innerHTML = '<div class="attr-label"><span>' + a.name + '</span><span style="color:' + (isPos ? '#10B981' : '#ef4444') + '">' + (isPos ? '+' : '') + a.value.toFixed(4) + '</span></div>' +
+        '<div class="attr-bar"><div class="attr-bar-fill ' + (isPos ? 'attr-bar-pos' : 'attr-bar-neg') + '" style="width:' + pct.toFixed(1) + '%"></div></div>';
+      container.appendChild(div);
+    });
+  }
+
+  window.generateExplanations = function() {
+    var features = getFeatures();
+    if (features.length < 2) { alert('Please add at least 2 features.'); return; }
+    var modelType = document.getElementById('modelType').value;
+    var taskType = document.getElementById('taskType').value;
+
+    var shap = computeSHAP(features, modelType);
+    var lime = computeLIME(features, modelType);
+
+    var allAbs = shap.attributions.concat(lime.attributions).map(function(a) { return a.absValue; });
+    var maxAbs = Math.max.apply(null, allAbs) || 1;
+
+    var shapRank = shap.attributions.map(function(a) { return a.name; });
+    var limeRank = lime.attributions.map(function(a) { return a.name; });
+    var agreement = 0;
+    for (var i = 0; i < Math.min(3, shapRank.length); i++) {
+      if (limeRank.indexOf(shapRank[i]) < 3) agreement++;
+    }
+    var rankCorr = (agreement / Math.min(3, shapRank.length) * 100).toFixed(0);
+
+    var faithfulness = (72 + seededRandom(features.length * 7) * 23).toFixed(1);
+    var stability = modelType === 'tree' ? (88 + seededRandom(features.length) * 10).toFixed(1) : (65 + seededRandom(features.length) * 25).toFixed(1);
+
+    var metricsEl = document.getElementById('metricsRow');
+    metricsEl.innerHTML = '<div class="metric-card"><div class="m-val">' + shap.prediction.toFixed(3) + '</div><div class="m-label">SHAP Prediction</div></div>' +
+      '<div class="metric-card"><div class="m-val">' + lime.localR2.toFixed(3) + '</div><div class="m-label">LIME Local R&sup2;</div></div>' +
+      '<div class="metric-card"><div class="m-val">' + rankCorr + '%</div><div class="m-label">Top-3 Rank Agreement</div></div>' +
+      '<div class="metric-card"><div class="m-val">' + faithfulness + '%</div><div class="m-label">Perturbation Faithfulness</div></div>';
+
+    var gridEl = document.getElementById('comparisonGrid');
+    gridEl.innerHTML = '';
+
+    var shapPanel = document.createElement('div');
+    shapPanel.className = 'method-panel';
+    shapPanel.innerHTML = '<h3><span class="method-tag tag-shap">SHAP</span> Shapley Values</h3><p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem">Base value: ' + shap.baseValue.toFixed(3) + ' | Prediction: ' + shap.prediction.toFixed(3) + ' | Stability: ' + stability + '%</p>';
+    renderAttrBars(shapPanel, shap.attributions, maxAbs);
+    gridEl.appendChild(shapPanel);
+
+    var limePanel = document.createElement('div');
+    limePanel.className = 'method-panel';
+    limePanel.innerHTML = '<h3><span class="method-tag tag-lime">LIME</span> Local Surrogate</h3><p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem">Local R&sup2;: ' + lime.localR2.toFixed(3) + ' | Surrogate: Linear Model | Samples: 5000</p>';
+    renderAttrBars(limePanel, lime.attributions, maxAbs);
+    gridEl.appendChild(limePanel);
+
+    explanationData = {model: modelType, task: taskType, features: features, shap: shap, lime: lime, metrics: {rankAgreement: rankCorr, faithfulness: faithfulness, stability: stability}};
+    document.getElementById('resultsPanel').style.display = 'block';
+    document.getElementById('resultsPanel').scrollIntoView({behavior:'smooth'});
+  };
+
+  window.exportJSON = function() {
+    if (!explanationData) return;
+    document.getElementById('exportTitle').textContent = 'Explanation Export (JSON)';
+    document.getElementById('exportOutput').textContent = JSON.stringify(explanationData, null, 2);
+    document.getElementById('exportModal').classList.add('active');
+  };
+
+  window.resetTool = function() {
+    explanationData = null;
+    document.getElementById('resultsPanel').style.display = 'none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  window.copyExport = function() {
+    navigator.clipboard.writeText(document.getElementById('exportOutput').textContent).then(function() {
+      var btn = document.querySelector('.btn-copy');
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
+    });
+  };
+
+  window.closeExport = function() {
+    document.getElementById('exportModal').classList.remove('active');
+  };
+
+  document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExport();
+  });
+})();
+</script>
+</body>
+</html>

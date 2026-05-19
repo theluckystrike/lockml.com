@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure ML Deployment Guide — Infrastructure Hardening Checklist (2026) | LockML</title>
+<meta name="description" content="Complete deployment security checklist for production ML systems. Interactive infrastructure hardening guide covering container security, API gateway, model serving, secrets management, network policies, and monitoring.">
+<link rel="canonical" href="https://lockml.com/guides/secure-ml-deployment.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/guides/secure-ml-deployment.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/guides/secure-ml-deployment.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Secure ML Deployment Guide — Infrastructure Hardening Checklist (2026)">
+<meta property="og:description" content="Complete deployment security checklist for production ML systems. Interactive infrastructure hardening guide covering containers, APIs, model serving, and monitoring.">
+<meta property="og:url" content="https://lockml.com/guides/secure-ml-deployment.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Secure ML Deployment Guide — Infrastructure Hardening Checklist (2026)">
+<meta name="twitter:description" content="Complete deployment security checklist for production ML systems. Interactive infrastructure hardening guide covering containers, APIs, model serving, and monitoring.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Secure ML Deployment Guide",
+  "url": "https://lockml.com/guides/secure-ml-deployment.html",
+  "description": "Complete deployment security checklist for production ML systems. Interactive infrastructure hardening guide covering container security, API gateway, model serving, secrets management, network policies, and monitoring.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "featureList": [
+    "8-category security checklist",
+    "50+ hardening items",
+    "Infrastructure-specific recommendations",
+    "Severity-weighted scoring",
+    "Cloud provider guidance (AWS, GCP, Azure)",
+    "Container and Kubernetes security",
+    "API gateway hardening",
+    "Export as Markdown or PDF",
+    "No sign-up required",
+    "100% browser-based"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What are the key security risks when deploying ML models to production?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The key security risks in ML deployment include: model artifact tampering (attackers replacing model weights with backdoored versions), inference API abuse (unauthorized access, rate limit bypass, data exfiltration through queries), container escape vulnerabilities (breaking out of the model serving container to access host systems), supply chain attacks (compromised dependencies in the model serving stack), serialization vulnerabilities (pickle deserialization attacks in PyTorch/sklearn models), GPU memory leaks (sensitive data from previous inference requests persisting in GPU memory), and side-channel attacks (timing or power analysis revealing model architecture or training data)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I secure model artifacts in a production pipeline?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Secure model artifacts with: cryptographic signing using GPG or Sigstore to verify model integrity before deployment, encryption at rest using AES-256 in your model registry, checksums (SHA-256) embedded in deployment manifests that are verified on load, access-controlled model registries (MLflow, Weights & Biases, or cloud-native like SageMaker Model Registry) with audit logging, immutable storage for production model versions, and separation of training and serving environments so training credentials cannot access production model stores."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should ML inference endpoints use mTLS or API keys?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use both in a defense-in-depth approach. API keys provide application-level authentication and are easy to implement and rotate. mTLS (mutual TLS) provides transport-level authentication ensuring both client and server verify each other's identity, preventing man-in-the-middle attacks. For internal services within a Kubernetes cluster, use mTLS via a service mesh (Istio, Linkerd). For external-facing endpoints, use API keys or OAuth2 tokens at the application layer plus TLS for transport encryption. Never expose inference endpoints without authentication, even in internal networks, because lateral movement from a compromised service could reach your model."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I prevent pickle deserialization attacks in model serving?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Pickle deserialization is the most dangerous vulnerability in Python ML deployments. Mitigations include: use safe serialization formats (ONNX, SavedModel, SafeTensors) instead of pickle when possible, never load models from untrusted sources, implement allowlist-based deserialization using fickling or picklescan to detect malicious payloads before loading, run model loading in a sandboxed environment with restricted filesystem and network access, verify model checksums before loading, and use seccomp profiles to limit system calls available during deserialization. PyTorch's torch.load now supports a weights_only=True parameter that prevents arbitrary code execution."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What monitoring should I implement for production ML systems?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Production ML monitoring should cover: inference latency and throughput (detect degradation attacks or resource exhaustion), prediction distribution drift (model outputs shifting from expected patterns), input data validation failures (spike in malformed or adversarial inputs), authentication failures and rate limit hits (brute force or extraction attempts), model version mismatches (unexpected model swaps), resource utilization anomalies (GPU memory, CPU spikes indicating exploitation), error rate monitoring (sudden increases may indicate attacks), and audit logging of all prediction requests with hashed inputs, outputs, model version, and user identity for forensic analysis."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://lockml.com/guides/" },
+    { "@type": "ListItem", "position": 3, "name": "Secure ML Deployment", "item": "https://lockml.com/guides/secure-ml-deployment.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .tool-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .tool-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+
+  .infra-selector{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:0.75rem;margin-bottom:1.5rem}
+  .infra-btn{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;cursor:pointer;transition:all 0.15s;text-align:center}
+  .infra-btn:hover{border-color:var(--accent)}
+  .infra-btn.active{background:var(--accent-dim);border-color:var(--accent)}
+  .infra-btn .i-icon{font-size:1.5rem;display:block;margin-bottom:0.4rem}
+  .infra-btn .i-label{font-size:0.85rem;font-weight:600;display:block}
+  .infra-btn .i-desc{font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.2rem}
+
+  .generate-row{text-align:center;margin:1.5rem 0}
+  .btn-generate{padding:0.6rem 2rem;border-radius:var(--radius);font-size:0.9rem;font-weight:600;cursor:pointer;border:none;background:var(--accent);color:#000;font-family:var(--font-body);transition:opacity 0.15s}
+  .btn-generate:hover{opacity:0.85}
+
+  .score-banner{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1.5rem;flex-wrap:wrap;gap:0.5rem}
+  .score-banner .score-label{font-size:0.9rem;font-weight:600}
+  .score-banner .score-bar-wrap{flex:1;min-width:200px;margin:0 1rem}
+  .score-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+  .score-bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease}
+  .score-value{font-family:var(--font-display);font-size:1.1rem;font-weight:700}
+
+  .checklist-section{margin-bottom:1.5rem}
+  .section-header{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0;cursor:pointer}
+  .section-header .s-icon{font-size:1rem}
+  .section-header .s-name{font-weight:600;font-size:0.9rem;flex:1}
+  .section-header .s-count{font-size:0.75rem;color:var(--text-muted)}
+  .section-items{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius)}
+
+  .audit-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.75rem 1rem;border-bottom:1px solid rgba(34,34,34,0.5);font-size:0.88rem}
+  .audit-item:last-child{border-bottom:none}
+  .audit-item input[type="checkbox"]{margin-top:3px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+  .audit-item .item-content{flex:1}
+  .audit-item .item-name{font-weight:600;margin-bottom:0.2rem}
+  .audit-item .item-desc{color:var(--text-muted);font-size:0.82rem}
+  .severity-badge{font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;padding:2px 6px;border-radius:3px;margin-left:0.5rem;white-space:nowrap}
+  .sev-critical{background:rgba(239,68,68,0.15);color:#ef4444}
+  .sev-high{background:rgba(249,115,22,0.15);color:#f97316}
+  .sev-medium{background:rgba(234,179,8,0.15);color:#eab308}
+  .sev-low{background:rgba(34,197,94,0.15);color:#22c55e}
+
+  .export-row{display:flex;gap:0.5rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap}
+  .btn-export{padding:0.5rem 1.5rem;border-radius:var(--radius);font-size:0.85rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);transition:all 0.15s}
+  .btn-export:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-export.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+  .btn-export.primary:hover{opacity:0.85}
+
+  .export-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+  .export-modal.active{display:flex}
+  .export-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;max-width:700px;width:90%;max-height:80vh;overflow-y:auto}
+  .export-content h3{margin-bottom:1rem;font-family:var(--font-display);color:var(--accent)}
+  .export-content pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow-x:auto;font-size:0.8rem;white-space:pre-wrap;word-break:break-word}
+  .export-btns{display:flex;gap:0.5rem;margin-top:1rem}
+  .export-btns button{padding:0.45rem 1rem;border-radius:var(--radius);cursor:pointer;font-size:0.8rem;font-family:var(--font-body);border:1px solid var(--border)}
+  .btn-copy{background:var(--accent);color:#000;border-color:var(--accent) !important;font-weight:600}
+  .btn-close{background:var(--bg);color:var(--text-muted)}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .infra-selector{grid-template-columns:1fr 1fr}
+    .score-banner{flex-direction:column;text-align:center}
+    .score-banner .score-bar-wrap{margin:0.5rem 0;width:100%}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/guides/">Guides</a><span>/</span>Secure ML Deployment
+</div>
+
+<section class="hero">
+  <h1>Secure ML <span>Deployment</span> Guide</h1>
+  <p>Interactive infrastructure hardening checklist for production ML systems. Select your deployment environment and get a tailored security checklist covering container security, API gateways, model serving, secrets management, network policies, and monitoring.</p>
+</section>
+
+<div class="tool-container">
+  <div class="tool-card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem">Select Your Deployment Environment</h3>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem">Different infrastructure stacks have different security profiles. The checklist adapts recommendations to your specific environment.</p>
+    <div class="infra-selector" id="infraSelector">
+      <div class="infra-btn" data-infra="kubernetes">
+        <span class="i-icon">&#9784;</span>
+        <span class="i-label">Kubernetes</span>
+        <span class="i-desc">K8s, EKS, GKE, AKS</span>
+      </div>
+      <div class="infra-btn" data-infra="serverless">
+        <span class="i-icon">&#9889;</span>
+        <span class="i-label">Serverless</span>
+        <span class="i-desc">Lambda, Cloud Functions</span>
+      </div>
+      <div class="infra-btn" data-infra="managed">
+        <span class="i-icon">&#9729;</span>
+        <span class="i-label">Managed ML</span>
+        <span class="i-desc">SageMaker, Vertex AI</span>
+      </div>
+      <div class="infra-btn" data-infra="vm">
+        <span class="i-icon">&#128187;</span>
+        <span class="i-label">VM / Bare Metal</span>
+        <span class="i-desc">EC2, Compute Engine</span>
+      </div>
+      <div class="infra-btn" data-infra="edge">
+        <span class="i-icon">&#128225;</span>
+        <span class="i-label">Edge / IoT</span>
+        <span class="i-desc">On-device, Edge nodes</span>
+      </div>
+    </div>
+    <div class="generate-row">
+      <button class="btn-generate" onclick="generateChecklist()">Generate Security Checklist</button>
+    </div>
+  </div>
+
+  <div id="checklistResults" style="display:none">
+    <div class="score-banner" id="scoreBanner">
+      <span class="score-label">Hardening Score:</span>
+      <div class="score-bar-wrap"><div class="score-bar"><div class="score-bar-fill" id="scoreBarFill"></div></div></div>
+      <span class="score-value" id="scoreValue">0%</span>
+    </div>
+    <div id="checklistSections"></div>
+    <div class="export-row">
+      <button class="btn-export primary" onclick="exportMarkdown()">Export Markdown</button>
+      <button class="btn-export primary" onclick="exportPDF()">Export PDF</button>
+      <button class="btn-export" onclick="resetChecklist()">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<div id="exportModal" class="export-modal">
+  <div class="export-content">
+    <h3 id="exportTitle">Checklist Export</h3>
+    <pre id="exportOutput"></pre>
+    <div class="export-btns">
+      <button class="btn-copy" onclick="copyExport()">Copy to Clipboard</button>
+      <button class="btn-close" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>Why ML Deployment Security Differs from Traditional Software</h2>
+
+  <p>Deploying machine learning models to production introduces security challenges that do not exist in traditional software systems. A conventional web application serves deterministic responses from code and data that are fully controlled by the development team. An ML system serves probabilistic predictions from a learned model that encodes information about the training data in its weights, accepts arbitrary user inputs that influence its behavior, and often relies on specialized hardware (GPUs, TPUs) with unique security properties. The attack surface expands in three dimensions simultaneously: the model artifact itself becomes a target, the inference pipeline introduces new vulnerability classes, and the operational infrastructure must accommodate ML-specific requirements like GPU memory management and model hot-swapping.</p>
+
+  <p>The most dangerous vulnerability class unique to ML deployments is model serialization attacks. Python's pickle format, used by scikit-learn and PyTorch's default save mechanism, allows arbitrary code execution on deserialization. An attacker who can substitute a model artifact with a malicious pickle file achieves remote code execution in the model serving environment. This is not a theoretical concern: multiple CVEs have been published for model file poisoning, and the SafeTensors format was created specifically to address this class of vulnerability. The deployment checklist below includes specific controls for safe model loading, artifact integrity verification, and sandboxed deserialization.</p>
+
+  <h3>Container Security for Model Serving</h3>
+
+  <p>Most production ML models are served from containers, typically using frameworks like TensorFlow Serving, Triton Inference Server, TorchServe, or custom Flask/FastAPI applications. Container security for ML workloads requires additional considerations beyond standard container hardening. ML containers often need GPU access, which requires privileged device access that conflicts with the principle of least privilege. The NVIDIA Container Toolkit provides a secure way to expose GPUs to containers without full host access, but misconfiguration can allow container escape via GPU driver vulnerabilities. ML containers also tend to be large (multi-GB images with CUDA libraries and model weights), making image scanning slower and more complex. Best practices include using multi-stage builds to minimize the final image size, running model loading and inference as a non-root user, mounting model artifacts as read-only volumes, and using seccomp profiles that restrict the system calls available during model inference.</p>
+
+  <h3>API Gateway and Rate Limiting</h3>
+
+  <p>The inference API is the primary external attack surface of a deployed ML model. Beyond standard API security (authentication, TLS, input validation), ML-specific concerns include model extraction through systematic querying, adversarial example probing, and resource exhaustion via computationally expensive inputs. Rate limiting for ML endpoints must be more granular than traditional API rate limiting. Limits should be set per-user, per-endpoint, per-model, and per-input-size. A single large image sent to a vision model can consume significantly more GPU time than a small text query to an NLP model. Token-based rate limiting (limiting total tokens processed rather than just request count) is essential for language model endpoints. The API gateway should also implement request body size limits, input format validation, and timeout enforcement to prevent slowloris-style attacks that tie up GPU resources.</p>
+
+  <h3>Secrets Management and Model Registries</h3>
+
+  <p>ML deployments involve multiple credential types: API keys for inference endpoints, model registry access tokens, feature store credentials, monitoring service tokens, and cloud provider IAM credentials for GPU instances. These credentials must never be hardcoded in container images, model serving configurations, or CI/CD pipelines. Use a secrets management service (HashiCorp Vault, AWS Secrets Manager, GCP Secret Manager) with short-lived credentials rotated automatically. Model registries (MLflow, Weights and Biases, SageMaker Model Registry, Vertex AI Model Registry) should be treated as critical infrastructure with access controls, audit logging, and integrity verification. Implement least-privilege access: the model serving process should only have read access to model artifacts, not write access to the registry.</p>
+
+  <h3>Network Policies and Segmentation</h3>
+
+  <p>ML inference workloads should be network-segmented from training workloads, data processing pipelines, and general-purpose compute. In Kubernetes, use NetworkPolicies to restrict which pods can communicate with the model serving pods. The inference pods should be able to receive requests from the API gateway and send responses back, but should not have outbound internet access (preventing data exfiltration) or access to the training data storage (preventing unauthorized data access if the inference pod is compromised). For managed ML platforms, use VPC peering or private endpoints to keep model traffic within the private network. GPU-to-GPU communication (used in multi-GPU inference) should be isolated to dedicated subnets with no external routing.</p>
+
+  <h3>Monitoring and Incident Response</h3>
+
+  <p>Production ML monitoring extends traditional infrastructure monitoring with ML-specific signals. Model prediction distribution should be tracked in real time: a sudden shift in output distribution may indicate a model swap attack, data pipeline corruption, or adversarial campaign. Input data quality metrics (out-of-distribution detection, schema validation failure rates) provide early warning of adversarial probing. Performance baselines for inference latency and throughput enable detection of resource exhaustion attacks. All prediction requests should be logged with hashed inputs, outputs, model version, timestamp, and authenticated user identity, creating an audit trail for forensic analysis. Incident response procedures for ML systems should include model rollback procedures (reverting to the previous known-good model version), prediction quarantine (holding suspicious predictions for review), and model isolation (disconnecting the inference endpoint while preserving the model for analysis).</p>
+
+  <h3>Supply Chain Security</h3>
+
+  <p>The ML supply chain is broader and more fragile than the traditional software supply chain. It includes Python packages (PyTorch, TensorFlow, scikit-learn, and their transitive dependencies), pre-trained model weights downloaded from model hubs (Hugging Face, TensorFlow Hub), training data sourced from external providers, and CUDA/cuDNN libraries from NVIDIA. Each component represents a supply chain attack vector. Pin all dependency versions in requirements files, use hash verification for downloaded packages, scan container images for CVEs before deployment, verify model file integrity with cryptographic checksums, and maintain a software bill of materials (SBOM) for your ML stack. The SLSA framework (Supply-chain Levels for Software Artifacts) provides a maturity model for supply chain security that maps well to ML-specific assets when extended to cover model artifacts and training data provenance.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What are the key security risks when deploying ML models to production?</summary>
+    <p>Key risks include model artifact tampering, inference API abuse, container escape vulnerabilities, supply chain attacks, pickle deserialization exploits, GPU memory leaks exposing sensitive data, and side-channel attacks revealing model architecture. Each requires specific mitigations beyond standard software security.</p>
+  </details>
+
+  <details>
+    <summary>How do I secure model artifacts in a production pipeline?</summary>
+    <p>Cryptographically sign models using GPG or Sigstore, encrypt at rest with AES-256, embed SHA-256 checksums in deployment manifests, use access-controlled model registries with audit logging, enforce immutable storage for production versions, and separate training from serving environments.</p>
+  </details>
+
+  <details>
+    <summary>Should ML inference endpoints use mTLS or API keys?</summary>
+    <p>Use both in a defense-in-depth approach. API keys handle application-level authentication, mTLS provides transport-level mutual authentication. For internal services, use mTLS via a service mesh. For external endpoints, combine API keys or OAuth2 with TLS.</p>
+  </details>
+
+  <details>
+    <summary>How do I prevent pickle deserialization attacks in model serving?</summary>
+    <p>Use safe formats (ONNX, SavedModel, SafeTensors) when possible. Never load untrusted models. Scan with fickling or picklescan before loading. Sandbox deserialization with restricted filesystem and network. Use seccomp profiles to limit system calls. PyTorch supports weights_only=True to prevent code execution.</p>
+  </details>
+
+  <details>
+    <summary>What monitoring should I implement for production ML systems?</summary>
+    <p>Monitor inference latency, prediction distribution drift, input validation failures, authentication failures, model version mismatches, GPU resource anomalies, error rates, and maintain complete audit logs of all requests with hashed inputs, outputs, model version, and user identity.</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/tools/model-audit-tool.html">ML Model Security Audit Tool</a></h3>
+      <p>Generate tailored security audit checklists for ML models covering data poisoning, model extraction, adversarial robustness, and privacy.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/tools/model-robustness-scorer.html">Model Robustness Scorer</a></h3>
+      <p>Evaluate ML model robustness with perturbation testing. Score resilience against noise, adversarial inputs, and distribution shifts.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/answers/ai-red-team-checklist.html">AI Red Team Checklist</a></h3>
+      <p>Interactive AI red teaming methodology with exercise builder. Systematically test ML systems for vulnerabilities across attack categories.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var selectedInfra = null;
+  var checklistData = {};
+
+  var CHECKLISTS = {
+    kubernetes: {
+      containerSecurity: [
+        {name:'Non-Root Container Execution',desc:'Run model serving containers as non-root user. Set runAsNonRoot:true and runAsUser in securityContext.',sev:'critical'},
+        {name:'Read-Only Root Filesystem',desc:'Mount the container root filesystem as read-only. Use emptyDir volumes for temporary files needed during inference.',sev:'critical'},
+        {name:'GPU Device Plugin Security',desc:'Use NVIDIA device plugin with proper resource limits. Prevent GPU oversubscription across pods.',sev:'high'},
+        {name:'Image Vulnerability Scanning',desc:'Scan all container images with Trivy, Grype, or Snyk before deployment. Block images with critical CVEs.',sev:'high'},
+        {name:'Seccomp Profile Enforcement',desc:'Apply restrictive seccomp profiles to model serving pods. Block unnecessary system calls during inference.',sev:'medium'},
+        {name:'Resource Limits and Quotas',desc:'Set CPU, memory, and GPU limits for all model serving pods. Prevent resource exhaustion from adversarial inputs.',sev:'medium'}
+      ],
+      apiSecurity: [
+        {name:'Ingress TLS Termination',desc:'Terminate TLS at the ingress controller with TLS 1.3. Use cert-manager for automatic certificate rotation.',sev:'critical'},
+        {name:'Authentication Enforcement',desc:'Require JWT or API key authentication for all inference endpoints. Reject unauthenticated requests at the ingress level.',sev:'critical'},
+        {name:'Rate Limiting per Model',desc:'Configure per-model, per-user rate limits in the API gateway. Set token-based limits for language model endpoints.',sev:'high'},
+        {name:'Input Size Validation',desc:'Enforce maximum request body size, image dimensions, and token count limits at the gateway level.',sev:'high'},
+        {name:'Request Timeout Configuration',desc:'Set aggressive timeouts (5-30s) for inference requests. Kill long-running requests that may indicate adversarial inputs.',sev:'medium'},
+        {name:'CORS and Origin Restrictions',desc:'Restrict CORS origins to trusted domains. Prevent cross-origin inference API abuse from malicious websites.',sev:'medium'}
+      ],
+      modelArtifacts: [
+        {name:'Cryptographic Model Signing',desc:'Sign model artifacts with GPG or cosign (Sigstore). Verify signatures in the init container before model loading.',sev:'critical'},
+        {name:'Safe Serialization Formats',desc:'Use SafeTensors or ONNX instead of pickle. If pickle is required, scan with picklescan before loading.',sev:'critical'},
+        {name:'Model Registry Access Control',desc:'Restrict model registry access with RBAC. Separate read (serving) and write (training) permissions.',sev:'high'},
+        {name:'Immutable Model Versions',desc:'Tag model artifacts as immutable after deployment approval. Prevent in-place modification of production models.',sev:'high'},
+        {name:'Model Checksum Verification',desc:'Embed SHA-256 checksums in deployment manifests. Verify integrity before model loading in the init container.',sev:'medium'}
+      ],
+      networkPolicies: [
+        {name:'Default Deny Network Policy',desc:'Apply default-deny NetworkPolicy to model serving namespace. Explicitly allow only required traffic patterns.',sev:'critical'},
+        {name:'Ingress Restriction to API Gateway',desc:'Allow ingress only from the API gateway pods. Block direct pod-to-pod access to inference endpoints.',sev:'high'},
+        {name:'Egress Restriction',desc:'Block outbound internet access from inference pods. Allow only DNS, metrics endpoints, and model registry.',sev:'high'},
+        {name:'Service Mesh mTLS',desc:'Deploy Istio or Linkerd for automatic mTLS between services. Encrypt all intra-cluster model serving traffic.',sev:'medium'},
+        {name:'GPU Network Isolation',desc:'Isolate GPU-to-GPU communication on dedicated subnets. Prevent multi-GPU inference traffic from leaking to other pods.',sev:'medium'}
+      ],
+      secretsManagement: [
+        {name:'External Secrets Operator',desc:'Use External Secrets Operator to sync secrets from Vault, AWS SM, or GCP SM. Never store secrets in ConfigMaps.',sev:'critical'},
+        {name:'Service Account Token Rotation',desc:'Enable bound service account token volumes with short TTL. Disable auto-mounting for pods that do not need API access.',sev:'high'},
+        {name:'Encryption at Rest for etcd',desc:'Enable etcd encryption for Kubernetes secrets. Use KMS provider for envelope encryption with customer-managed keys.',sev:'high'},
+        {name:'Secret Rotation Automation',desc:'Automate API key and credential rotation. Set maximum TTL and enforce rotation on model registry tokens.',sev:'medium'}
+      ],
+      monitoring: [
+        {name:'Prediction Distribution Monitoring',desc:'Track output distributions in real time with Prometheus metrics. Alert on distribution shifts exceeding 2 standard deviations.',sev:'high'},
+        {name:'Inference Audit Logging',desc:'Log all prediction requests with hashed inputs, outputs, model version, timestamp, and user ID to an immutable log store.',sev:'high'},
+        {name:'Resource Utilization Alerting',desc:'Alert on GPU memory utilization exceeding 90%, CPU spikes, and anomalous memory allocation patterns.',sev:'medium'},
+        {name:'Model Version Tracking',desc:'Log which model version serves each request. Alert on unexpected model version changes in production.',sev:'medium'},
+        {name:'Error Rate Monitoring',desc:'Track inference error rates by error type. Alert on sudden increases that may indicate attacks or model corruption.',sev:'medium'}
+      ]
+    },
+    serverless: {
+      containerSecurity: [
+        {name:'Minimal Runtime Image',desc:'Use the smallest possible runtime layer. Exclude build tools, compilers, and unnecessary libraries from the deployment package.',sev:'high'},
+        {name:'Dependency Pinning and Scanning',desc:'Pin all Python dependencies with exact versions and hashes. Scan for CVEs in the deployment package.',sev:'high'},
+        {name:'Ephemeral Storage Only',desc:'Ensure model inference uses only ephemeral /tmp storage. No persistent state between invocations.',sev:'medium'},
+        {name:'Memory Limit Configuration',desc:'Set memory limits appropriate for model inference. Prevent memory exhaustion from adversarial inputs.',sev:'medium'}
+      ],
+      apiSecurity: [
+        {name:'API Gateway Authentication',desc:'Require authentication via API Gateway authorizers (Lambda, Cognito, or IAM). No public inference endpoints.',sev:'critical'},
+        {name:'Request Throttling',desc:'Configure per-user and per-API key throttling in API Gateway. Set burst and sustained rate limits.',sev:'critical'},
+        {name:'Input Validation at Gateway',desc:'Validate request schemas, body size, and content type at the API Gateway level before invoking the function.',sev:'high'},
+        {name:'WAF Integration',desc:'Deploy AWS WAF or equivalent in front of inference endpoints. Block known attack patterns and geographic restrictions.',sev:'high'},
+        {name:'Function URL Restriction',desc:'Disable direct function URLs. Route all traffic through the API Gateway for consistent security enforcement.',sev:'medium'}
+      ],
+      modelArtifacts: [
+        {name:'Model Layer Integrity',desc:'Store models in Lambda layers or S3 with integrity verification. Verify checksums on cold start before loading.',sev:'critical'},
+        {name:'S3 Bucket Policy Hardening',desc:'Restrict model S3 bucket access to the function execution role only. Enable versioning and block public access.',sev:'high'},
+        {name:'Safe Deserialization',desc:'Use ONNX Runtime or SafeTensors for model loading. Avoid pickle in serverless environments where containers are shared.',sev:'high'},
+        {name:'Model Version Pinning',desc:'Pin model version in environment variables or parameter store. Prevent silent model updates across invocations.',sev:'medium'}
+      ],
+      networkPolicies: [
+        {name:'VPC Configuration',desc:'Deploy inference functions in a VPC with private subnets. No public IP assignment to function instances.',sev:'high'},
+        {name:'VPC Endpoint Usage',desc:'Use VPC endpoints for S3, DynamoDB, and other AWS services. Eliminate internet gateway dependency for model loading.',sev:'high'},
+        {name:'Security Group Restriction',desc:'Restrict outbound traffic from function security groups. Allow only required endpoints (model storage, metrics).',sev:'medium'}
+      ],
+      secretsManagement: [
+        {name:'Parameter Store / Secrets Manager',desc:'Store API keys and credentials in SSM Parameter Store or Secrets Manager. Never use environment variables for secrets.',sev:'critical'},
+        {name:'Execution Role Least Privilege',desc:'Grant the function execution role minimum required permissions. No wildcard IAM policies.',sev:'critical'},
+        {name:'Secret Caching and Rotation',desc:'Cache secrets in function memory with TTL. Enable automatic rotation for all credentials.',sev:'medium'}
+      ],
+      monitoring: [
+        {name:'CloudWatch Inference Metrics',desc:'Publish custom metrics for prediction latency, distribution, and error rates. Create alarms for anomalous patterns.',sev:'high'},
+        {name:'Request Logging to CloudTrail',desc:'Enable API Gateway access logging and CloudTrail for all inference endpoint invocations.',sev:'high'},
+        {name:'Cold Start Monitoring',desc:'Track cold start frequency and duration. Detect if model loading is being triggered unusually often.',sev:'medium'},
+        {name:'Concurrency Monitoring',desc:'Monitor reserved and provisioned concurrency utilization. Alert on throttling that may indicate a DDoS attempt.',sev:'medium'}
+      ]
+    },
+    managed: {
+      containerSecurity: [
+        {name:'Managed Endpoint Configuration',desc:'Use managed inference endpoints (SageMaker, Vertex AI) with provider-managed container security and patching.',sev:'high'},
+        {name:'Custom Container Scanning',desc:'If using custom containers, scan with provider-native tools (ECR scanning, Artifact Registry scanning) before deployment.',sev:'high'},
+        {name:'Instance Type Selection',desc:'Choose instance types with hardware-level isolation (dedicated tenancy) for sensitive models processing PII.',sev:'medium'}
+      ],
+      apiSecurity: [
+        {name:'IAM-Based Endpoint Access',desc:'Use IAM roles and policies for endpoint authentication. Avoid signature-less invocation methods.',sev:'critical'},
+        {name:'VPC Endpoint Configuration',desc:'Deploy inference endpoints in private VPC mode. Use VPC endpoints for invocation, not public URLs.',sev:'critical'},
+        {name:'Auto-Scaling Limits',desc:'Set minimum and maximum instance counts. Prevent cost explosion from DDoS-style inference floods.',sev:'high'},
+        {name:'Request Validation Pipeline',desc:'Implement input validation in a preprocessing step before the model container receives data.',sev:'high'},
+        {name:'Endpoint Tagging and ABAC',desc:'Tag endpoints with sensitivity levels. Use attribute-based access control for fine-grained permissions.',sev:'medium'}
+      ],
+      modelArtifacts: [
+        {name:'Model Registry with Approval Workflow',desc:'Use the managed model registry with required approvals before models can be deployed to production.',sev:'critical'},
+        {name:'Model Package Encryption',desc:'Enable encryption for model artifacts in the registry. Use customer-managed KMS keys for regulated data.',sev:'high'},
+        {name:'Model Lineage Tracking',desc:'Enable model lineage to track training data, code, and hyperparameters for each deployed model version.',sev:'high'},
+        {name:'A/B Testing with Canary Deployment',desc:'Deploy new models as canary endpoints. Monitor prediction quality before shifting full traffic.',sev:'medium'}
+      ],
+      networkPolicies: [
+        {name:'Private VPC Deployment',desc:'Deploy all inference infrastructure in private subnets. No public IP addresses on any ML resources.',sev:'critical'},
+        {name:'Network Isolation Between Stages',desc:'Separate dev, staging, and production ML environments with distinct VPCs or strict security group rules.',sev:'high'},
+        {name:'Data Access Boundary',desc:'Ensure inference endpoints cannot access training data stores. Enforce strict network boundaries between training and serving.',sev:'high'}
+      ],
+      secretsManagement: [
+        {name:'Service-Linked Role Configuration',desc:'Use service-linked roles with minimum permissions for managed ML services. Audit role policies quarterly.',sev:'critical'},
+        {name:'KMS Key Management',desc:'Use customer-managed KMS keys for model encryption, endpoint encryption, and log encryption.',sev:'high'},
+        {name:'Cross-Account Access Restriction',desc:'Restrict cross-account access to model artifacts and endpoints. Use resource policies with explicit account allowlists.',sev:'medium'}
+      ],
+      monitoring: [
+        {name:'Built-In Model Monitoring',desc:'Enable provider-native model monitoring (SageMaker Model Monitor, Vertex AI Model Monitoring) for data and prediction drift.',sev:'high'},
+        {name:'Endpoint Health Dashboards',desc:'Create dashboards tracking inference latency, error rates, instance health, and auto-scaling events.',sev:'high'},
+        {name:'CloudTrail / Audit Logging',desc:'Enable audit logging for all model registry, endpoint, and deployment actions. Archive logs for compliance.',sev:'high'},
+        {name:'Cost Anomaly Detection',desc:'Set up cost anomaly alerts for ML resources. Sudden cost spikes may indicate unauthorized usage or attacks.',sev:'medium'}
+      ]
+    },
+    vm: {
+      containerSecurity: [
+        {name:'OS Hardening (CIS Benchmark)',desc:'Apply CIS benchmarks for the OS distribution. Disable unnecessary services, remove unused packages, configure audit logging.',sev:'critical'},
+        {name:'Automatic Security Patching',desc:'Enable unattended security updates for the OS and system packages. Schedule GPU driver updates during maintenance windows.',sev:'critical'},
+        {name:'Process Isolation',desc:'Run model serving processes as dedicated non-root users with restricted shell access and filesystem permissions.',sev:'high'},
+        {name:'Firewall Configuration',desc:'Configure host firewall (iptables/nftables) to allow only inference port, SSH from bastion, and monitoring agents.',sev:'high'},
+        {name:'Disk Encryption',desc:'Enable full disk encryption for the model serving VM. Use LUKS or provider-managed encryption for EBS/persistent disks.',sev:'medium'}
+      ],
+      apiSecurity: [
+        {name:'Reverse Proxy with TLS',desc:'Deploy nginx or Caddy as reverse proxy with TLS termination. Never expose model serving frameworks directly.',sev:'critical'},
+        {name:'Authentication Middleware',desc:'Implement authentication middleware (API keys, JWT validation) in the reverse proxy or application layer.',sev:'critical'},
+        {name:'Rate Limiting at Proxy',desc:'Configure rate limiting in the reverse proxy. Set limits per IP, per API key, and per endpoint.',sev:'high'},
+        {name:'Input Validation Layer',desc:'Add an input validation layer between the proxy and model server. Validate schemas, sizes, and content types.',sev:'high'}
+      ],
+      modelArtifacts: [
+        {name:'Signed Model Downloads',desc:'Download models from signed URLs with integrity verification. Verify SHA-256 checksums before loading.',sev:'critical'},
+        {name:'Filesystem Permissions',desc:'Store model files with read-only permissions for the serving user. Restrict write access to deployment automation only.',sev:'high'},
+        {name:'Model Backup and Rollback',desc:'Maintain the previous model version on disk for instant rollback. Automate rollback on serving errors.',sev:'medium'}
+      ],
+      networkPolicies: [
+        {name:'Security Group Hardening',desc:'Restrict inbound traffic to inference port from load balancer only. Allow SSH only from bastion host.',sev:'critical'},
+        {name:'Private Subnet Deployment',desc:'Deploy inference VMs in private subnets. Use NAT gateway for limited outbound access (updates, metrics).',sev:'high'},
+        {name:'Network ACLs',desc:'Apply network ACLs as an additional layer. Block all traffic by default, explicitly allow required flows.',sev:'medium'}
+      ],
+      secretsManagement: [
+        {name:'Instance Profile Credentials',desc:'Use instance profiles or managed identity for cloud API access. Never store long-lived credentials on the VM.',sev:'critical'},
+        {name:'SSH Key Management',desc:'Use SSH certificates or short-lived keys from a CA. Disable password authentication. Rotate keys quarterly.',sev:'high'},
+        {name:'Environment Variable Protection',desc:'Never pass secrets via environment variables. Use a secrets agent or file-based injection with restricted permissions.',sev:'high'}
+      ],
+      monitoring: [
+        {name:'System-Level Monitoring',desc:'Deploy monitoring agents for CPU, memory, disk, GPU utilization, and network traffic. Alert on anomalies.',sev:'high'},
+        {name:'Application-Level Logging',desc:'Log all inference requests with the model server. Ship logs to a centralized, tamper-evident logging system.',sev:'high'},
+        {name:'Intrusion Detection',desc:'Deploy host-based IDS (OSSEC, Falco) to detect unauthorized file access, process execution, and network connections.',sev:'medium'},
+        {name:'GPU Health Monitoring',desc:'Monitor GPU temperature, memory errors, and utilization. Hardware failures can cause silent prediction corruption.',sev:'medium'}
+      ]
+    },
+    edge: {
+      containerSecurity: [
+        {name:'Firmware Integrity Verification',desc:'Verify firmware and OS integrity on boot using secure boot and TPM attestation. Detect tampering at the hardware level.',sev:'critical'},
+        {name:'Minimal OS Footprint',desc:'Use minimal OS distributions (Alpine, Yocto) for edge devices. Remove all unnecessary packages, services, and users.',sev:'critical'},
+        {name:'Binary Signing and Verification',desc:'Sign model serving binaries and verify signatures before execution. Prevent unauthorized code from running on edge devices.',sev:'high'},
+        {name:'Memory Protection',desc:'Enable ASLR, DEP, and stack canaries for model serving processes. Protect against memory corruption exploits.',sev:'high'},
+        {name:'Watchdog Process',desc:'Deploy a watchdog that monitors the model serving process. Restart or alert on crashes, hangs, or unexpected behavior.',sev:'medium'}
+      ],
+      apiSecurity: [
+        {name:'Local Authentication',desc:'Require authentication for local inference APIs. Even on-device APIs should not be accessible to unauthorized processes.',sev:'critical'},
+        {name:'Input Sanitization',desc:'Validate all inputs from sensors and external interfaces. Reject malformed data before it reaches the model.',sev:'high'},
+        {name:'Output Throttling',desc:'Limit prediction output rate to prevent information extraction from physical access to the device.',sev:'medium'},
+        {name:'Offline Operation Security',desc:'Ensure security controls function without network connectivity. Cache authentication tokens with appropriate TTL.',sev:'medium'}
+      ],
+      modelArtifacts: [
+        {name:'Encrypted Model Storage',desc:'Encrypt model files on the device storage. Use hardware-backed encryption keys (TEE, TPM) where available.',sev:'critical'},
+        {name:'Secure Model Update Channel',desc:'Use TLS-pinned connections for over-the-air model updates. Verify model signatures before applying updates.',sev:'critical'},
+        {name:'Model Obfuscation',desc:'Apply model obfuscation techniques to hinder reverse engineering if the device is physically captured.',sev:'high'},
+        {name:'Rollback Protection',desc:'Prevent rollback to vulnerable model versions. Maintain a monotonic version counter verified before model loading.',sev:'medium'}
+      ],
+      networkPolicies: [
+        {name:'Minimal Network Exposure',desc:'Disable all unnecessary network interfaces. Only enable required protocols for model updates and telemetry.',sev:'critical'},
+        {name:'TLS for All External Communication',desc:'Encrypt all communication leaving the device. Use certificate pinning to prevent MITM attacks.',sev:'high'},
+        {name:'Local Network Isolation',desc:'Isolate edge devices on dedicated network segments. Prevent lateral movement from compromised IoT devices.',sev:'high'}
+      ],
+      secretsManagement: [
+        {name:'Hardware-Backed Key Storage',desc:'Store cryptographic keys in TPM, secure enclave, or TEE. Never store keys in plaintext on the filesystem.',sev:'critical'},
+        {name:'Device Identity Certificates',desc:'Issue unique identity certificates per device. Use mutual TLS for device authentication to backend services.',sev:'high'},
+        {name:'Secret Provisioning at Manufacturing',desc:'Inject device secrets during manufacturing in a secure facility. Never distribute secrets over the network to new devices.',sev:'high'}
+      ],
+      monitoring: [
+        {name:'Tamper Detection Logging',desc:'Log physical tamper detection events. Alert on case opening, voltage anomalies, or temperature extremes.',sev:'high'},
+        {name:'Prediction Quality Monitoring',desc:'Track prediction confidence distributions locally. Upload aggregated quality metrics when network is available.',sev:'medium'},
+        {name:'Health Telemetry',desc:'Send periodic device health telemetry (uptime, error rates, resource utilization) to a central monitoring system.',sev:'medium'},
+        {name:'Anomaly Detection on Device',desc:'Run lightweight anomaly detection on local prediction patterns. Flag unusual inputs or outputs for review.',sev:'low'}
+      ]
+    }
+  };
+
+  var CATEGORY_META = {
+    containerSecurity: {icon:'&#128230;', name:'Container & Runtime Security'},
+    apiSecurity: {icon:'&#128272;', name:'API & Gateway Security'},
+    modelArtifacts: {icon:'&#128451;', name:'Model Artifact Security'},
+    networkPolicies: {icon:'&#128279;', name:'Network Policies'},
+    secretsManagement: {icon:'&#128273;', name:'Secrets Management'},
+    monitoring: {icon:'&#128200;', name:'Monitoring & Incident Response'}
+  };
+
+  var INFRA_LABELS = {kubernetes:'Kubernetes',serverless:'Serverless',managed:'Managed ML',vm:'VM / Bare Metal',edge:'Edge / IoT'};
+
+  document.getElementById('infraSelector').addEventListener('click', function(e) {
+    var btn = e.target.closest('.infra-btn');
+    if (!btn) return;
+    document.querySelectorAll('.infra-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    selectedInfra = btn.dataset.infra;
+  });
+
+  function sevWeight(sev) { return sev === 'critical' ? 4 : sev === 'high' ? 2 : sev === 'medium' ? 1 : 0.5; }
+
+  function updateScore() {
+    var total = 0, completed = 0;
+    Object.keys(checklistData).forEach(function(cat) {
+      checklistData[cat].forEach(function(item) {
+        var w = sevWeight(item.sev);
+        total += w;
+        if (item.checked) completed += w;
+      });
+    });
+    var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    document.getElementById('scoreValue').textContent = pct + '%';
+    var fill = document.getElementById('scoreBarFill');
+    fill.style.width = pct + '%';
+    fill.style.background = pct >= 80 ? '#22c55e' : pct >= 50 ? '#eab308' : '#ef4444';
+  }
+
+  window.generateChecklist = function() {
+    if (!selectedInfra) return;
+    var checklist = CHECKLISTS[selectedInfra];
+    if (!checklist) return;
+    checklistData = {};
+    var sectionsEl = document.getElementById('checklistSections');
+    sectionsEl.innerHTML = '';
+
+    Object.keys(CATEGORY_META).forEach(function(catKey) {
+      var items = checklist[catKey];
+      if (!items) return;
+      checklistData[catKey] = items.map(function(item) { return {name:item.name,desc:item.desc,sev:item.sev,checked:false}; });
+
+      var section = document.createElement('div');
+      section.className = 'checklist-section';
+      var header = document.createElement('div');
+      header.className = 'section-header';
+      header.innerHTML = '<span class="s-icon">' + CATEGORY_META[catKey].icon + '</span><span class="s-name">' + CATEGORY_META[catKey].name + '</span><span class="s-count">' + items.length + ' items</span>';
+
+      var itemsEl = document.createElement('div');
+      itemsEl.className = 'section-items';
+      items.forEach(function(item, idx) {
+        var itemEl = document.createElement('div');
+        itemEl.className = 'audit-item';
+        itemEl.innerHTML = '<input type="checkbox" data-cat="' + catKey + '" data-idx="' + idx + '"><div class="item-content"><div class="item-name">' + item.name + ' <span class="severity-badge sev-' + item.sev + '">' + item.sev + '</span></div><div class="item-desc">' + item.desc + '</div></div>';
+        itemsEl.appendChild(itemEl);
+      });
+
+      section.appendChild(header);
+      section.appendChild(itemsEl);
+      sectionsEl.appendChild(section);
+    });
+
+    sectionsEl.addEventListener('change', function(e) {
+      if (e.target.type === 'checkbox') {
+        checklistData[e.target.dataset.cat][parseInt(e.target.dataset.idx)].checked = e.target.checked;
+        updateScore();
+      }
+    });
+
+    document.getElementById('checklistResults').style.display = 'block';
+    updateScore();
+    document.getElementById('checklistResults').scrollIntoView({behavior:'smooth'});
+  };
+
+  window.exportMarkdown = function() {
+    var lines = ['# Secure ML Deployment Checklist','','**Environment:** ' + INFRA_LABELS[selectedInfra],'**Generated:** ' + new Date().toISOString().split('T')[0],'**Tool:** [LockML Deployment Guide](https://lockml.com/guides/secure-ml-deployment.html)',''];
+    var total = 0, completed = 0;
+    Object.keys(checklistData).forEach(function(catKey) {
+      lines.push('## ' + CATEGORY_META[catKey].name); lines.push('');
+      checklistData[catKey].forEach(function(item) {
+        var check = item.checked ? 'x' : ' ';
+        lines.push('- [' + check + '] **[' + item.sev.toUpperCase() + ']** ' + item.name);
+        lines.push('  ' + item.desc);
+        var w = sevWeight(item.sev); total += w; if (item.checked) completed += w;
+      });
+      lines.push('');
+    });
+    var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    lines.push('---'); lines.push('**Hardening Score:** ' + pct + '%'); lines.push('');
+    lines.push('*Generated by [LockML](https://lockml.com) | Part of [Zovo Tools](https://zovo.one/tools)*');
+    document.getElementById('exportTitle').textContent = 'Markdown Export';
+    document.getElementById('exportOutput').textContent = lines.join('\n');
+    document.getElementById('exportModal').classList.add('active');
+  };
+
+  window.exportPDF = function() {
+    var title = 'Secure ML Deployment — ' + INFRA_LABELS[selectedInfra];
+    var total = 0, completed = 0, bodyContent = '';
+    Object.keys(checklistData).forEach(function(catKey) {
+      bodyContent += '<h2 style="color:#10B981;margin-top:24px">' + CATEGORY_META[catKey].name + '</h2>';
+      checklistData[catKey].forEach(function(item) {
+        var check = item.checked ? '&#10003;' : '&#9744;';
+        var color = item.sev === 'critical' ? '#ef4444' : item.sev === 'high' ? '#f97316' : item.sev === 'medium' ? '#eab308' : '#22c55e';
+        bodyContent += '<div style="margin:8px 0;padding:8px;border-left:3px solid ' + color + '"><span style="font-size:16px">' + check + '</span> <strong>' + item.name + '</strong> <span style="background:' + color + '22;color:' + color + ';padding:1px 6px;border-radius:3px;font-size:11px;text-transform:uppercase">' + item.sev + '</span><div style="color:#666;font-size:13px;margin-top:4px">' + item.desc + '</div></div>';
+        var w = sevWeight(item.sev); total += w; if (item.checked) completed += w;
+      });
+    });
+    var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    var html = '<!DOCTYPE html><html><head><title>' + title + '</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:40px;color:#1a1a1a}h1{font-size:22px}h2{font-size:16px;border-bottom:1px solid #ddd;padding-bottom:4px}</style></head><body><h1>' + title + '</h1><p><strong>Date:</strong> ' + new Date().toISOString().split('T')[0] + ' | <strong>Score:</strong> ' + pct + '%</p>' + bodyContent + '<hr><p style="color:#888;font-size:12px">Generated by LockML (lockml.com) | Part of Zovo Tools (zovo.one/tools)</p></body></html>';
+    var w = window.open('', '_blank'); w.document.write(html); w.document.close();
+    setTimeout(function() { w.print(); }, 500);
+  };
+
+  window.resetChecklist = function() {
+    selectedInfra = null; checklistData = {};
+    document.querySelectorAll('.infra-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('checklistResults').style.display = 'none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  window.copyExport = function() {
+    navigator.clipboard.writeText(document.getElementById('exportOutput').textContent).then(function() {
+      var btn = document.querySelector('.btn-copy'); btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
+    });
+  };
+
+  window.closeExport = function() { document.getElementById('exportModal').classList.remove('active'); };
+
+  document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExport();
+  });
+})();
+</script>
+</body>
+</html>

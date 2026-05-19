@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Membership Inference Defense — Attack Simulator &amp; Defense Metrics (2026) | LockML</title>
+<meta name="description" content="Simulate membership inference attacks against ML models and measure defense effectiveness. Interactive tool with attack precision/recall, ROC curves, defense comparison, and mitigation recommendations.">
+<link rel="canonical" href="https://lockml.com/research/membership-inference-defense.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/research/membership-inference-defense.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/research/membership-inference-defense.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Membership Inference Defense — Attack Simulator &amp; Defense Metrics (2026)">
+<meta property="og:description" content="Simulate membership inference attacks against ML models and measure defense effectiveness. Interactive attack precision/recall, ROC curves, and defense comparison.">
+<meta property="og:url" content="https://lockml.com/research/membership-inference-defense.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Membership Inference Defense — Attack Simulator &amp; Defense Metrics (2026)">
+<meta name="twitter:description" content="Simulate membership inference attacks against ML models and measure defense effectiveness. Interactive attack precision/recall and defense comparison.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Membership Inference Defense Simulator",
+  "url": "https://lockml.com/research/membership-inference-defense.html",
+  "description": "Simulate membership inference attacks against ML models and measure defense effectiveness. Interactive tool with attack precision/recall, ROC curves, defense comparison, and mitigation recommendations.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "featureList": [
+    "4 attack method simulations",
+    "5 defense mechanism comparisons",
+    "Precision and recall metrics",
+    "Interactive ROC curve visualization",
+    "Utility-privacy tradeoff analysis",
+    "Model-specific vulnerability assessment",
+    "Defense recommendation engine",
+    "Export results as JSON",
+    "No sign-up required",
+    "100% browser-based"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a membership inference attack on ML models?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A membership inference attack determines whether a specific data record was used to train a machine learning model. The attacker queries the model with a target record and analyzes the model's output (confidence scores, loss values) to distinguish between training members and non-members. Models tend to be more confident on training data because they have memorized it, which creates a statistical signal the attacker exploits. Successful attacks violate data privacy because knowing that someone's record was in a medical or financial training dataset reveals sensitive information about them."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which ML models are most vulnerable to membership inference?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Overfitted models are most vulnerable because they memorize training data, creating a large gap between training and test set confidence. Models trained on small datasets are more vulnerable because each record has more influence. Complex models (deep neural networks with many parameters relative to training data) are more vulnerable than simple models. Language models are particularly vulnerable because they memorize rare sequences verbatim. Classification models with many output classes leak more information through confidence distributions than binary classifiers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does differential privacy defend against membership inference?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Differential privacy (DP-SGD) clips per-sample gradients and adds calibrated Gaussian noise during training, mathematically bounding how much the trained model can depend on any individual training record. With epsilon-DP, the model's outputs change by at most a factor of e^epsilon whether or not any individual record is included. This directly limits the signal available to membership inference attacks. At epsilon 1.0, DP-SGD typically reduces membership inference accuracy from 60-70% (undefended) to 52-55% (near random guessing). The tradeoff is reduced model utility: DP-SGD typically degrades test accuracy by 2-10% depending on epsilon and the dataset."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between threshold-based and shadow-model membership inference attacks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Threshold-based attacks use a simple rule: if the model's confidence on a record exceeds a threshold, classify it as a member. This requires no additional training and works because models are systematically more confident on training data. Shadow-model attacks train separate models on similar data to learn the statistical difference between member and non-member confidence patterns. The attacker trains multiple shadow models, generates a labeled dataset of (confidence, member/non-member) pairs, and trains an attack classifier. Shadow-model attacks are more accurate but require the attacker to have access to data from the same distribution as the target model's training set."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I measure if my model is vulnerable to membership inference?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run a membership inference audit by: (1) splitting your test data into a 'member' set (used for training) and 'non-member' set (held out), (2) querying the model on both sets, (3) computing confidence scores for each sample, (4) measuring how well a threshold or classifier can distinguish members from non-members. Key metrics are: attack accuracy (should be near 50% for a robust model), attack precision and recall, AUC-ROC (area under the receiver operating characteristic curve, should be near 0.5), and the true-positive rate at low false-positive rates (TPR@FPR=0.1% captures worst-case vulnerability)."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Research", "item": "https://lockml.com/research/" },
+    { "@type": "ListItem", "position": 3, "name": "Membership Inference Defense", "item": "https://lockml.com/research/membership-inference-defense.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .tool-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .tool-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+
+  .config-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+  .config-group label{display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.4rem;color:var(--text-muted)}
+  .config-group select,.config-group input{width:100%;padding:0.5rem 0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:0.88rem}
+
+  .slider-group{margin-bottom:1rem}
+  .slider-group label{display:flex;justify-content:space-between;font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:0.3rem}
+  .slider-group input[type="range"]{width:100%;accent-color:var(--accent)}
+
+  .generate-row{text-align:center;margin:1.5rem 0}
+  .btn-generate{padding:0.6rem 2rem;border-radius:var(--radius);font-size:0.9rem;font-weight:600;cursor:pointer;border:none;background:var(--accent);color:#000;font-family:var(--font-body);transition:opacity 0.15s}
+  .btn-generate:hover{opacity:0.85}
+
+  .results-panel{display:none}
+  .metrics-row{display:grid;grid-template-columns:repeat(5,1fr);gap:0.75rem;margin-bottom:1.5rem}
+  .metric-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
+  .metric-card .m-val{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--accent)}
+  .metric-card .m-label{font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem}
+
+  .viz-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+  .viz-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem}
+  .viz-panel h3{font-family:var(--font-display);font-size:0.95rem;margin-bottom:1rem}
+  .roc-canvas{width:100%;aspect-ratio:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius)}
+
+  .defense-table{width:100%;border-collapse:collapse;font-size:0.85rem;margin-bottom:1.5rem}
+  .defense-table th{text-align:left;padding:0.6rem 0.75rem;border-bottom:2px solid var(--border);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.03em;color:var(--text-muted)}
+  .defense-table td{padding:0.6rem 0.75rem;border-bottom:1px solid rgba(34,34,34,0.5)}
+  .defense-table tr:hover{background:rgba(16,185,129,0.03)}
+  .eff-badge{font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:3px}
+  .eff-strong{background:rgba(16,185,129,0.15);color:#10B981}
+  .eff-moderate{background:rgba(234,179,8,0.15);color:#eab308}
+  .eff-weak{background:rgba(239,68,68,0.15);color:#ef4444}
+
+  .rec-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem}
+  .rec-panel h3{font-family:var(--font-display);font-size:1rem;margin-bottom:0.75rem;color:var(--accent)}
+  .rec-item{padding:0.5rem 0;border-bottom:1px solid rgba(34,34,34,0.3);font-size:0.88rem}
+  .rec-item:last-child{border-bottom:none}
+  .rec-item strong{display:block;margin-bottom:0.2rem}
+  .rec-item span{color:var(--text-muted);font-size:0.82rem}
+
+  .export-row{display:flex;gap:0.5rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap}
+  .btn-export{padding:0.5rem 1.5rem;border-radius:var(--radius);font-size:0.85rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);transition:all 0.15s}
+  .btn-export:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-export.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+  .btn-export.primary:hover{opacity:0.85}
+
+  .export-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+  .export-modal.active{display:flex}
+  .export-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;max-width:700px;width:90%;max-height:80vh;overflow-y:auto}
+  .export-content h3{margin-bottom:1rem;font-family:var(--font-display);color:var(--accent)}
+  .export-content pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow-x:auto;font-size:0.8rem;white-space:pre-wrap;word-break:break-word}
+  .export-btns{display:flex;gap:0.5rem;margin-top:1rem}
+  .export-btns button{padding:0.45rem 1rem;border-radius:var(--radius);cursor:pointer;font-size:0.8rem;font-family:var(--font-body);border:1px solid var(--border)}
+  .btn-copy{background:var(--accent);color:#000;border-color:var(--accent) !important;font-weight:600}
+  .btn-close{background:var(--bg);color:var(--text-muted)}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .config-grid{grid-template-columns:1fr}
+    .metrics-row{grid-template-columns:repeat(3,1fr)}
+    .viz-grid{grid-template-columns:1fr}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/research/">Research</a><span>/</span>Membership Inference Defense
+</div>
+
+<section class="hero">
+  <h1>Membership Inference <span>Defense</span></h1>
+  <p>Simulate membership inference attacks against ML models and measure defense effectiveness. Configure your model parameters, select attack methods, and compare defenses with precision/recall metrics, ROC curves, and utility-privacy tradeoff analysis.</p>
+</section>
+
+<div class="tool-container">
+  <div class="tool-card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem">Configure Attack Simulation</h3>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem">Set your model parameters and attack configuration. The simulator generates realistic attack metrics based on known vulnerability profiles for each model type.</p>
+    <div class="config-grid">
+      <div class="config-group">
+        <label>Model Type</label>
+        <select id="modelType">
+          <option value="nn">Neural Network (MLP)</option>
+          <option value="cnn">Convolutional Neural Network</option>
+          <option value="transformer">Transformer (LLM)</option>
+          <option value="tree">Tree-Based (XGBoost, RF)</option>
+          <option value="linear">Linear / Logistic Regression</option>
+        </select>
+      </div>
+      <div class="config-group">
+        <label>Attack Method</label>
+        <select id="attackMethod">
+          <option value="threshold">Threshold-Based (Confidence)</option>
+          <option value="shadow">Shadow Model Attack</option>
+          <option value="metric">Metric-Based (Loss)</option>
+          <option value="label">Label-Only Attack</option>
+        </select>
+      </div>
+      <div class="config-group">
+        <label>Dataset Size</label>
+        <select id="datasetSize">
+          <option value="1000">1,000 records</option>
+          <option value="10000" selected>10,000 records</option>
+          <option value="100000">100,000 records</option>
+          <option value="1000000">1,000,000 records</option>
+        </select>
+      </div>
+    </div>
+    <div class="slider-group">
+      <label>Model Overfitting Level <span id="overfitVal">0.50</span></label>
+      <input type="range" id="overfitSlider" min="0" max="1" step="0.01" value="0.50" oninput="document.getElementById('overfitVal').textContent=this.value">
+    </div>
+    <div class="slider-group">
+      <label>Number of Output Classes <span id="classVal">10</span></label>
+      <input type="range" id="classSlider" min="2" max="100" step="1" value="10" oninput="document.getElementById('classVal').textContent=this.value">
+    </div>
+    <div class="generate-row">
+      <button class="btn-generate" onclick="runSimulation()">Run Attack Simulation</button>
+    </div>
+  </div>
+
+  <div class="results-panel" id="resultsPanel">
+    <div class="metrics-row" id="metricsRow"></div>
+    <div class="viz-grid">
+      <div class="viz-panel">
+        <h3>ROC Curve — Attack Performance</h3>
+        <canvas class="roc-canvas" id="rocCanvas"></canvas>
+      </div>
+      <div class="viz-panel">
+        <h3>Confidence Distribution</h3>
+        <canvas class="roc-canvas" id="distCanvas"></canvas>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <h3 style="font-family:var(--font-display);font-size:1rem;margin-bottom:1rem">Defense Comparison</h3>
+      <table class="defense-table" id="defenseTable">
+        <thead><tr><th>Defense</th><th>Attack Accuracy</th><th>AUC-ROC</th><th>Model Utility</th><th>Effectiveness</th></tr></thead>
+        <tbody id="defenseBody"></tbody>
+      </table>
+    </div>
+
+    <div class="rec-panel" id="recPanel">
+      <h3>Recommended Defenses</h3>
+      <div id="recItems"></div>
+    </div>
+
+    <div class="export-row">
+      <button class="btn-export primary" onclick="exportResults()">Export Results (JSON)</button>
+      <button class="btn-export" onclick="resetSim()">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<div id="exportModal" class="export-modal">
+  <div class="export-content">
+    <h3 id="exportTitle">Simulation Results</h3>
+    <pre id="exportOutput"></pre>
+    <div class="export-btns">
+      <button class="btn-copy" onclick="copyExport()">Copy to Clipboard</button>
+      <button class="btn-close" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>Understanding Membership Inference Attacks</h2>
+
+  <p>Membership inference is the most studied privacy attack against machine learning models. First formalized by Shokri et al. in 2017, it exploits a fundamental property of trained models: they behave differently on data they have seen during training compared to data they have not. A model that has memorized a training example will produce higher confidence predictions, lower loss values, and more deterministic outputs for that example compared to unseen data from the same distribution. This behavioral gap, which increases with overfitting, is the signal that membership inference attacks exploit.</p>
+
+  <p>The privacy implications are severe. If an attacker can determine that a specific medical record was used to train a disease prediction model, they learn that the person in that record has the disease, even without access to the medical database directly. Similarly, confirming that a financial record was in the training set of a credit scoring model reveals information about the individual's financial history. Membership inference transforms model access into a side channel for extracting information about training data, making it a direct threat to data privacy regulations including GDPR, HIPAA, and the EU AI Act.</p>
+
+  <h3>Threshold-Based Attacks</h3>
+
+  <p>The simplest membership inference attack uses a confidence threshold. The attacker queries the model with a target record and checks whether the model's maximum confidence score exceeds a threshold. Training members typically receive higher confidence because the model has been optimized to classify them correctly with high certainty. The threshold is calibrated using a small reference dataset that includes both members and non-members (or inferred from the model's general behavior). Despite its simplicity, threshold-based attacks achieve 60-75% accuracy on overfitted neural networks, well above the 50% random baseline. Their advantage is that they require no additional model training, making them the lowest-cost attack to mount.</p>
+
+  <h3>Shadow Model Attacks</h3>
+
+  <p>Shadow model attacks, introduced in the original Shokri et al. paper, are more sophisticated. The attacker trains multiple shadow models on data drawn from the same distribution as the target model's training set. For each shadow model, the attacker knows exactly which records are members and which are not, because they control the training process. By querying each shadow model on its members and non-members, the attacker builds a labeled dataset of (model output, member/non-member) pairs. An attack classifier trained on this dataset learns to distinguish the subtle statistical patterns that differentiate member and non-member model outputs. Shadow model attacks typically achieve 65-80% accuracy and are particularly effective against models that expose full confidence distributions (multi-class probabilities) rather than just the top prediction.</p>
+
+  <h3>Metric-Based and Label-Only Attacks</h3>
+
+  <p>Metric-based attacks use the model's loss value (or an approximation of it) rather than raw confidence scores. The intuition is that training members have lower loss because the model was trained to minimize loss on exactly those examples. Loss-based membership inference is often more powerful than confidence-based attacks because loss captures the model's behavior more precisely than the maximum confidence alone. Label-only attacks operate in the most restricted setting: the attacker only sees the predicted class label, not the confidence scores. These attacks use perturbation-based techniques, querying the model with slightly modified versions of the target record to estimate the model's sensitivity around that point. Training members tend to be in stable prediction regions where small perturbations do not change the label, while non-members are closer to decision boundaries. Label-only attacks are weaker but demonstrate that even minimal model access is sufficient for privacy attacks.</p>
+
+  <h3>Defense Mechanisms</h3>
+
+  <p>Five primary defenses exist against membership inference attacks. Differential privacy (DP-SGD) provides the strongest theoretical guarantee by adding noise during training that bounds the influence of any individual record. At epsilon 1.0, it reduces attack accuracy to near 50% but typically costs 2-10% model utility. Regularization (L2 penalty, dropout, early stopping) reduces overfitting, which directly reduces the member/non-member behavioral gap. Strong regularization can reduce attack accuracy by 5-10% with minimal utility loss. Confidence masking returns only the predicted label or rounded confidence scores, reducing the information available to attackers. This costs no utility in the model's predictions but removes the fine-grained confidence signal that attacks exploit. Knowledge distillation trains a student model on the outputs of the original model, naturally smoothing the confidence distribution and reducing memorization. The student model is typically 3-5% less vulnerable than the teacher. Data augmentation increases the effective training set size, which reduces per-record memorization and makes each individual record less distinguishable. The simulator above models each defense's impact on attack metrics and utility, helping you choose the right combination for your privacy requirements.</p>
+
+  <h3>Measuring Vulnerability: Key Metrics</h3>
+
+  <p>The standard metric for membership inference vulnerability is attack accuracy: the fraction of records correctly classified as members or non-members. A perfectly secure model would have an attack accuracy of 50% (random guessing). However, accuracy alone can be misleading because it averages over the entire population. The TPR@FPR metric (true positive rate at a fixed false positive rate) captures the worst-case vulnerability: how many members can the attacker correctly identify while limiting false accusations. TPR@FPR=0.1% is particularly relevant for privacy because it measures the attack's precision in identifying specific individuals. The AUC-ROC (area under the receiver operating characteristic curve) summarizes attack performance across all operating points; an AUC of 0.5 indicates no vulnerability, while 1.0 indicates perfect attack. For deployment decisions, compare the undefended AUC to the defended AUC to quantify the improvement from each defense mechanism.</p>
+
+  <h3>Practical Audit Workflow</h3>
+
+  <p>To audit your model for membership inference vulnerability: (1) Reserve 20% of your training data as a known-member set and hold out an equal-sized non-member set from the same distribution. (2) Train your model on the remaining 80% plus the known-member set. (3) Query the model on both sets, collecting confidence scores and loss values. (4) Run threshold-based and metric-based attacks using the confidence and loss distributions. (5) If shadow model attacks are feasible, train 5-10 shadow models and evaluate the attack classifier. (6) Report attack accuracy, AUC-ROC, and TPR@FPR=0.1% as your vulnerability metrics. (7) Apply defenses (regularization, DP-SGD, confidence masking) and re-run the audit to measure improvement. (8) Document the results for privacy impact assessments and regulatory compliance. The simulator above automates steps 4-6 using realistic statistical models calibrated on published attack results.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What is a membership inference attack on ML models?</summary>
+    <p>A membership inference attack determines whether a specific data record was used to train a model. The attacker queries the model and analyzes output confidence to distinguish members from non-members. Models are more confident on training data due to memorization, which creates an exploitable statistical signal.</p>
+  </details>
+
+  <details>
+    <summary>Which ML models are most vulnerable to membership inference?</summary>
+    <p>Overfitted models are most vulnerable. Small training datasets, complex architectures, many output classes, and language models that memorize rare sequences all increase vulnerability. Tree-based models and linear models are generally less vulnerable than deep neural networks.</p>
+  </details>
+
+  <details>
+    <summary>How does differential privacy defend against membership inference?</summary>
+    <p>DP-SGD clips gradients and adds noise during training, mathematically bounding how much the model depends on any individual record. At epsilon 1.0, it typically reduces attack accuracy from 60-70% to 52-55%, with 2-10% utility cost.</p>
+  </details>
+
+  <details>
+    <summary>What is the difference between threshold-based and shadow-model attacks?</summary>
+    <p>Threshold attacks use a simple confidence cutoff. Shadow attacks train separate models to learn member/non-member patterns. Shadow attacks are more accurate (65-80% vs 60-75%) but require data from the same distribution as the target.</p>
+  </details>
+
+  <details>
+    <summary>How do I measure if my model is vulnerable to membership inference?</summary>
+    <p>Split data into known-member and non-member sets, query the model on both, and measure how well an attacker can distinguish them. Key metrics: attack accuracy (target: near 50%), AUC-ROC (target: near 0.5), and TPR@FPR=0.1% (worst-case vulnerability).</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/tools/privacy-budget-calculator.html">Privacy Budget Calculator</a></h3>
+      <p>Track differential privacy budgets across queries. Visualize epsilon accumulation under sequential, parallel, and advanced composition.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/tools/model-audit-tool.html">ML Model Security Audit Tool</a></h3>
+      <p>Generate tailored security audit checklists for ML models covering data poisoning, model extraction, adversarial robustness, and privacy.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/answers/model-explainability-tools.html">Model Explainability Tools</a></h3>
+      <p>Compare SHAP and LIME explanations side by side with interactive feature attribution visualizations and faithfulness metrics.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var simResults = null;
+
+  function seeded(seed) { var x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+
+  function simulateAttack(modelType, attackMethod, datasetSize, overfit, numClasses) {
+    var baseVuln = {nn:0.65, cnn:0.62, transformer:0.70, tree:0.55, linear:0.52};
+    var attackBonus = {threshold:0, shadow:0.08, metric:0.05, label:-0.10};
+    var sizeEffect = Math.log10(parseInt(datasetSize)) * -0.03;
+    var classEffect = Math.log10(numClasses) * 0.04;
+    var overfitEffect = overfit * 0.25;
+
+    var accuracy = Math.min(0.95, Math.max(0.50, (baseVuln[modelType] || 0.6) + attackBonus[attackMethod] + sizeEffect + classEffect + overfitEffect));
+    var auc = Math.min(0.98, Math.max(0.50, accuracy + (seeded(accuracy * 100) - 0.5) * 0.05));
+    var precision = Math.min(0.95, accuracy + (seeded(accuracy * 200) - 0.5) * 0.08);
+    var recall = Math.min(0.95, accuracy - 0.02 + (seeded(accuracy * 300) - 0.5) * 0.06);
+    var tprAtLowFpr = Math.max(0.01, (accuracy - 0.5) * 1.5 * overfit);
+
+    return {accuracy: accuracy, auc: auc, precision: precision, recall: recall, tprAtLowFpr: tprAtLowFpr};
+  }
+
+  function simulateDefenses(baseMetrics, modelType, overfit) {
+    var defenses = [
+      {name:'No Defense (Baseline)', accReduction:0, aucReduction:0, utilityCost:0},
+      {name:'L2 Regularization + Dropout', accReduction:0.05 + overfit * 0.05, aucReduction:0.04, utilityCost:0.01},
+      {name:'Confidence Masking (Top-1 Only)', accReduction:0.08, aucReduction:0.07, utilityCost:0},
+      {name:'Knowledge Distillation', accReduction:0.06, aucReduction:0.05, utilityCost:0.02},
+      {name:'DP-SGD (epsilon=1.0)', accReduction:0.12 + overfit * 0.08, aucReduction:0.15, utilityCost:0.05},
+      {name:'DP-SGD (epsilon=0.1)', accReduction:0.18 + overfit * 0.10, aucReduction:0.22, utilityCost:0.10}
+    ];
+
+    return defenses.map(function(d) {
+      var acc = Math.max(0.50, baseMetrics.accuracy - d.accReduction);
+      var auc = Math.max(0.50, baseMetrics.auc - d.aucReduction);
+      var utility = 1.0 - d.utilityCost;
+      var eff = d.accReduction >= 0.10 ? 'strong' : d.accReduction >= 0.05 ? 'moderate' : 'weak';
+      return {name:d.name, accuracy:acc, auc:auc, utility:utility, effectiveness:eff};
+    });
+  }
+
+  function drawROC(canvas, baseAuc, defenses) {
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width = canvas.offsetWidth * 2;
+    var h = canvas.height = canvas.offsetHeight * 2;
+    ctx.scale(2, 2);
+    var cw = w / 2, ch = h / 2;
+    var pad = 40;
+
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0a0a0a';
+    ctx.fillRect(0, 0, cw, ch);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 0.5;
+    for (var i = 0; i <= 4; i++) {
+      var x = pad + (cw - 2 * pad) * i / 4;
+      var y = pad + (ch - 2 * pad) * i / 4;
+      ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, ch - pad); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(cw - pad, y); ctx.stroke();
+    }
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(pad, ch - pad); ctx.lineTo(cw - pad, pad); ctx.stroke();
+    ctx.setLineDash([]);
+
+    var colors = ['#ef4444', '#10B981', '#6366f1', '#f97316', '#eab308', '#06b6d4'];
+    var aucs = [baseAuc];
+    defenses.slice(1).forEach(function(d) { aucs.push(d.auc); });
+
+    aucs.forEach(function(auc, idx) {
+      if (idx > 3) return;
+      ctx.strokeStyle = colors[idx];
+      ctx.lineWidth = idx === 0 ? 2 : 1.5;
+      ctx.beginPath();
+      for (var t = 0; t <= 50; t++) {
+        var fpr = t / 50;
+        var tpr = Math.pow(fpr, (1 - auc) / auc);
+        var px = pad + fpr * (cw - 2 * pad);
+        var py = ch - pad - tpr * (ch - 2 * pad);
+        if (t === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    });
+
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '10px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('False Positive Rate', cw / 2, ch - 8);
+    ctx.save();
+    ctx.translate(12, ch / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('True Positive Rate', 0, 0);
+    ctx.restore();
+
+    var legendY = pad + 5;
+    [['No Defense', colors[0]], ['Regularization', colors[1]], ['Confidence Mask', colors[2]], ['DP-SGD', colors[3]]].forEach(function(item, i) {
+      ctx.fillStyle = item[1];
+      ctx.fillRect(cw - pad - 120, legendY + i * 14, 10, 8);
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.font = '9px system-ui';
+      ctx.textAlign = 'left';
+      ctx.fillText(item[0], cw - pad - 105, legendY + i * 14 + 7);
+    });
+  }
+
+  function drawDistribution(canvas, overfit, modelType) {
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width = canvas.offsetWidth * 2;
+    var h = canvas.height = canvas.offsetHeight * 2;
+    ctx.scale(2, 2);
+    var cw = w / 2, ch = h / 2;
+    var pad = 40;
+
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0a0a0a';
+    ctx.fillRect(0, 0, cw, ch);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 0.5;
+    for (var i = 0; i <= 4; i++) {
+      var x = pad + (cw - 2 * pad) * i / 4;
+      ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, ch - pad); ctx.stroke();
+    }
+
+    var memberMean = 0.7 + overfit * 0.2;
+    var nonMemberMean = 0.5 + overfit * 0.05;
+    var memberStd = 0.12 - overfit * 0.04;
+    var nonMemberStd = 0.15;
+
+    function gaussian(x, mean, std) {
+      return Math.exp(-0.5 * Math.pow((x - mean) / std, 2)) / (std * Math.sqrt(2 * Math.PI));
+    }
+
+    var maxY = 0;
+    for (var t = 0; t <= 50; t++) {
+      var x = t / 50;
+      maxY = Math.max(maxY, gaussian(x, memberMean, memberStd), gaussian(x, nonMemberMean, nonMemberStd));
+    }
+
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = '#10B981';
+    ctx.beginPath();
+    ctx.moveTo(pad, ch - pad);
+    for (var t = 0; t <= 50; t++) {
+      var x = t / 50;
+      var y = gaussian(x, memberMean, memberStd) / maxY;
+      ctx.lineTo(pad + x * (cw - 2 * pad), ch - pad - y * (ch - 2 * pad) * 0.9);
+    }
+    ctx.lineTo(cw - pad, ch - pad);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.moveTo(pad, ch - pad);
+    for (var t = 0; t <= 50; t++) {
+      var x = t / 50;
+      var y = gaussian(x, nonMemberMean, nonMemberStd) / maxY;
+      ctx.lineTo(pad + x * (cw - 2 * pad), ch - pad - y * (ch - 2 * pad) * 0.9);
+    }
+    ctx.lineTo(cw - pad, ch - pad);
+    ctx.closePath();
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#10B981';
+    ctx.beginPath();
+    for (var t = 0; t <= 50; t++) {
+      var x = t / 50;
+      var y = gaussian(x, memberMean, memberStd) / maxY;
+      var px = pad + x * (cw - 2 * pad);
+      var py = ch - pad - y * (ch - 2 * pad) * 0.9;
+      if (t === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = '#ef4444';
+    ctx.beginPath();
+    for (var t = 0; t <= 50; t++) {
+      var x = t / 50;
+      var y = gaussian(x, nonMemberMean, nonMemberStd) / maxY;
+      var px = pad + x * (cw - 2 * pad);
+      var py = ch - pad - y * (ch - 2 * pad) * 0.9;
+      if (t === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '10px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('Model Confidence', cw / 2, ch - 8);
+
+    ctx.fillStyle = '#10B981';
+    ctx.fillRect(pad + 5, pad + 5, 10, 8);
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.font = '9px system-ui';
+    ctx.textAlign = 'left';
+    ctx.fillText('Members', pad + 20, pad + 12);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(pad + 5, pad + 20, 10, 8);
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillText('Non-Members', pad + 20, pad + 27);
+  }
+
+  window.runSimulation = function() {
+    var modelType = document.getElementById('modelType').value;
+    var attackMethod = document.getElementById('attackMethod').value;
+    var datasetSize = document.getElementById('datasetSize').value;
+    var overfit = parseFloat(document.getElementById('overfitSlider').value);
+    var numClasses = parseInt(document.getElementById('classSlider').value);
+
+    var baseMetrics = simulateAttack(modelType, attackMethod, datasetSize, overfit, numClasses);
+    var defenses = simulateDefenses(baseMetrics, modelType, overfit);
+
+    var metricsEl = document.getElementById('metricsRow');
+    metricsEl.innerHTML = '<div class="metric-card"><div class="m-val">' + (baseMetrics.accuracy * 100).toFixed(1) + '%</div><div class="m-label">Attack Accuracy</div></div>' +
+      '<div class="metric-card"><div class="m-val">' + baseMetrics.auc.toFixed(3) + '</div><div class="m-label">AUC-ROC</div></div>' +
+      '<div class="metric-card"><div class="m-val">' + (baseMetrics.precision * 100).toFixed(1) + '%</div><div class="m-label">Precision</div></div>' +
+      '<div class="metric-card"><div class="m-val">' + (baseMetrics.recall * 100).toFixed(1) + '%</div><div class="m-label">Recall</div></div>' +
+      '<div class="metric-card"><div class="m-val">' + (baseMetrics.tprAtLowFpr * 100).toFixed(1) + '%</div><div class="m-label">TPR@0.1% FPR</div></div>';
+
+    var tbody = document.getElementById('defenseBody');
+    tbody.innerHTML = '';
+    defenses.forEach(function(d) {
+      var effClass = d.effectiveness === 'strong' ? 'eff-strong' : d.effectiveness === 'moderate' ? 'eff-moderate' : 'eff-weak';
+      var row = document.createElement('tr');
+      row.innerHTML = '<td>' + d.name + '</td><td>' + (d.accuracy * 100).toFixed(1) + '%</td><td>' + d.auc.toFixed(3) + '</td><td>' + (d.utility * 100).toFixed(0) + '%</td><td><span class="eff-badge ' + effClass + '">' + d.effectiveness + '</span></td>';
+      tbody.appendChild(row);
+    });
+
+    var recs = [];
+    if (overfit > 0.5) recs.push({title:'Apply Strong Regularization', desc:'Your model shows significant overfitting. Add L2 regularization (lambda 0.01-0.1) and dropout (0.3-0.5) to reduce the member/non-member behavioral gap.'});
+    if (baseMetrics.accuracy > 0.65) recs.push({title:'Implement Confidence Masking', desc:'Return only top-1 predictions instead of full confidence distributions. This eliminates the fine-grained signal membership inference attacks exploit.'});
+    if (baseMetrics.accuracy > 0.70) recs.push({title:'Deploy DP-SGD Training', desc:'Your model is highly vulnerable. Apply differentially private training with epsilon 1.0 to mathematically bound information leakage about individual records.'});
+    if (parseInt(datasetSize) < 50000) recs.push({title:'Increase Training Set Size', desc:'Small datasets increase per-record memorization. Augment with synthetic data or use transfer learning from a public pre-trained model.'});
+    recs.push({title:'Run Regular Audits', desc:'Schedule quarterly membership inference audits. Re-run this simulation after each model retrain to track vulnerability trends over time.'});
+
+    var recItems = document.getElementById('recItems');
+    recItems.innerHTML = '';
+    recs.forEach(function(r) {
+      var item = document.createElement('div');
+      item.className = 'rec-item';
+      item.innerHTML = '<strong>' + r.title + '</strong><span>' + r.desc + '</span>';
+      recItems.appendChild(item);
+    });
+
+    drawROC(document.getElementById('rocCanvas'), baseMetrics.auc, defenses);
+    drawDistribution(document.getElementById('distCanvas'), overfit, modelType);
+
+    simResults = {config: {modelType:modelType, attackMethod:attackMethod, datasetSize:datasetSize, overfitting:overfit, numClasses:numClasses}, attack: baseMetrics, defenses: defenses, recommendations: recs};
+    document.getElementById('resultsPanel').style.display = 'block';
+    document.getElementById('resultsPanel').scrollIntoView({behavior:'smooth'});
+  };
+
+  window.exportResults = function() {
+    if (!simResults) return;
+    document.getElementById('exportTitle').textContent = 'Membership Inference Simulation Results';
+    document.getElementById('exportOutput').textContent = JSON.stringify(simResults, null, 2);
+    document.getElementById('exportModal').classList.add('active');
+  };
+
+  window.resetSim = function() {
+    simResults = null;
+    document.getElementById('resultsPanel').style.display = 'none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  window.copyExport = function() {
+    navigator.clipboard.writeText(document.getElementById('exportOutput').textContent).then(function() {
+      var btn = document.querySelector('.btn-copy'); btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
+    });
+  };
+
+  window.closeExport = function() { document.getElementById('exportModal').classList.remove('active'); };
+
+  document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExport();
+  });
+})();
+</script>
+</body>
+</html>

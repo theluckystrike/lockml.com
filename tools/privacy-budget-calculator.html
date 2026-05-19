@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Differential Privacy Budget Calculator — Epsilon Tracker Across Queries (2026) | LockML</title>
+<meta name="description" content="Track and visualize differential privacy budget consumption across queries. Calculate cumulative epsilon under sequential and parallel composition with interactive budget allocation and remaining guarantee estimation.">
+<link rel="canonical" href="https://lockml.com/tools/privacy-budget-calculator.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/tools/privacy-budget-calculator.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/tools/privacy-budget-calculator.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Differential Privacy Budget Calculator — Epsilon Tracker Across Queries (2026)">
+<meta property="og:description" content="Track and visualize differential privacy budget consumption across queries. Calculate cumulative epsilon under sequential and parallel composition.">
+<meta property="og:url" content="https://lockml.com/tools/privacy-budget-calculator.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Differential Privacy Budget Calculator — Epsilon Tracker Across Queries (2026)">
+<meta name="twitter:description" content="Track and visualize differential privacy budget consumption across queries. Calculate cumulative epsilon under sequential and parallel composition.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Differential Privacy Budget Calculator",
+  "url": "https://lockml.com/tools/privacy-budget-calculator.html",
+  "description": "Track and visualize differential privacy budget consumption across queries. Calculate cumulative epsilon under sequential and parallel composition with interactive budget allocation and remaining guarantee estimation.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "featureList": [
+    "Sequential composition tracking",
+    "Parallel composition optimization",
+    "Advanced composition (Renyi DP)",
+    "Visual epsilon budget timeline",
+    "Per-query epsilon allocation",
+    "Delta parameter tracking",
+    "Budget exhaustion warnings",
+    "Export audit log as JSON",
+    "No sign-up required",
+    "100% browser-based"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a differential privacy budget (epsilon)?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The privacy budget epsilon measures how much information about any individual record can leak through query responses. An epsilon of 0 means perfect privacy (no information leaks), while larger epsilon values allow more information leakage. In practice, epsilon values between 0.1 and 1.0 provide strong privacy guarantees, 1.0 to 10.0 provide moderate guarantees, and values above 10.0 provide weak privacy. The budget is consumed with each query: under sequential composition, epsilons add up linearly, meaning 10 queries each with epsilon 1.0 consume a total budget of 10.0."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between sequential and parallel composition?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sequential composition applies when queries access the same data records. The total privacy loss is the sum of individual epsilons. If you run 5 queries each with epsilon 0.5, the total is 2.5. Parallel composition applies when queries access disjoint subsets of the data. The total privacy loss is the maximum individual epsilon, not the sum. If you run 5 queries on non-overlapping data partitions each with epsilon 0.5, the total is just 0.5. Parallel composition is dramatically more efficient and is the foundation of privacy-efficient analytics systems."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does advanced composition with Renyi divergence improve privacy budgets?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Advanced composition (also called Renyi DP or concentrated DP) provides tighter privacy accounting than naive sequential composition. Instead of adding epsilons linearly, it accounts for the fact that privacy loss across multiple queries follows a sub-linear growth pattern. For k queries each with epsilon e, advanced composition gives a total of approximately e * sqrt(2k * ln(1/delta)) + k * e * (e^e - 1), which for small epsilon is roughly e * sqrt(2k * ln(1/delta)). This means 100 queries with epsilon 0.1 cost approximately 1.0 under advanced composition instead of 10.0 under sequential composition — a 10x improvement."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens when the privacy budget is exhausted?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When the privacy budget is exhausted, no more queries can be answered without violating the privacy guarantee. In a properly implemented system, queries are rejected once the cumulative epsilon reaches the maximum budget. The data must either be refreshed (if new data is available), the privacy parameters must be relaxed (accepting weaker guarantees), or the system must stop responding. Budget exhaustion is permanent for a given dataset — you cannot recover spent budget. This is why careful budget allocation across queries is critical for long-running analytics systems."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I choose the right epsilon value for my queries?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Epsilon selection depends on the sensitivity of the data and the acceptable risk level. For healthcare and financial PII, use epsilon 0.1 to 1.0 per query. For general analytics with pseudonymized data, epsilon 1.0 to 5.0 is common. For aggregate statistics on non-sensitive data, epsilon 5.0 to 10.0 may be acceptable. The US Census Bureau used epsilon 19.6 for the 2020 Census, which was controversial. Apple uses epsilon 2 to 8 for telemetry. Google RAPPOR uses epsilon 2 to 3 for Chrome metrics. Start with the lowest epsilon that provides acceptable data utility, then increase only if analysis quality is insufficient."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://lockml.com/tools/" },
+    { "@type": "ListItem", "position": 3, "name": "Privacy Budget Calculator", "item": "https://lockml.com/tools/privacy-budget-calculator.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .tool-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .tool-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+
+  .budget-header{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+  .budget-stat{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center}
+  .budget-stat .b-val{font-family:var(--font-display);font-size:1.6rem;font-weight:700}
+  .budget-stat .b-label{font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem}
+  .b-val-green{color:#10B981}
+  .b-val-yellow{color:#eab308}
+  .b-val-red{color:#ef4444}
+
+  .budget-bar-wrap{margin:1.5rem 0;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+  .budget-bar-label{display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.5rem}
+  .budget-bar{height:24px;background:var(--border);border-radius:6px;overflow:hidden;position:relative}
+  .budget-bar-fill{height:100%;border-radius:6px;transition:width 0.5s ease;background:linear-gradient(90deg,#10B981,#eab308,#ef4444)}
+  .budget-bar-marker{position:absolute;top:-4px;bottom:-4px;width:2px;background:#fff;z-index:2}
+
+  .config-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:0.75rem;align-items:end;margin-bottom:1rem}
+  .config-group label{display:block;font-size:0.78rem;font-weight:600;margin-bottom:0.3rem;color:var(--text-muted)}
+  .config-group select,.config-group input{width:100%;padding:0.45rem 0.6rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:0.85rem}
+
+  .btn-add-query{padding:0.45rem 1.2rem;border-radius:var(--radius);font-size:0.85rem;font-weight:600;cursor:pointer;border:none;background:var(--accent);color:#000;font-family:var(--font-body);transition:opacity 0.15s;white-space:nowrap}
+  .btn-add-query:hover{opacity:0.85}
+
+  .query-log{margin-top:1.5rem}
+  .query-log h4{font-size:0.92rem;margin-bottom:0.75rem;font-family:var(--font-display)}
+  .query-entry{display:grid;grid-template-columns:40px 1fr 100px 100px 120px 40px;gap:0.5rem;align-items:center;padding:0.6rem 0.75rem;border-bottom:1px solid rgba(34,34,34,0.5);font-size:0.82rem}
+  .query-entry:first-child{font-weight:600;color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.03em}
+  .query-entry .q-num{color:var(--text-muted)}
+  .query-entry .q-eps{font-family:var(--font-display);font-weight:600}
+  .query-entry .q-cum{font-family:var(--font-display);color:var(--accent)}
+  .q-remove{background:none;border:none;color:#ef4444;cursor:pointer;font-size:1rem;padding:0}
+
+  .composition-badge{font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;padding:2px 6px;border-radius:3px;white-space:nowrap}
+  .comp-seq{background:rgba(249,115,22,0.15);color:#f97316}
+  .comp-par{background:rgba(16,185,129,0.15);color:#10B981}
+  .comp-adv{background:rgba(99,102,241,0.15);color:#6366f1}
+
+  .generate-row{text-align:center;margin:1.5rem 0}
+  .export-row{display:flex;gap:0.5rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap}
+  .btn-export{padding:0.5rem 1.5rem;border-radius:var(--radius);font-size:0.85rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);transition:all 0.15s}
+  .btn-export:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-export.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+  .btn-export.primary:hover{opacity:0.85}
+
+  .export-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+  .export-modal.active{display:flex}
+  .export-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;max-width:700px;width:90%;max-height:80vh;overflow-y:auto}
+  .export-content h3{margin-bottom:1rem;font-family:var(--font-display);color:var(--accent)}
+  .export-content pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow-x:auto;font-size:0.8rem;white-space:pre-wrap;word-break:break-word}
+  .export-btns{display:flex;gap:0.5rem;margin-top:1rem}
+  .export-btns button{padding:0.45rem 1rem;border-radius:var(--radius);cursor:pointer;font-size:0.8rem;font-family:var(--font-body);border:1px solid var(--border)}
+  .btn-copy{background:var(--accent);color:#000;border-color:var(--accent) !important;font-weight:600}
+  .btn-close{background:var(--bg);color:var(--text-muted)}
+
+  .warning-banner{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius);padding:0.75rem 1rem;margin-top:1rem;font-size:0.85rem;color:#ef4444;display:none}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .budget-header{grid-template-columns:1fr}
+    .config-row{grid-template-columns:1fr 1fr;gap:0.5rem}
+    .config-row .btn-add-query{grid-column:1/-1}
+    .query-entry{grid-template-columns:30px 1fr 70px 70px 90px 30px;font-size:0.75rem}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/tools/">Tools</a><span>/</span>Privacy Budget Calculator
+</div>
+
+<section class="hero">
+  <h1>Differential Privacy <span>Budget Calculator</span></h1>
+  <p>Track cumulative epsilon consumption across queries with sequential, parallel, and advanced (Renyi) composition. Visualize budget exhaustion in real time, set maximum budgets, and export audit logs for compliance documentation.</p>
+</section>
+
+<div class="tool-container">
+  <div class="tool-card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem">Privacy Budget Configuration</h3>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem">Set your maximum privacy budget and delta parameter. Add queries below to track epsilon consumption over time.</p>
+
+    <div class="budget-header">
+      <div class="budget-stat">
+        <div class="b-val b-val-green" id="budgetRemaining">10.00</div>
+        <div class="b-label">Remaining Budget (&epsilon;)</div>
+      </div>
+      <div class="budget-stat">
+        <div class="b-val" id="budgetSpent" style="color:var(--text)">0.00</div>
+        <div class="b-label">Consumed (&epsilon;)</div>
+      </div>
+      <div class="budget-stat">
+        <div class="b-val" id="queryCount" style="color:var(--text)">0</div>
+        <div class="b-label">Total Queries</div>
+      </div>
+    </div>
+
+    <div class="budget-bar-wrap">
+      <div class="budget-bar-label">
+        <span>Budget Usage</span>
+        <span id="budgetPct">0%</span>
+      </div>
+      <div class="budget-bar">
+        <div class="budget-bar-fill" id="budgetBarFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div class="config-group">
+        <label>Maximum Budget (&epsilon;)</label>
+        <input type="number" id="maxBudget" value="10" min="0.1" step="0.1" onchange="recalculate()">
+      </div>
+      <div class="config-group">
+        <label>Delta (&delta;)</label>
+        <input type="text" id="deltaVal" value="1e-5" onchange="recalculate()">
+      </div>
+    </div>
+
+    <h4 style="font-size:0.92rem;margin-bottom:0.75rem;font-family:var(--font-display)">Add Query</h4>
+    <div class="config-row">
+      <div class="config-group">
+        <label>Query Name</label>
+        <input type="text" id="queryName" placeholder="e.g. Count query">
+      </div>
+      <div class="config-group">
+        <label>Epsilon (&epsilon;)</label>
+        <input type="number" id="queryEpsilon" value="1.0" min="0.01" step="0.01">
+      </div>
+      <div class="config-group">
+        <label>Composition</label>
+        <select id="queryComposition">
+          <option value="sequential">Sequential</option>
+          <option value="parallel">Parallel</option>
+          <option value="advanced">Advanced (Renyi)</option>
+        </select>
+      </div>
+      <div class="config-group">
+        <label>Data Partition</label>
+        <select id="queryPartition">
+          <option value="all">All Data</option>
+          <option value="A">Partition A</option>
+          <option value="B">Partition B</option>
+          <option value="C">Partition C</option>
+          <option value="D">Partition D</option>
+        </select>
+      </div>
+      <button class="btn-add-query" onclick="addQuery()">Add</button>
+    </div>
+
+    <div class="warning-banner" id="warningBanner">Budget exhausted. No more queries can be answered without violating the privacy guarantee.</div>
+
+    <div class="query-log" id="queryLog">
+      <div class="query-entry">
+        <span>#</span><span>Query</span><span>&epsilon;</span><span>Cumulative</span><span>Composition</span><span></span>
+      </div>
+    </div>
+
+    <div class="export-row">
+      <button class="btn-export primary" onclick="exportAuditLog()">Export Audit Log</button>
+      <button class="btn-export" onclick="resetBudget()">Reset All</button>
+    </div>
+  </div>
+</div>
+
+<div id="exportModal" class="export-modal">
+  <div class="export-content">
+    <h3 id="exportTitle">Audit Log Export</h3>
+    <pre id="exportOutput"></pre>
+    <div class="export-btns">
+      <button class="btn-copy" onclick="copyExport()">Copy to Clipboard</button>
+      <button class="btn-close" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>Understanding Differential Privacy Budgets</h2>
+
+  <p>Differential privacy provides a mathematical framework for quantifying the privacy loss incurred when releasing statistics or machine learning models trained on sensitive data. The privacy budget, parameterized by epsilon, represents the maximum amount of information about any individual record that can leak through query responses. Every query against the data consumes a portion of this budget, and once the budget is exhausted, no further queries can be answered without breaking the privacy guarantee. This makes budget management the central operational challenge in any differential privacy deployment.</p>
+
+  <p>The privacy guarantee states that for any two datasets differing in exactly one record, the probability of any particular output changes by at most a factor of e^epsilon. An epsilon of 0 means the output distribution is identical regardless of whether any individual is in the dataset, providing perfect privacy but zero utility. As epsilon increases, more information leaks but query results become more accurate. The practical challenge is finding the smallest epsilon that still provides actionable analytics results.</p>
+
+  <h3>Sequential Composition: The Naive Approach</h3>
+
+  <p>Sequential composition is the simplest and most conservative privacy accounting method. When multiple queries access the same data, the total privacy loss is the sum of individual epsilons. If you run three queries with epsilons 0.5, 1.0, and 0.3, the total privacy cost is 1.8. This is a worst-case bound that assumes each query leaks information about the same individual in the worst possible direction. Sequential composition is the correct accounting method when queries access overlapping data and you want the strongest possible guarantee. However, it is often overly conservative because real queries rarely achieve the worst-case information leakage simultaneously. For a production system running hundreds or thousands of queries, sequential composition quickly exhausts even generous budgets.</p>
+
+  <h3>Parallel Composition: Exploiting Data Partitions</h3>
+
+  <p>Parallel composition provides dramatically better privacy accounting when queries operate on disjoint subsets of the data. If you partition your data into non-overlapping groups and each query only accesses one partition, the total privacy cost is the maximum individual epsilon, not the sum. Running 100 queries on 100 different partitions, each with epsilon 1.0, costs a total of only epsilon 1.0, compared to 100.0 under sequential composition. This hundred-fold improvement is the foundation of privacy-efficient analytics architectures. Systems like Google's RAPPOR and Apple's local differential privacy leverage parallel composition by having each user's data contribute to a separate computation. The key requirement is genuine disjointness: if any record appears in multiple partitions, you must fall back to sequential composition for those overlapping queries.</p>
+
+  <h3>Advanced Composition with Renyi Divergence</h3>
+
+  <p>Advanced composition, formalized through Renyi Differential Privacy (RDP) and zero-concentrated differential privacy (zCDP), provides a middle ground between sequential and parallel composition. The key insight is that privacy loss across multiple queries accumulates sub-linearly when measured using Renyi divergence instead of max divergence. For k adaptive queries each satisfying epsilon-DP, advanced composition gives a total privacy cost of approximately epsilon * sqrt(2k * ln(1/delta)) + k * epsilon * (exp(epsilon) - 1). For small epsilon, this simplifies to roughly epsilon * sqrt(2k * ln(1/delta)). The improvement over sequential composition grows with the number of queries: for 100 queries with epsilon 0.1, sequential composition gives 10.0, while advanced composition gives approximately 1.3 (with delta = 1e-5), an 8x improvement. Advanced composition introduces a delta parameter representing the probability that the privacy guarantee fails entirely. Delta should be cryptographically small, typically 1/n^2 where n is the dataset size, or at most 1e-5 for practical deployments.</p>
+
+  <h3>Budget Allocation Strategies</h3>
+
+  <p>Effective budget allocation requires understanding which queries provide the most analytical value per epsilon spent. High-sensitivity queries (those requiring more noise and thus more budget) should be reserved for the most critical business questions. Count queries typically require sensitivity 1 and can use small epsilon. Sum and average queries have sensitivity proportional to the data range, requiring either clipping (which introduces bias) or more budget. Iterative machine learning training via DP-SGD consumes budget at each training step, making the number of training epochs a direct budget trade-off. The privacy budget calculator above tracks consumption in real time, so you can see exactly how different allocation strategies affect your remaining budget and make informed decisions about which queries to prioritize.</p>
+
+  <h3>Real-World Epsilon Values</h3>
+
+  <p>The choice of epsilon in production systems varies enormously. Apple uses epsilon values between 2 and 8 for iOS telemetry, collecting aggregate statistics about emoji usage, Safari crashes, and health data while providing meaningful privacy for individual users. Google's RAPPOR system for Chrome browser metrics uses epsilon 2 to 3 for individual reports, with overall privacy guarantees depending on the number of reports per user. The US Census Bureau used epsilon 19.6 for the 2020 Decennial Census, which drew criticism from privacy researchers who argued the value was too large. LinkedIn's Audience Engagements API uses epsilon 5.0 for advertising analytics. Academic research typically considers epsilon below 1.0 as strong privacy, 1.0 to 10.0 as moderate, and above 10.0 as weak. However, these thresholds are context-dependent: epsilon 10.0 for a one-time query on a static dataset may be acceptable, while epsilon 1.0 for a continuously running analytics pipeline with thousands of queries may exhaust the budget rapidly under sequential composition.</p>
+
+  <h3>Compliance and Audit Requirements</h3>
+
+  <p>Differential privacy budget tracking is increasingly a regulatory requirement, not just a best practice. The EU AI Act requires high-risk AI systems to implement data minimization and privacy-by-design, and differential privacy is the gold standard mechanism. GDPR's data protection impact assessments (DPIAs) should include epsilon budgets as a quantitative privacy measure. Financial regulators like the OCC (Office of the Comptroller of the Currency) expect privacy accounting in model risk management documentation for models trained on customer data. The export feature in this calculator produces audit-ready logs documenting every query, its epsilon allocation, composition method, and cumulative budget consumption, which can be included directly in compliance documentation. Maintaining a complete epsilon audit trail is essential for demonstrating that the privacy guarantee was not violated during the lifetime of the data release.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What is a differential privacy budget (epsilon)?</summary>
+    <p>The privacy budget epsilon measures how much information about any individual record can leak through query responses. An epsilon of 0 means perfect privacy (no information leaks), while larger values allow more leakage. In practice, epsilon values between 0.1 and 1.0 provide strong privacy guarantees, 1.0 to 10.0 provide moderate guarantees, and above 10.0 is considered weak privacy.</p>
+  </details>
+
+  <details>
+    <summary>What is the difference between sequential and parallel composition?</summary>
+    <p>Sequential composition applies when queries access the same data. Total privacy loss is the sum of individual epsilons. Parallel composition applies when queries access disjoint subsets. Total loss is the maximum individual epsilon, not the sum. Parallel composition can provide orders-of-magnitude improvements in budget efficiency.</p>
+  </details>
+
+  <details>
+    <summary>How does advanced composition with Renyi divergence improve privacy budgets?</summary>
+    <p>Advanced composition provides tighter accounting by recognizing that privacy loss grows sub-linearly across queries. For k queries each with epsilon e, the total is approximately e * sqrt(2k * ln(1/delta)) instead of k * e. For 100 queries with epsilon 0.1, this reduces the cost from 10.0 to approximately 1.3.</p>
+  </details>
+
+  <details>
+    <summary>What happens when the privacy budget is exhausted?</summary>
+    <p>When the budget is exhausted, no more queries can be answered without violating the privacy guarantee. The data must be refreshed, parameters relaxed, or the system must stop responding. Budget exhaustion is permanent for a given dataset.</p>
+  </details>
+
+  <details>
+    <summary>How do I choose the right epsilon value for my queries?</summary>
+    <p>For healthcare and financial PII, use epsilon 0.1 to 1.0. For general analytics with pseudonymized data, 1.0 to 5.0 is common. Apple uses epsilon 2-8 for telemetry, Google RAPPOR uses 2-3 for Chrome metrics. Start with the lowest epsilon that provides acceptable utility.</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/tools/model-audit-tool.html">ML Model Security Audit Tool</a></h3>
+      <p>Generate tailored security audit checklists for ML models covering data poisoning, model extraction, adversarial robustness, and privacy.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/research/membership-inference-defense.html">Membership Inference Defense</a></h3>
+      <p>Simulate membership inference attacks and measure defense effectiveness with precision/recall metrics and ROC curves.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/answers/model-explainability-tools.html">Model Explainability Tools</a></h3>
+      <p>Compare SHAP and LIME explanations side by side with interactive feature attribution visualizations and faithfulness metrics.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var queries = [];
+
+  function getMaxBudget() { return parseFloat(document.getElementById('maxBudget').value) || 10; }
+  function getDelta() { return parseFloat(document.getElementById('deltaVal').value) || 1e-5; }
+
+  function computeTotalEpsilon() {
+    var maxBudget = getMaxBudget();
+    var delta = getDelta();
+    var seqSum = 0;
+    var partitions = {};
+
+    queries.forEach(function(q) {
+      if (q.composition === 'parallel') {
+        if (!partitions[q.partition]) partitions[q.partition] = 0;
+        partitions[q.partition] = Math.max(partitions[q.partition], q.epsilon);
+      } else if (q.composition === 'advanced') {
+        // Renyi DP: track separately
+      } else {
+        seqSum += q.epsilon;
+      }
+    });
+
+    var parMax = 0;
+    Object.keys(partitions).forEach(function(k) { parMax += partitions[k]; });
+
+    var advQueries = queries.filter(function(q) { return q.composition === 'advanced'; });
+    var advTotal = 0;
+    if (advQueries.length > 0) {
+      var k = advQueries.length;
+      var epsSum = 0;
+      advQueries.forEach(function(q) { epsSum += q.epsilon; });
+      var avgEps = epsSum / k;
+      advTotal = avgEps * Math.sqrt(2 * k * Math.log(1 / delta)) + k * avgEps * (Math.exp(avgEps) - 1);
+      if (advTotal > epsSum) advTotal = epsSum;
+    }
+
+    return seqSum + parMax + advTotal;
+  }
+
+  function updateDisplay() {
+    var maxBudget = getMaxBudget();
+    var spent = computeTotalEpsilon();
+    var remaining = Math.max(0, maxBudget - spent);
+    var pct = Math.min(100, (spent / maxBudget) * 100);
+
+    document.getElementById('budgetSpent').textContent = spent.toFixed(2);
+    document.getElementById('budgetRemaining').textContent = remaining.toFixed(2);
+    document.getElementById('queryCount').textContent = queries.length;
+    document.getElementById('budgetPct').textContent = pct.toFixed(1) + '%';
+    document.getElementById('budgetBarFill').style.width = pct + '%';
+
+    var remEl = document.getElementById('budgetRemaining');
+    remEl.className = 'b-val ' + (remaining > maxBudget * 0.5 ? 'b-val-green' : remaining > maxBudget * 0.2 ? 'b-val-yellow' : 'b-val-red');
+
+    document.getElementById('warningBanner').style.display = (remaining <= 0) ? 'block' : 'none';
+
+    renderQueryLog();
+  }
+
+  function renderQueryLog() {
+    var log = document.getElementById('queryLog');
+    log.innerHTML = '<div class="query-entry"><span>#</span><span>Query</span><span>&epsilon;</span><span>Cumulative</span><span>Composition</span><span></span></div>';
+
+    var cumulative = 0;
+    queries.forEach(function(q, i) {
+      cumulative = computeCumulativeAt(i);
+      var compClass = q.composition === 'parallel' ? 'comp-par' : q.composition === 'advanced' ? 'comp-adv' : 'comp-seq';
+      var compLabel = q.composition === 'parallel' ? 'Parallel' : q.composition === 'advanced' ? 'Advanced' : 'Sequential';
+      var entry = document.createElement('div');
+      entry.className = 'query-entry';
+      entry.innerHTML = '<span class="q-num">' + (i + 1) + '</span>' +
+        '<span>' + q.name + '</span>' +
+        '<span class="q-eps">' + q.epsilon.toFixed(2) + '</span>' +
+        '<span class="q-cum">' + cumulative.toFixed(2) + '</span>' +
+        '<span><span class="composition-badge ' + compClass + '">' + compLabel + '</span></span>' +
+        '<button class="q-remove" onclick="removeQuery(' + i + ')">&#10005;</button>';
+      log.appendChild(entry);
+    });
+  }
+
+  function computeCumulativeAt(upTo) {
+    var delta = getDelta();
+    var seqSum = 0;
+    var partitions = {};
+    var advList = [];
+
+    for (var i = 0; i <= upTo; i++) {
+      var q = queries[i];
+      if (q.composition === 'parallel') {
+        if (!partitions[q.partition]) partitions[q.partition] = 0;
+        partitions[q.partition] = Math.max(partitions[q.partition], q.epsilon);
+      } else if (q.composition === 'advanced') {
+        advList.push(q.epsilon);
+      } else {
+        seqSum += q.epsilon;
+      }
+    }
+
+    var parMax = 0;
+    Object.keys(partitions).forEach(function(k) { parMax += partitions[k]; });
+
+    var advTotal = 0;
+    if (advList.length > 0) {
+      var k = advList.length;
+      var epsSum = 0;
+      advList.forEach(function(e) { epsSum += e; });
+      var avgEps = epsSum / k;
+      advTotal = avgEps * Math.sqrt(2 * k * Math.log(1 / delta)) + k * avgEps * (Math.exp(avgEps) - 1);
+      if (advTotal > epsSum) advTotal = epsSum;
+    }
+
+    return seqSum + parMax + advTotal;
+  }
+
+  window.addQuery = function() {
+    var name = document.getElementById('queryName').value.trim() || ('Query ' + (queries.length + 1));
+    var eps = parseFloat(document.getElementById('queryEpsilon').value);
+    var comp = document.getElementById('queryComposition').value;
+    var part = document.getElementById('queryPartition').value;
+    if (isNaN(eps) || eps <= 0) { alert('Please enter a valid epsilon value.'); return; }
+
+    var maxBudget = getMaxBudget();
+    var currentSpent = computeTotalEpsilon();
+    if (currentSpent >= maxBudget) { alert('Budget exhausted. Cannot add more queries.'); return; }
+
+    queries.push({name: name, epsilon: eps, composition: comp, partition: part, timestamp: new Date().toISOString()});
+    document.getElementById('queryName').value = '';
+    updateDisplay();
+  };
+
+  window.removeQuery = function(idx) {
+    queries.splice(idx, 1);
+    updateDisplay();
+  };
+
+  window.recalculate = function() { updateDisplay(); };
+
+  window.resetBudget = function() {
+    queries = [];
+    updateDisplay();
+  };
+
+  window.exportAuditLog = function() {
+    var maxBudget = getMaxBudget();
+    var delta = getDelta();
+    var spent = computeTotalEpsilon();
+    var log = {
+      configuration: {maxBudget: maxBudget, delta: delta, exportDate: new Date().toISOString()},
+      summary: {totalQueries: queries.length, totalEpsilonConsumed: parseFloat(spent.toFixed(4)), remainingBudget: parseFloat(Math.max(0, maxBudget - spent).toFixed(4)), budgetUtilization: parseFloat(((spent / maxBudget) * 100).toFixed(1))},
+      queries: queries.map(function(q, i) { return {index: i + 1, name: q.name, epsilon: q.epsilon, composition: q.composition, partition: q.partition, cumulativeEpsilon: parseFloat(computeCumulativeAt(i).toFixed(4)), timestamp: q.timestamp}; })
+    };
+    document.getElementById('exportTitle').textContent = 'Privacy Budget Audit Log';
+    document.getElementById('exportOutput').textContent = JSON.stringify(log, null, 2);
+    document.getElementById('exportModal').classList.add('active');
+  };
+
+  window.copyExport = function() {
+    navigator.clipboard.writeText(document.getElementById('exportOutput').textContent).then(function() {
+      var btn = document.querySelector('.btn-copy');
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
+    });
+  };
+
+  window.closeExport = function() {
+    document.getElementById('exportModal').classList.remove('active');
+  };
+
+  document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExport();
+  });
+})();
+</script>
+</body>
+</html>

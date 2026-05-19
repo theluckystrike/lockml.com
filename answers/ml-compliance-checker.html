@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Compliance Checker — GDPR, CCPA, EU AI Act &amp; HIPAA Risk Scoring (2026) | LockML</title>
+<meta name="description" content="Check ML system compliance with GDPR, CCPA, EU AI Act, and HIPAA. Answer questions about your ML system, get compliance scores per regulation, risk matrix visualization, and exportable compliance reports.">
+<link rel="canonical" href="https://lockml.com/answers/ml-compliance-checker.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/answers/ml-compliance-checker.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/answers/ml-compliance-checker.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ML Compliance Checker — GDPR, CCPA, EU AI Act &amp; HIPAA Risk Scoring (2026)">
+<meta property="og:description" content="Check ML compliance with GDPR, CCPA, EU AI Act, and HIPAA. Get per-regulation scores, risk matrix, and exportable compliance reports.">
+<meta property="og:url" content="https://lockml.com/answers/ml-compliance-checker.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ML Compliance Checker — GDPR, CCPA, EU AI Act &amp; HIPAA Risk Scoring (2026)">
+<meta name="twitter:description" content="Check ML compliance with GDPR, CCPA, EU AI Act, and HIPAA. Get per-regulation scores, risk matrix, and exportable compliance reports.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "ML Compliance Checker — GDPR, CCPA, EU AI Act & HIPAA Risk Scoring",
+  "url": "https://lockml.com/answers/ml-compliance-checker.html",
+  "description": "Interactive ML compliance checker for GDPR, CCPA, EU AI Act, and HIPAA. Answer questions about your ML system to get compliance scores per regulation, risk matrix visualization, action items with priority, and exportable reports.",
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "mainEntityOfPage": "https://lockml.com/answers/ml-compliance-checker.html",
+  "image": "https://lockml.com/assets/og-image.png"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Which regulations apply to machine learning systems?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The primary regulations affecting ML systems are GDPR (EU data protection, applies to any ML processing EU residents' data), CCPA/CPRA (California consumer privacy, applies to ML systems using California residents' data), EU AI Act (comprehensive AI regulation with risk-based tiers, enforcement begins August 2026), and HIPAA (US healthcare data, applies to ML systems processing Protected Health Information). Additional frameworks include the NIST AI Risk Management Framework and ISO 42001 for AI management systems. Which regulations apply depends on your data types, user locations, and industry."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does the EU AI Act classify ML systems by risk level?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The EU AI Act uses four risk tiers: Unacceptable risk (banned practices like social scoring, real-time biometric surveillance), High risk (systems in critical areas like healthcare diagnostics, credit scoring, recruitment, law enforcement — these require conformity assessments, risk management, data governance, transparency, and human oversight), Limited risk (chatbots, emotion recognition — these require transparency obligations so users know they are interacting with AI), and Minimal risk (spam filters, video games — no specific obligations). Most production ML systems fall into the high-risk or limited-risk categories."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What GDPR requirements specifically affect ML models?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "GDPR requires lawful basis for processing (consent, legitimate interest, or contract), data minimization (only collect features necessary for the ML task), purpose limitation (data collected for one purpose cannot be used for training a different model), right to explanation (individuals have the right to meaningful information about automated decision logic), right to erasure (removing an individual's data influence from a trained model, requiring machine unlearning or retraining), Data Protection Impact Assessment (mandatory for high-risk automated processing), and records of processing activities that document the ML pipeline."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I achieve HIPAA compliance for ML models using patient data?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HIPAA compliance for ML requires a Business Associate Agreement if using third-party ML platforms, de-identification using Safe Harbor or Expert Determination methods before training, minimum necessary access (only authorized personnel access PHI used for training), encryption of PHI at rest and in transit including model artifacts if they could leak PHI, audit controls logging all access to training data and model predictions involving PHI, and regular risk assessments of the ML pipeline. Federated learning can help by keeping PHI on-premise while still training collaborative models."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What penalties exist for non-compliance with AI regulations?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Penalties vary by regulation. GDPR fines can reach up to 4% of global annual revenue or 20 million EUR (whichever is higher). The EU AI Act penalties for high-risk violations can reach 3% of global revenue or 15 million EUR, and for banned practices up to 7% of revenue or 35 million EUR. CCPA violations carry penalties of $2,500 per unintentional violation and $7,500 per intentional violation. HIPAA violations range from $100 to $50,000 per violation with annual maximums of $1.5 million per violation category. Beyond fines, non-compliance risks reputational damage, enforcement orders to cease processing, and class action lawsuits."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Answers", "item": "https://lockml.com/answers/" },
+    { "@type": "ListItem", "position": 3, "name": "ML Compliance Checker", "item": "https://lockml.com/answers/ml-compliance-checker.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .checker-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .checker-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+
+  .reg-selector{display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.5rem}
+  .reg-btn{padding:0.6rem 1.2rem;border-radius:var(--radius);cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);font-size:0.85rem;font-weight:600;transition:all 0.15s}
+  .reg-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .reg-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+  .reg-btn .reg-icon{margin-right:0.3rem}
+
+  .question-panel{display:none}
+  .question-panel.active{display:block}
+  .q-item{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:0.75rem}
+  .q-item .q-text{font-size:0.9rem;font-weight:600;margin-bottom:0.5rem}
+  .q-item .q-help{font-size:0.8rem;color:var(--text-muted);margin-bottom:0.75rem}
+  .q-options{display:flex;gap:0.5rem;flex-wrap:wrap}
+  .q-opt{padding:0.35rem 0.8rem;border-radius:var(--radius);cursor:pointer;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);font-family:var(--font-body);font-size:0.8rem;transition:all 0.15s}
+  .q-opt:hover{border-color:var(--accent)}
+  .q-opt.selected{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+  .q-opt.yes-good{border-color:rgba(34,197,94,0.5)}
+  .q-opt.yes-good.selected{background:rgba(34,197,94,0.1);border-color:#22c55e;color:#22c55e}
+  .q-opt.no-bad.selected{background:rgba(239,68,68,0.1);border-color:#ef4444;color:#ef4444}
+  .q-opt.partial.selected{background:rgba(234,179,8,0.1);border-color:#eab308;color:#eab308}
+
+  .btn-check{padding:0.6rem 2rem;border-radius:var(--radius);font-size:0.9rem;font-weight:600;cursor:pointer;border:none;background:var(--accent);color:#000;font-family:var(--font-body);transition:opacity 0.15s;margin-top:1rem}
+  .btn-check:hover{opacity:0.85}
+
+  .results-panel{display:none}
+  .results-panel.active{display:block}
+
+  .score-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+  .score-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
+  .score-card .sc-name{font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem}
+  .score-card .sc-score{font-family:var(--font-display);font-size:2rem;font-weight:700}
+  .score-card .sc-label{font-size:0.75rem;margin-top:0.25rem;font-weight:600}
+  .sc-good{color:#22c55e}.sc-warn{color:#eab308}.sc-bad{color:#ef4444}.sc-crit{color:#ef4444}
+
+  .risk-matrix{margin:1.5rem 0}
+  .risk-matrix h4{font-family:var(--font-display);font-size:0.95rem;margin-bottom:0.75rem}
+  .matrix-canvas{width:100%;max-width:500px;margin:0 auto;display:block}
+
+  .action-items{margin-top:1.5rem}
+  .action-items h4{font-family:var(--font-display);font-size:0.95rem;margin-bottom:0.75rem}
+  .action-item{display:flex;gap:0.75rem;padding:0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:0.5rem;align-items:flex-start}
+  .action-item .ai-priority{font-size:0.65rem;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:3px;white-space:nowrap;margin-top:2px}
+  .pri-critical{background:rgba(239,68,68,0.15);color:#ef4444}
+  .pri-high{background:rgba(249,115,22,0.15);color:#f97316}
+  .pri-medium{background:rgba(234,179,8,0.15);color:#eab308}
+  .pri-low{background:rgba(34,197,94,0.15);color:#22c55e}
+  .action-item .ai-text{flex:1;font-size:0.85rem}
+  .action-item .ai-reg{font-size:0.7rem;color:var(--text-muted);margin-top:0.2rem}
+
+  .export-row{display:flex;gap:0.5rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap}
+  .btn-export{padding:0.5rem 1.5rem;border-radius:var(--radius);font-size:0.85rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);transition:all 0.15s}
+  .btn-export:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-export.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+  .btn-export.primary:hover{opacity:0.85}
+
+  .export-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+  .export-modal.active{display:flex}
+  .export-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;max-width:700px;width:90%;max-height:80vh;overflow-y:auto}
+  .export-content h3{margin-bottom:1rem;font-family:var(--font-display);color:var(--accent)}
+  .export-content pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow-x:auto;font-size:0.8rem;white-space:pre-wrap;word-break:break-word}
+  .export-btns{display:flex;gap:0.5rem;margin-top:1rem}
+  .export-btns button{padding:0.45rem 1rem;border-radius:var(--radius);cursor:pointer;font-size:0.8rem;font-family:var(--font-body);border:1px solid var(--border)}
+  .btn-copy{background:var(--accent);color:#000;border-color:var(--accent) !important;font-weight:600}
+  .btn-close{background:var(--bg);color:var(--text-muted)}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .score-cards{grid-template-columns:1fr 1fr}
+    .reg-selector{flex-direction:column}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/answers/">Answers</a><span>/</span>ML Compliance Checker
+</div>
+
+<section class="hero">
+  <h1>ML <span>Compliance</span> Checker</h1>
+  <p>Check your machine learning system against GDPR, CCPA, EU AI Act, and HIPAA requirements. Answer questions about your ML pipeline, get compliance scores per regulation, visualize your risk matrix, and export a prioritized action plan.</p>
+</section>
+
+<div class="checker-container">
+  <div class="checker-card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem">Select Applicable Regulations</h3>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem">Choose all regulations that apply to your ML system based on data types and user locations.</p>
+    <div class="reg-selector" id="regSelector">
+      <button class="reg-btn" data-reg="gdpr"><span class="reg-icon">&#127466;&#127482;</span> GDPR</button>
+      <button class="reg-btn" data-reg="ccpa"><span class="reg-icon">&#127482;&#127480;</span> CCPA / CPRA</button>
+      <button class="reg-btn" data-reg="euai"><span class="reg-icon">&#129302;</span> EU AI Act</button>
+      <button class="reg-btn" data-reg="hipaa"><span class="reg-icon">&#127973;</span> HIPAA</button>
+    </div>
+
+    <div id="questionsContainer"></div>
+    <button class="btn-check" id="btnCheck" onclick="runComplianceCheck()" style="display:none">Run Compliance Check</button>
+  </div>
+
+  <div class="results-panel" id="resultsPanel">
+    <div class="checker-card">
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:1rem">Compliance Scores</h3>
+      <div class="score-cards" id="scoreCards"></div>
+
+      <div class="risk-matrix">
+        <h4>Risk Matrix (Impact vs Likelihood)</h4>
+        <canvas id="riskCanvas" class="matrix-canvas" width="500" height="400"></canvas>
+      </div>
+
+      <div class="action-items">
+        <h4>Prioritized Action Items</h4>
+        <div id="actionList"></div>
+      </div>
+
+      <div class="export-row">
+        <button class="btn-export primary" onclick="exportReport()">Export Compliance Report</button>
+        <button class="btn-export" onclick="resetChecker()">Start Over</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="exportModal" class="export-modal">
+  <div class="export-content">
+    <h3>Compliance Report</h3>
+    <pre id="exportOutput"></pre>
+    <div class="export-btns">
+      <button class="btn-copy" onclick="copyExport()">Copy to Clipboard</button>
+      <button class="btn-close" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>ML Compliance in 2026: What You Need to Know</h2>
+
+  <p>Machine learning compliance is no longer optional. With the EU AI Act enforcement beginning in August 2026, organizations deploying ML systems face a complex regulatory landscape spanning multiple jurisdictions and frameworks. The challenge is that ML-specific compliance requirements are scattered across regulations that were not originally written with machine learning in mind (GDPR, HIPAA), combined with new AI-specific legislation (EU AI Act) that introduces entirely new obligation categories. This tool consolidates the ML-relevant requirements from all major regulations into a single assessment.</p>
+
+  <p>The compliance checker works by mapping your ML system characteristics to specific regulatory obligations. When you select applicable regulations and answer questions about your data handling, model transparency, and operational practices, the tool evaluates your compliance posture against the specific articles and provisions that apply to machine learning. The result is a per-regulation compliance score, a risk matrix showing where your gaps create the most exposure, and a prioritized list of action items to close those gaps.</p>
+
+  <h3>GDPR and Machine Learning</h3>
+
+  <p>The General Data Protection Regulation applies to any ML system processing personal data of EU residents, regardless of where the organization is based. For ML engineers, the most impactful GDPR provisions are Article 22 (automated decision-making), Article 17 (right to erasure, which creates the machine unlearning challenge), Article 35 (Data Protection Impact Assessment for high-risk processing), and Articles 13-14 (transparency obligations about how data is processed by ML models). The regulation also requires a lawful basis for processing, which for ML training data typically means consent, legitimate interest, or contractual necessity.</p>
+
+  <p>The right to explanation under GDPR is particularly challenging for complex ML models. While the regulation does not require full algorithmic transparency, it does require "meaningful information about the logic involved" in automated decisions. For deep learning models, this means implementing explainability tools (SHAP, LIME, attention visualization) that can provide decision-level explanations to affected individuals. The level of explanation required depends on the impact of the decision on the individual: higher-impact decisions require more detailed explanations.</p>
+
+  <h3>EU AI Act Risk Classification</h3>
+
+  <p>The EU AI Act introduces a risk-based classification system that determines which obligations apply to your ML system. Unacceptable-risk AI is outright banned: social scoring systems, real-time biometric identification in public spaces (with narrow law enforcement exceptions), and AI that manipulates people through subliminal techniques. High-risk AI requires the most extensive compliance: this includes ML systems used in critical infrastructure, education, employment, credit scoring, law enforcement, migration, and healthcare diagnostics. Limited-risk AI (chatbots, emotion recognition, deepfake generation) requires transparency obligations. Minimal-risk AI has no specific requirements.</p>
+
+  <p>For high-risk ML systems, the EU AI Act mandates risk management systems (Article 9), data governance (Article 10), technical documentation (Article 11), record-keeping and logging (Article 12), transparency and user information (Article 13), human oversight mechanisms (Article 14), accuracy, robustness, and cybersecurity (Article 15). This is the most comprehensive AI-specific regulation globally and will serve as a template for regulations in other jurisdictions. The compliance checker evaluates each of these articles against your system characteristics.</p>
+
+  <h3>CCPA and ML Data Rights</h3>
+
+  <p>The California Consumer Privacy Act (and its successor CPRA) gives California residents rights over how their personal information is used in ML systems. The right to know requires disclosure of what personal information is collected and how it is used for training. The right to delete requires removing personal information from training datasets and potentially retraining models. The right to opt-out of sale includes "sharing" personal information for behavioral advertising and cross-context profiling, which affects ML systems that create user profiles.</p>
+
+  <p>CPRA introduced specific provisions for automated decision-making technology (similar to GDPR Article 22), giving consumers the right to opt out of automated decisions and access information about the logic involved. For ML engineers, this means maintaining the ability to identify which personal information was used to train which model version, implementing data deletion workflows that propagate through the ML pipeline, and providing meaningful information about how the model uses personal information to make predictions.</p>
+
+  <h3>HIPAA and ML in Healthcare</h3>
+
+  <p>HIPAA compliance for ML systems processing Protected Health Information (PHI) requires strict controls at every stage of the ML lifecycle. The Privacy Rule limits how PHI can be used and disclosed for ML training. The Security Rule requires administrative, physical, and technical safeguards for electronic PHI used in ML pipelines. The Breach Notification Rule applies if PHI is exposed through model memorization, training data leaks, or inference attacks.</p>
+
+  <p>Practical HIPAA compliance for ML includes: using de-identification (Safe Harbor method removing 18 identifiers, or Expert Determination method using statistical verification) before training, implementing minimum necessary access controls for training data, encrypting all data at rest and in transit, maintaining audit logs of all PHI access during model development and inference, and executing Business Associate Agreements with any third-party ML platforms or cloud providers. Federated learning is increasingly used in healthcare ML to keep PHI on-premise while still training collaborative models across institutions.</p>
+
+  <h3>Interpreting Your Compliance Score</h3>
+
+  <p>The compliance score for each regulation is calculated as the weighted percentage of applicable requirements that your system meets. Requirements with higher regulatory impact (mandatory obligations with significant penalties) are weighted more heavily than best-practice recommendations. A score above 80% indicates strong compliance with critical requirements addressed. Between 50-80% indicates significant gaps that create regulatory exposure. Below 50% indicates the system is likely non-compliant and at risk of enforcement action. The risk matrix plots each gap by likelihood of regulatory scrutiny and potential impact, helping you prioritize remediation efforts where they will reduce the most risk.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>Which regulations apply to machine learning systems?</summary>
+    <p>The primary regulations are GDPR (EU data protection, applies to ML processing EU residents' data), CCPA/CPRA (California consumer privacy), EU AI Act (comprehensive AI regulation, enforcement August 2026), and HIPAA (US healthcare data). Which apply depends on your data types, user locations, and industry. Most production ML systems are subject to at least one of these frameworks, and many are subject to multiple overlapping regulations.</p>
+  </details>
+
+  <details>
+    <summary>How does the EU AI Act classify ML systems by risk level?</summary>
+    <p>Four tiers: Unacceptable risk (banned, e.g., social scoring), High risk (critical areas like healthcare, credit scoring, recruitment — requires conformity assessments and extensive documentation), Limited risk (chatbots, emotion recognition — transparency obligations), and Minimal risk (spam filters — no specific obligations). Most production ML systems fall into high-risk or limited-risk categories, requiring some level of compliance effort.</p>
+  </details>
+
+  <details>
+    <summary>What GDPR requirements specifically affect ML models?</summary>
+    <p>Lawful basis for processing training data, data minimization (only necessary features), purpose limitation, right to explanation for automated decisions (Article 22), right to erasure (machine unlearning challenge), Data Protection Impact Assessment for high-risk processing, and records of processing activities documenting the ML pipeline. The right to explanation requires implementing explainability tools like SHAP or LIME.</p>
+  </details>
+
+  <details>
+    <summary>How do I achieve HIPAA compliance for ML with patient data?</summary>
+    <p>Business Associate Agreements with third-party platforms, de-identification using Safe Harbor or Expert Determination before training, minimum necessary access controls, encryption at rest and in transit, audit logs for all PHI access during development and inference, and regular risk assessments. Federated learning can keep PHI on-premise while enabling collaborative model training across institutions.</p>
+  </details>
+
+  <details>
+    <summary>What penalties exist for non-compliance with AI regulations?</summary>
+    <p>GDPR: up to 4% global revenue or 20M EUR. EU AI Act: up to 7% revenue or 35M EUR for banned practices, 3% or 15M EUR for high-risk violations. CCPA: $2,500 per unintentional violation, $7,500 per intentional. HIPAA: $100-$50,000 per violation, $1.5M annual max per category. Beyond fines, risks include enforcement orders to cease processing, reputational damage, and class action lawsuits.</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/tools/model-audit-tool.html">ML Model Security Audit Tool</a></h3>
+      <p>Generate tailored security audit checklists with severity ratings for data poisoning, model extraction, adversarial robustness, and privacy.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/tools/threat-model-generator.html">ML Threat Model Generator</a></h3>
+      <p>STRIDE-based threat modeling wizard for ML systems with risk scores and actionable mitigations.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/guides/federated-learning-intro.html">Federated Learning Introduction</a></h3>
+      <p>Interactive simulator for federated learning — a key technique for privacy-preserving ML compliance.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var selectedRegs = {};
+  var answers = {};
+  var results = null;
+
+  var QUESTIONS = {
+    gdpr: [
+      {id:'gdpr_lawful_basis',text:'Do you have a documented lawful basis for processing personal data in your ML pipeline?',help:'GDPR Article 6 requires consent, legitimate interest, contractual necessity, or other lawful basis.',weight:4,action:'Document lawful basis for all personal data processing in your ML pipeline under GDPR Article 6.'},
+      {id:'gdpr_dpia',text:'Have you conducted a Data Protection Impact Assessment (DPIA) for your ML system?',help:'GDPR Article 35 requires DPIA for high-risk automated processing of personal data.',weight:3,action:'Conduct a DPIA covering the ML pipeline, training data, and automated decision-making processes.'},
+      {id:'gdpr_minimization',text:'Do you practice data minimization — only collecting features necessary for the ML task?',help:'GDPR Article 5(1)(c) requires that personal data be adequate, relevant, and limited to what is necessary.',weight:3,action:'Audit training features and remove any personal data not strictly necessary for model performance.'},
+      {id:'gdpr_explanation',text:'Can you provide meaningful explanations of automated decisions to affected individuals?',help:'GDPR Article 22 and Recital 71 require meaningful information about the logic of automated decisions.',weight:4,action:'Implement explainability tools (SHAP, LIME) and create user-facing explanation mechanisms for model decisions.'},
+      {id:'gdpr_erasure',text:'Can you fulfill right-to-erasure requests — removing an individual\'s data influence from trained models?',help:'GDPR Article 17 right to erasure may require machine unlearning or model retraining.',weight:3,action:'Implement machine unlearning capability or maintain retraining pipeline that can exclude specific individual data.'},
+      {id:'gdpr_records',text:'Do you maintain records of processing activities for your ML pipeline?',help:'GDPR Article 30 requires written records of all processing activities including purpose, data categories, and retention.',weight:2,action:'Create and maintain Article 30 records covering the full ML lifecycle from data collection to inference.'},
+      {id:'gdpr_transfer',text:'If transferring data outside the EU, do you have adequate safeguards (SCCs, adequacy decision)?',help:'GDPR Articles 44-49 restrict international data transfers without appropriate safeguards.',weight:3,action:'Implement Standard Contractual Clauses or verify adequacy decisions for all cross-border data transfers in your ML pipeline.'}
+    ],
+    ccpa: [
+      {id:'ccpa_notice',text:'Do you provide notice at collection about how personal information is used for ML training?',help:'CCPA Section 1798.100 requires businesses to inform consumers about data collection purposes.',weight:3,action:'Update privacy notice to disclose use of personal information for ML model training and inference.'},
+      {id:'ccpa_optout',text:'Can consumers opt out of having their data used for ML-powered profiling?',help:'CPRA added rights around automated decision-making technology and profiling.',weight:4,action:'Implement opt-out mechanism for ML-based profiling and automated decision-making.'},
+      {id:'ccpa_deletion',text:'Can you delete consumer personal information from your ML training pipeline upon request?',help:'CCPA Section 1798.105 gives consumers the right to request deletion of their personal information.',weight:3,action:'Build data deletion workflow that propagates through the ML pipeline including training data stores.'},
+      {id:'ccpa_disclosure',text:'Can you disclose what personal information was used to train models that affect a specific consumer?',help:'CCPA Section 1798.110 gives consumers the right to know what personal information is collected and how it is used.',weight:3,action:'Implement data lineage tracking to identify which personal information trained which model version.'},
+      {id:'ccpa_access',text:'Do you provide access to the specific pieces of personal information used in your ML system?',help:'CCPA gives consumers the right to access their personal information held by businesses.',weight:2,action:'Create consumer data access portal that includes personal information used in ML training and inference.'},
+      {id:'ccpa_nondiscrim',text:'Do you ensure consumers who exercise data rights are not treated differently by your ML system?',help:'CCPA Section 1798.125 prohibits discrimination against consumers who exercise their privacy rights.',weight:3,action:'Verify that model outputs do not degrade for consumers who have exercised opt-out or deletion rights.'}
+    ],
+    euai: [
+      {id:'euai_risk_class',text:'Have you classified your ML system under the EU AI Act risk tiers?',help:'EU AI Act requires classification as unacceptable, high, limited, or minimal risk.',weight:4,action:'Formally classify your ML system under EU AI Act risk tiers and document the classification rationale.'},
+      {id:'euai_risk_mgmt',text:'Do you have a risk management system that identifies, evaluates, and mitigates ML risks?',help:'EU AI Act Article 9 requires high-risk AI systems to have risk management throughout the lifecycle.',weight:4,action:'Establish a risk management system covering the full ML lifecycle with regular risk assessments.'},
+      {id:'euai_data_gov',text:'Do you have data governance practices for training, validation, and testing datasets?',help:'EU AI Act Article 10 requires data quality, representativeness, and bias monitoring for training data.',weight:3,action:'Implement data governance covering quality metrics, representativeness audits, and bias monitoring for all datasets.'},
+      {id:'euai_documentation',text:'Do you maintain technical documentation of your ML system\'s design, development, and performance?',help:'EU AI Act Article 11 requires detailed technical documentation for high-risk AI systems.',weight:3,action:'Create and maintain technical documentation covering model architecture, training process, and performance metrics.'},
+      {id:'euai_logging',text:'Does your ML system automatically log key events including inputs, outputs, and errors?',help:'EU AI Act Article 12 requires high-risk AI systems to have automatic event logging capabilities.',weight:3,action:'Implement comprehensive automatic logging of model inputs, outputs, errors, and system events.'},
+      {id:'euai_transparency',text:'Do you provide clear information to users about the ML system\'s capabilities and limitations?',help:'EU AI Act Article 13 requires transparency including instructions for use, performance metrics, and known limitations.',weight:3,action:'Create user-facing documentation covering model capabilities, limitations, known failure modes, and appropriate use.'},
+      {id:'euai_human_oversight',text:'Is there human oversight allowing intervention, override, or shutdown of the ML system?',help:'EU AI Act Article 14 requires human oversight measures proportionate to the risk level.',weight:4,action:'Implement human-in-the-loop mechanisms including model override capability and emergency shutdown procedures.'},
+      {id:'euai_accuracy',text:'Do you test and maintain accuracy, robustness, and cybersecurity of the ML system?',help:'EU AI Act Article 15 requires high-risk AI to be accurate, robust, and secure throughout its lifecycle.',weight:3,action:'Establish continuous testing for accuracy degradation, adversarial robustness, and security vulnerabilities.'}
+    ],
+    hipaa: [
+      {id:'hipaa_baa',text:'Do you have Business Associate Agreements with all third-party ML platforms and cloud providers?',help:'HIPAA requires BAAs when sharing PHI with business associates for ML processing.',weight:4,action:'Execute BAAs with all vendors in the ML pipeline that may access or process PHI.'},
+      {id:'hipaa_deident',text:'Do you de-identify PHI before using it for ML training (Safe Harbor or Expert Determination)?',help:'HIPAA permits use of de-identified data without restrictions. Safe Harbor requires removing 18 identifier types.',weight:4,action:'Implement de-identification pipeline using Safe Harbor (remove 18 identifiers) or Expert Determination before ML training.'},
+      {id:'hipaa_min_necessary',text:'Do you enforce minimum necessary access — only authorized personnel access PHI for ML development?',help:'HIPAA Privacy Rule requires that PHI use be limited to the minimum necessary for the purpose.',weight:3,action:'Implement role-based access controls limiting PHI access to only team members who need it for their ML work.'},
+      {id:'hipaa_encryption',text:'Is PHI encrypted at rest and in transit throughout your ML pipeline?',help:'HIPAA Security Rule requires encryption as an addressable implementation specification.',weight:3,action:'Implement encryption at rest (AES-256) and in transit (TLS 1.2+) for all PHI in the ML pipeline.'},
+      {id:'hipaa_audit',text:'Do you maintain audit logs for all access to PHI during model development and inference?',help:'HIPAA Security Rule requires audit controls recording PHI access.',weight:3,action:'Deploy comprehensive audit logging for all PHI access during data preparation, training, and inference.'},
+      {id:'hipaa_risk',text:'Have you conducted a HIPAA risk assessment of your ML pipeline?',help:'HIPAA Security Rule requires regular risk assessments to identify vulnerabilities.',weight:3,action:'Conduct a formal HIPAA risk assessment covering the ML pipeline, including model memorization and inference attack risks.'},
+      {id:'hipaa_breach',text:'Do you have breach notification procedures that account for ML-specific data exposure?',help:'HIPAA Breach Notification Rule requires reporting unauthorized PHI disclosures including model-based leaks.',weight:2,action:'Update breach notification procedures to include ML-specific scenarios (model memorization, training data leaks, inference attacks).'}
+    ]
+  };
+
+  document.getElementById('regSelector').addEventListener('click', function(e) {
+    var btn = e.target.closest('.reg-btn');
+    if (!btn) return;
+    var reg = btn.dataset.reg;
+    if (selectedRegs[reg]) {
+      delete selectedRegs[reg];
+      btn.classList.remove('active');
+    } else {
+      selectedRegs[reg] = true;
+      btn.classList.add('active');
+    }
+    buildQuestions();
+  });
+
+  function buildQuestions() {
+    var container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+    var regs = Object.keys(selectedRegs);
+    if (regs.length === 0) {
+      document.getElementById('btnCheck').style.display = 'none';
+      return;
+    }
+    regs.forEach(function(reg) {
+      var qs = QUESTIONS[reg];
+      if (!qs) return;
+      var regNames = {gdpr:'GDPR',ccpa:'CCPA / CPRA',euai:'EU AI Act',hipaa:'HIPAA'};
+      var section = document.createElement('div');
+      section.innerHTML = '<h4 style="font-family:var(--font-display);font-size:0.95rem;margin:1.25rem 0 0.75rem;color:var(--accent)">' + regNames[reg] + ' Assessment</h4>';
+      qs.forEach(function(q) {
+        var item = document.createElement('div');
+        item.className = 'q-item';
+        item.innerHTML = '<div class="q-text">' + q.text + '</div>' +
+          '<div class="q-help">' + q.help + '</div>' +
+          '<div class="q-options" data-qid="' + q.id + '">' +
+          '<button class="q-opt yes-good" data-val="yes">Yes</button>' +
+          '<button class="q-opt partial" data-val="partial">Partially</button>' +
+          '<button class="q-opt no-bad" data-val="no">No</button>' +
+          '</div>';
+        section.appendChild(item);
+      });
+      container.appendChild(section);
+    });
+
+    container.addEventListener('click', function(e) {
+      var opt = e.target.closest('.q-opt');
+      if (!opt) return;
+      var group = opt.parentElement;
+      group.querySelectorAll('.q-opt').forEach(function(o) { o.classList.remove('selected'); });
+      opt.classList.add('selected');
+      answers[group.dataset.qid] = opt.dataset.val;
+    });
+
+    document.getElementById('btnCheck').style.display = 'inline-block';
+  }
+
+  window.runComplianceCheck = function() {
+    var regs = Object.keys(selectedRegs);
+    if (regs.length === 0) return;
+
+    results = {};
+    var allActions = [];
+
+    regs.forEach(function(reg) {
+      var qs = QUESTIONS[reg];
+      var totalWeight = 0, earnedWeight = 0;
+      qs.forEach(function(q) {
+        totalWeight += q.weight;
+        var ans = answers[q.id] || 'no';
+        if (ans === 'yes') earnedWeight += q.weight;
+        else if (ans === 'partial') earnedWeight += q.weight * 0.5;
+        if (ans !== 'yes') {
+          var pri = q.weight >= 4 ? 'critical' : q.weight >= 3 ? 'high' : q.weight >= 2 ? 'medium' : 'low';
+          var regNames = {gdpr:'GDPR',ccpa:'CCPA',euai:'EU AI Act',hipaa:'HIPAA'};
+          allActions.push({priority:pri,text:q.action,reg:regNames[reg],weight:q.weight,partial:ans==='partial'});
+        }
+      });
+      var score = totalWeight > 0 ? Math.round((earnedWeight / totalWeight) * 100) : 0;
+      results[reg] = {score:score};
+    });
+
+    allActions.sort(function(a,b) { return b.weight - a.weight; });
+
+    var scoreCards = document.getElementById('scoreCards');
+    scoreCards.innerHTML = '';
+    var regNames = {gdpr:'GDPR',ccpa:'CCPA / CPRA',euai:'EU AI Act',hipaa:'HIPAA'};
+    regs.forEach(function(reg) {
+      var s = results[reg].score;
+      var cls = s >= 80 ? 'sc-good' : s >= 50 ? 'sc-warn' : 'sc-bad';
+      var label = s >= 80 ? 'Compliant' : s >= 50 ? 'Gaps Found' : 'Non-Compliant';
+      var card = document.createElement('div');
+      card.className = 'score-card';
+      card.innerHTML = '<div class="sc-name">' + regNames[reg] + '</div>' +
+        '<div class="sc-score ' + cls + '">' + s + '%</div>' +
+        '<div class="sc-label ' + cls + '">' + label + '</div>';
+      scoreCards.appendChild(card);
+    });
+
+    drawRiskMatrix(allActions);
+
+    var actionList = document.getElementById('actionList');
+    actionList.innerHTML = '';
+    allActions.forEach(function(a) {
+      var priCls = 'pri-' + a.priority;
+      var item = document.createElement('div');
+      item.className = 'action-item';
+      item.innerHTML = '<span class="ai-priority ' + priCls + '">' + a.priority + '</span>' +
+        '<div><div class="ai-text">' + a.text + (a.partial ? ' (partially implemented)' : '') + '</div>' +
+        '<div class="ai-reg">' + a.reg + '</div></div>';
+      actionList.appendChild(item);
+    });
+
+    document.getElementById('resultsPanel').classList.add('active');
+    document.getElementById('resultsPanel').scrollIntoView({behavior:'smooth'});
+  };
+
+  function drawRiskMatrix(actions) {
+    var canvas = document.getElementById('riskCanvas');
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height;
+    var pad = {top:30,right:30,bottom:45,left:55};
+    var cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, W, H);
+
+    var zones = [
+      {x:0,y:0.5,w:0.5,h:0.5,color:'rgba(34,197,94,0.08)'},
+      {x:0.5,y:0.5,w:0.5,h:0.5,color:'rgba(234,179,8,0.08)'},
+      {x:0,y:0,w:0.5,h:0.5,color:'rgba(234,179,8,0.08)'},
+      {x:0.5,y:0,w:0.5,h:0.5,color:'rgba(239,68,68,0.08)'}
+    ];
+    zones.forEach(function(z) {
+      ctx.fillStyle = z.color;
+      ctx.fillRect(pad.left + z.x * cw, pad.top + z.y * ch, z.w * cw, z.h * ch);
+    });
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    for (var i = 0; i <= 4; i++) {
+      var x = pad.left + (cw / 4) * i;
+      var y = pad.top + (ch / 4) * i;
+      ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + ch); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cw, y); ctx.stroke();
+    }
+
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '10px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('Likelihood', pad.left + cw / 2, H - 8);
+    ['Low','Medium','High','Critical'].forEach(function(l, i) {
+      ctx.fillText(l, pad.left + (i + 0.5) * (cw / 4), H - 22);
+    });
+    ctx.save();
+    ctx.translate(15, pad.top + ch / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Impact', 0, 0);
+    ctx.restore();
+    ctx.textAlign = 'right';
+    ['Low','Medium','High','Critical'].forEach(function(l, i) {
+      ctx.fillText(l, pad.left - 8, pad.top + ch - (i + 0.5) * (ch / 4) + 3);
+    });
+
+    var regColors = {GDPR:'#60a5fa',CCPA:'#a78bfa','EU AI Act':'#f472b6',HIPAA:'#fb923c'};
+    var placed = [];
+    actions.forEach(function(a) {
+      var likelihood = a.partial ? 0.35 : 0.7;
+      likelihood += (Math.random() - 0.5) * 0.15;
+      var impact = (a.weight - 1) / 3;
+      impact += (Math.random() - 0.5) * 0.15;
+      impact = Math.max(0.05, Math.min(0.95, impact));
+      likelihood = Math.max(0.05, Math.min(0.95, likelihood));
+
+      var px = pad.left + likelihood * cw;
+      var py = pad.top + (1 - impact) * ch;
+
+      for (var i = 0; i < placed.length; i++) {
+        if (Math.abs(placed[i].x - px) < 12 && Math.abs(placed[i].y - py) < 12) {
+          px += 8; py -= 8;
+        }
+      }
+      placed.push({x:px, y:py});
+
+      var color = regColors[a.reg] || '#10B981';
+      ctx.beginPath();
+      ctx.arc(px, py, 5, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    var lx = pad.left + 8, ly = pad.top + 8;
+    Object.keys(regColors).forEach(function(reg, i) {
+      if (!actions.some(function(a){return a.reg===reg;})) return;
+      ctx.beginPath();
+      ctx.arc(lx + 5, ly + i * 16 + 2, 4, 0, Math.PI * 2);
+      ctx.fillStyle = regColors[reg];
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.font = '9px system-ui';
+      ctx.textAlign = 'left';
+      ctx.fillText(reg, lx + 14, ly + i * 16 + 5);
+    });
+  }
+
+  window.exportReport = function() {
+    var regNames = {gdpr:'GDPR',ccpa:'CCPA / CPRA',euai:'EU AI Act',hipaa:'HIPAA'};
+    var lines = ['# ML Compliance Report','','**Generated:** ' + new Date().toISOString().split('T')[0],
+      '**Tool:** [LockML Compliance Checker](https://lockml.com/answers/ml-compliance-checker.html)',''];
+
+    lines.push('## Compliance Scores');
+    Object.keys(results).forEach(function(reg) {
+      var s = results[reg].score;
+      var label = s >= 80 ? 'Compliant' : s >= 50 ? 'Gaps Found' : 'Non-Compliant';
+      lines.push('- **' + regNames[reg] + ':** ' + s + '% (' + label + ')');
+    });
+    lines.push('');
+
+    lines.push('## Assessment Details');
+    Object.keys(selectedRegs).forEach(function(reg) {
+      lines.push('### ' + regNames[reg]);
+      QUESTIONS[reg].forEach(function(q) {
+        var ans = answers[q.id] || 'no';
+        var icon = ans === 'yes' ? '[PASS]' : ans === 'partial' ? '[PARTIAL]' : '[FAIL]';
+        lines.push('- ' + icon + ' ' + q.text);
+        if (ans !== 'yes') lines.push('  **Action:** ' + q.action);
+      });
+      lines.push('');
+    });
+
+    lines.push('---');
+    lines.push('*Generated by [LockML](https://lockml.com) | Part of [Zovo Tools](https://zovo.one/tools)*');
+    lines.push('*This is an automated assessment tool. Consult legal counsel for formal compliance determination.*');
+
+    document.getElementById('exportOutput').textContent = lines.join('\n');
+    document.getElementById('exportModal').classList.add('active');
+  };
+
+  window.resetChecker = function() {
+    selectedRegs = {};
+    answers = {};
+    results = null;
+    document.querySelectorAll('.reg-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('questionsContainer').innerHTML = '';
+    document.getElementById('btnCheck').style.display = 'none';
+    document.getElementById('resultsPanel').classList.remove('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  window.copyExport = function() {
+    navigator.clipboard.writeText(document.getElementById('exportOutput').textContent).then(function() {
+      var btn = document.querySelector('.btn-copy');
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
+    });
+  };
+
+  window.closeExport = function() {
+    document.getElementById('exportModal').classList.remove('active');
+  };
+
+  document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExport();
+  });
+})();
+</script>
+</body>
+</html>

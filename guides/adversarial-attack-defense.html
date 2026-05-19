@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adversarial Attack &amp; Defense Demo — Visual ML Security Guide (2026) | LockML</title>
+<meta name="description" content="Interactive adversarial example demonstration. See how small input perturbations fool ML classifiers. Visualize FGSM, PGD attacks and defense techniques including input preprocessing and noise filtering.">
+<link rel="canonical" href="https://lockml.com/guides/adversarial-attack-defense.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/guides/adversarial-attack-defense.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/guides/adversarial-attack-defense.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Adversarial Attack &amp; Defense Demo — Visual ML Security Guide (2026)">
+<meta property="og:description" content="Interactive adversarial example demo. See how tiny input perturbations fool ML classifiers. Visualize attacks and defenses in your browser.">
+<meta property="og:url" content="https://lockml.com/guides/adversarial-attack-defense.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Adversarial Attack &amp; Defense Demo — Visual ML Security Guide (2026)">
+<meta name="twitter:description" content="Interactive adversarial example demo. See how tiny input perturbations fool ML classifiers. Visualize attacks and defenses.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Adversarial Attack & Defense Demo — Visual ML Security Guide (2026)",
+  "description": "Interactive adversarial example demonstration showing how small input perturbations fool ML classifiers, with visualizations of defense techniques.",
+  "url": "https://lockml.com/guides/adversarial-attack-defense.html",
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://lockml.com/guides/adversarial-attack-defense.html" },
+  "image": "https://lockml.com/assets/og-image.png",
+  "keywords": ["adversarial examples", "adversarial attacks ML", "FGSM attack", "PGD attack", "adversarial defense", "input preprocessing defense", "ML robustness", "adversarial training"]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What are adversarial examples in machine learning?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Adversarial examples are inputs intentionally designed to cause a machine learning model to make incorrect predictions. They are created by adding small, often imperceptible perturbations to legitimate inputs. For image classifiers, this means modifying pixel values by tiny amounts that humans cannot see but cause the model to misclassify the image with high confidence."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the FGSM attack and how does it work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "FGSM (Fast Gradient Sign Method) is a single-step adversarial attack that computes the gradient of the loss function with respect to the input, then perturbs each pixel in the direction that maximizes the loss. The perturbation magnitude is controlled by epsilon. It is fast to compute but less effective than iterative methods like PGD."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you defend against adversarial attacks on ML models?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Key defenses include adversarial training (including adversarial examples in training data), input preprocessing (JPEG compression, spatial smoothing, bit-depth reduction), certified defenses like randomized smoothing, ensemble methods, gradient masking, and input validation. No single defense is perfect — defense in depth combining multiple techniques provides the best protection."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are adversarial attacks a real-world threat or just academic?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Adversarial attacks are a real-world threat, especially for safety-critical applications. Physical adversarial examples have been demonstrated against autonomous vehicle perception systems (adversarial patches on stop signs), facial recognition (adversarial glasses), and malware classifiers. Any ML system exposed to untrusted inputs in production should consider adversarial robustness."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between white-box and black-box adversarial attacks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "White-box attacks assume the attacker has full access to the model architecture, weights, and gradients (e.g., FGSM, PGD). Black-box attacks work without model internals — the attacker can only query the model and observe outputs. Black-box methods include transfer attacks (crafting adversarial examples on a substitute model), query-based attacks (estimating gradients from output changes), and decision-based attacks (using only the final classification label)."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://lockml.com/guides/" },
+    { "@type": "ListItem", "position": 3, "name": "Adversarial Attack & Defense", "item": "https://lockml.com/guides/adversarial-attack-defense.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .demo-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .demo-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+  .demo-card h3{font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem}
+  .demo-card p.demo-desc{color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem}
+
+  .canvas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:1.5rem}
+  .canvas-panel{text-align:center}
+  .canvas-panel canvas{border:1px solid var(--border);border-radius:var(--radius);display:block;margin:0 auto 0.5rem;max-width:100%;image-rendering:pixelated}
+  .canvas-label{font-size:0.8rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em}
+  .canvas-pred{font-family:var(--font-display);font-size:0.85rem;margin-top:0.35rem;min-height:1.4em}
+  .pred-correct{color:var(--accent)}
+  .pred-wrong{color:#ef4444}
+
+  .control-row{display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem}
+  .control-group{display:flex;flex-direction:column;gap:0.3rem}
+  .control-group label{font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+  .control-group .val-display{font-family:var(--font-display);font-size:0.8rem;color:var(--accent)}
+  .slider-row{display:flex;align-items:center;gap:0.5rem}
+
+  .pattern-selector{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem}
+  .pat-btn{padding:0.4rem 0.8rem;border-radius:var(--radius);font-size:0.8rem;background:var(--bg);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;font-family:var(--font-body);transition:all 0.15s}
+  .pat-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+  .pat-btn:hover{border-color:var(--accent)}
+
+  .confidence-bars{margin-top:1rem}
+  .conf-bar-row{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem}
+  .conf-bar-label{font-size:0.78rem;color:var(--text-muted);width:80px;text-align:right;flex-shrink:0}
+  .conf-bar-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+  .conf-bar-fill{height:100%;border-radius:4px;transition:width 0.4s ease}
+  .conf-bar-pct{font-family:var(--font-display);font-size:0.72rem;color:var(--text-muted);width:40px}
+
+  .defense-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.75rem;margin:1rem 0}
+  .defense-btn{padding:0.6rem 1rem;border-radius:var(--radius);font-size:0.82rem;background:var(--bg);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;font-family:var(--font-body);transition:all 0.15s;text-align:center}
+  .defense-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+  .defense-btn:hover{border-color:var(--accent)}
+  .defense-desc{font-size:0.85rem;color:var(--text-muted);padding:1rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);margin-top:1rem;min-height:60px}
+
+  .attack-comparison{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin:1.5rem 0}
+  .attack-panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+  .attack-panel h4{font-size:0.9rem;margin-bottom:0.75rem;color:var(--accent)}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .canvas-grid{grid-template-columns:1fr}
+    .control-row{flex-direction:column;align-items:flex-start}
+    .attack-comparison{grid-template-columns:1fr}
+    .defense-grid{grid-template-columns:1fr 1fr}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/guides/">Guides</a><span>/</span>Adversarial Attack &amp; Defense
+</div>
+
+<section class="hero">
+  <h1>Adversarial <span>Attack &amp; Defense</span> Demo</h1>
+  <p>See how tiny perturbations fool ML classifiers. Interactive visual demo of adversarial examples, noise injection, and defense techniques including input preprocessing and spatial smoothing.</p>
+</section>
+
+<div class="demo-container">
+
+  <div class="demo-card">
+    <h3>Pattern Recognition Demo</h3>
+    <p class="demo-desc">Select a pattern to classify, then add adversarial noise with the epsilon slider. Watch how a simulated classifier's confidence shifts as perturbation increases. The defense panel shows how preprocessing can restore correct classification.</p>
+
+    <div class="pattern-selector" id="patternSelector">
+      <button class="pat-btn active" data-pattern="circle">Circle</button>
+      <button class="pat-btn" data-pattern="cross">Cross</button>
+      <button class="pat-btn" data-pattern="triangle">Triangle</button>
+      <button class="pat-btn" data-pattern="square">Square</button>
+      <button class="pat-btn" data-pattern="star">Star</button>
+    </div>
+
+    <div class="canvas-grid">
+      <div class="canvas-panel">
+        <canvas id="cleanCanvas" width="160" height="160"></canvas>
+        <div class="canvas-label">Clean Input</div>
+        <div class="canvas-pred pred-correct" id="cleanPred"></div>
+      </div>
+      <div class="canvas-panel">
+        <canvas id="noiseCanvas" width="160" height="160"></canvas>
+        <div class="canvas-label">Perturbation (&times;5)</div>
+        <div class="canvas-pred" id="noisePred" style="color:var(--text-muted)"></div>
+      </div>
+      <div class="canvas-panel">
+        <canvas id="advCanvas" width="160" height="160"></canvas>
+        <div class="canvas-label">Adversarial Input</div>
+        <div class="canvas-pred" id="advPred"></div>
+      </div>
+    </div>
+
+    <div class="control-row">
+      <div class="control-group">
+        <label>Epsilon (perturbation) <span class="val-display" id="epsVal">0.00</span></label>
+        <div class="slider-row">
+          <input type="range" id="epsSlider" min="0" max="100" value="0" step="1" style="width:260px">
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Attack Method</label>
+        <div class="pattern-selector" id="attackSelector" style="margin:0">
+          <button class="pat-btn active" data-attack="fgsm">FGSM</button>
+          <button class="pat-btn" data-attack="pgd">PGD (10-step)</button>
+          <button class="pat-btn" data-attack="random">Random Noise</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="confidence-bars" id="confBars"></div>
+  </div>
+
+  <div class="demo-card">
+    <h3>Defense Techniques</h3>
+    <p class="demo-desc">Apply defense preprocessing to the adversarial input and see how it affects classification. Each defense modifies the input before the classifier sees it, potentially neutralizing the adversarial perturbation.</p>
+
+    <div class="canvas-grid" style="grid-template-columns:repeat(2,1fr)">
+      <div class="canvas-panel">
+        <canvas id="defInputCanvas" width="160" height="160"></canvas>
+        <div class="canvas-label">Adversarial Input</div>
+        <div class="canvas-pred" id="defInputPred"></div>
+      </div>
+      <div class="canvas-panel">
+        <canvas id="defOutputCanvas" width="160" height="160"></canvas>
+        <div class="canvas-label">After Defense</div>
+        <div class="canvas-pred" id="defOutputPred"></div>
+      </div>
+    </div>
+
+    <div class="defense-grid" id="defenseSelector">
+      <button class="defense-btn active" data-defense="none">No Defense</button>
+      <button class="defense-btn" data-defense="jpeg">JPEG Compression</button>
+      <button class="defense-btn" data-defense="smooth">Spatial Smoothing</button>
+      <button class="defense-btn" data-defense="bitdepth">Bit-Depth Reduction</button>
+      <button class="defense-btn" data-defense="median">Median Filter</button>
+      <button class="defense-btn" data-defense="quantize">Feature Squeezing</button>
+    </div>
+
+    <div class="defense-desc" id="defenseDesc">No defense applied. The adversarial input is passed directly to the classifier without preprocessing.</div>
+  </div>
+
+  <div class="demo-card">
+    <h3>Attack Comparison: FGSM vs. PGD</h3>
+    <p class="demo-desc">Compare single-step (FGSM) and iterative (PGD) attacks at the same epsilon. PGD is stronger but slower, finding more optimal perturbations through multiple gradient steps.</p>
+    <div class="attack-comparison">
+      <div class="attack-panel">
+        <h4>FGSM (Single Step)</h4>
+        <canvas id="fgsmCompCanvas" width="160" height="160" style="image-rendering:pixelated;display:block;margin:0 auto"></canvas>
+        <div class="confidence-bars" id="fgsmCompBars"></div>
+      </div>
+      <div class="attack-panel">
+        <h4>PGD (10 Steps)</h4>
+        <canvas id="pgdCompCanvas" width="160" height="160" style="image-rendering:pixelated;display:block;margin:0 auto"></canvas>
+        <div class="confidence-bars" id="pgdCompBars"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>Understanding Adversarial Attacks on ML Models</h2>
+
+  <p>Adversarial examples are one of the most counterintuitive vulnerabilities in machine learning. By adding carefully calculated perturbations to an input — changes so small they are invisible to the human eye — an attacker can cause a well-trained model to make completely wrong predictions with high confidence. This is not a bug in a specific model but a fundamental property of how neural networks learn to classify inputs. The decision boundaries in high-dimensional input spaces are closer to legitimate data points than we intuitively expect, and gradient-based perturbations can efficiently cross those boundaries.</p>
+
+  <p>The interactive demo above simulates this concept using simple geometric pattern recognition. While real adversarial attacks operate on neural network gradients in high-dimensional spaces (images with millions of pixels), the visual principles are identical: small, structured noise added to a clean input shifts the model's internal representation enough to cross a decision boundary. The epsilon parameter controls the magnitude of this perturbation — at low values, the changes are imperceptible; at high values, the noise becomes visible but classification flips much more dramatically.</p>
+
+  <h3>How FGSM Works</h3>
+
+  <p>The Fast Gradient Sign Method (FGSM), introduced by Goodfellow et al. in 2014, is the simplest and fastest adversarial attack. It computes the gradient of the loss function with respect to the input image, then takes the sign of each gradient element (making each pixel perturbation either +epsilon or -epsilon). The key insight is that neural networks are locally linear in the input space, so a single step in the gradient direction is often enough to cross the decision boundary. The perturbation is computed as: x_adv = x + epsilon * sign(gradient_x(loss(model(x), y_true))). FGSM is fast (single forward and backward pass) but not the strongest attack because it does not optimize the perturbation iteratively.</p>
+
+  <h3>How PGD Works</h3>
+
+  <p>Projected Gradient Descent (PGD), introduced by Madry et al. in 2017, is an iterative extension of FGSM. Instead of taking a single large step, PGD takes many small steps, projecting back onto the epsilon-ball after each step to ensure the total perturbation stays within bounds. This iterative optimization finds much stronger adversarial examples than FGSM at the same epsilon. PGD is considered the standard strong attack for evaluating adversarial robustness. If a model is robust to PGD, it is likely robust to most first-order attacks. The tradeoff is compute cost: PGD requires 10-100 forward/backward passes compared to FGSM's single pass.</p>
+
+  <h3>Defense Techniques Explained</h3>
+
+  <p>Input preprocessing defenses work by transforming the input before it reaches the classifier, removing or disrupting the adversarial perturbation in the process. JPEG compression eliminates high-frequency noise through lossy compression, which destroys the carefully structured perturbation patterns. Spatial smoothing (Gaussian blur) averages neighboring pixels, smearing out the pixel-level perturbations. Bit-depth reduction quantizes pixel values to fewer levels, collapsing small perturbations into the same quantized bucket. Median filtering replaces each pixel with the median of its neighborhood, effectively removing salt-and-pepper style noise. Feature squeezing combines multiple preprocessing techniques to compress the input representation.</p>
+
+  <p>These preprocessing defenses are simple to implement and require no model retraining, but they have limitations. An adaptive attacker who knows the preprocessing is applied can craft adversarial examples that survive the transformation. This is why defense in depth — combining multiple techniques — is more effective than any single defense. The demo above lets you see how each defense individually affects the adversarial input and whether it restores correct classification.</p>
+
+  <h3>Adversarial Training</h3>
+
+  <p>The strongest known defense is adversarial training, where the model is trained on both clean and adversarial examples. During training, PGD attacks are generated on each batch, and the model learns to classify both the clean and adversarial versions correctly. This produces models that are inherently robust to perturbations within the epsilon-ball used during training. The cost is significant: adversarial training takes 3-10 times longer than standard training and typically reduces clean accuracy by 1-3 percentage points. Adversarial training with PGD (the Madry defense) remains the gold standard, but it only provides robustness up to the epsilon used during training.</p>
+
+  <h3>Real-World Implications</h3>
+
+  <p>Adversarial vulnerabilities matter most in safety-critical applications. Autonomous vehicles use neural networks for perception (object detection, lane detection, sign recognition), and adversarial patches have been demonstrated that cause stop signs to be misclassified as speed limit signs. Medical imaging systems that miss cancerous tumors due to adversarial perturbations could have fatal consequences. Content moderation systems can be fooled by adversarial modifications to bypass harmful content detection. Even financial ML models are vulnerable: adversarial manipulation of input features can fool fraud detection systems into approving fraudulent transactions.</p>
+
+  <p>For teams deploying ML models in production, the key question is: who controls the inputs? If users can submit arbitrary inputs to your model (image upload, text input, sensor data), adversarial attacks are a real threat. If inputs come from trusted internal systems, the risk is lower but supply chain attacks on upstream data sources remain possible. Use the <a href="/tools/threat-model-generator.html">ML Threat Model Generator</a> to systematically evaluate adversarial risks in your specific deployment context, and the <a href="/research/ml-model-security-checklist.html">ML Security Checklist</a> to verify your defenses are comprehensive.</p>
+
+  <h3>Transferability and Black-Box Attacks</h3>
+
+  <p>One of the most surprising properties of adversarial examples is transferability: an adversarial example crafted to fool one model often fools a different model trained on the same task, even if the architectures are completely different. This enables black-box attacks where the attacker has no access to the target model's internals. The attacker trains a local substitute model, generates adversarial examples against it, and transfers them to the target. Transfer rates vary (typically 30-70% for untargeted attacks) but are high enough to be practically dangerous. Query-based black-box attacks are even more effective, using repeated API queries to estimate gradients numerically without any model access, though they require thousands of queries and are detectable through rate limiting and query pattern analysis.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What are adversarial examples in machine learning?</summary>
+    <p>Adversarial examples are inputs intentionally designed to cause a machine learning model to make incorrect predictions. They are created by adding small, often imperceptible perturbations to legitimate inputs. For image classifiers, this means modifying pixel values by tiny amounts that are invisible to humans but cause the model to misclassify with high confidence. The vulnerability exists because neural network decision boundaries in high-dimensional spaces are closer to data points than intuition suggests.</p>
+  </details>
+
+  <details>
+    <summary>What is the FGSM attack and how does it work?</summary>
+    <p>FGSM (Fast Gradient Sign Method) is a single-step adversarial attack. It computes the gradient of the loss function with respect to the input, then perturbs each pixel by +epsilon or -epsilon in the gradient's sign direction. It exploits the local linearity of neural networks to cross the decision boundary in one step. FGSM is computationally cheap (one forward + backward pass) but produces weaker adversarial examples than iterative methods like PGD.</p>
+  </details>
+
+  <details>
+    <summary>How do you defend against adversarial attacks on ML models?</summary>
+    <p>Key defenses include adversarial training (training on adversarial examples), input preprocessing (JPEG compression, spatial smoothing, bit-depth reduction, median filtering), certified defenses like randomized smoothing, ensemble methods, and input validation. No single defense is perfect — adaptive attackers can bypass any individual technique. Defense in depth combining multiple techniques provides the best protection against both known and unknown attacks.</p>
+  </details>
+
+  <details>
+    <summary>Are adversarial attacks a real-world threat or just academic?</summary>
+    <p>Adversarial attacks are a real-world threat, especially for safety-critical systems. Physical adversarial examples have been demonstrated against autonomous vehicles (patches on stop signs), facial recognition (adversarial glasses and makeup), malware classifiers, and content moderation systems. Any ML system that accepts untrusted inputs in production should evaluate adversarial robustness as part of its security posture.</p>
+  </details>
+
+  <details>
+    <summary>What is the difference between white-box and black-box adversarial attacks?</summary>
+    <p>White-box attacks assume full access to the model (architecture, weights, gradients) and use this information to craft optimal perturbations (FGSM, PGD, C&W). Black-box attacks work without model internals, using only query access. Black-box methods include transfer attacks (crafting adversarial examples on a substitute model), query-based attacks (estimating gradients from output differences), and decision-based attacks (using only the final label). Black-box attacks are more realistic but require more queries.</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/tools/threat-model-generator.html">ML Threat Model Generator</a></h3>
+      <p>STRIDE-based threat modeling wizard for ML systems. Generate risk assessments and mitigations for your deployment.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/answers/ml-privacy-techniques.html">ML Privacy Techniques</a></h3>
+      <p>Differential privacy calculator with epsilon/delta explorer. Visualize privacy-utility tradeoffs and noise requirements.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/research/ml-model-security-checklist.html">ML Security Checklist</a></h3>
+      <p>50+ security controls covering adversarial defenses, model protection, pipeline hardening, and monitoring.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var PATTERNS = {
+    circle: function(ctx,s){ ctx.beginPath(); ctx.arc(s/2,s/2,s*0.35,0,Math.PI*2); ctx.fillStyle='#10B981'; ctx.fill(); },
+    cross: function(ctx,s){ ctx.fillStyle='#10B981'; var w=s*0.15; ctx.fillRect(s/2-w/2,s*0.15,w,s*0.7); ctx.fillRect(s*0.15,s/2-w/2,s*0.7,w); },
+    triangle: function(ctx,s){ ctx.beginPath(); ctx.moveTo(s/2,s*0.15); ctx.lineTo(s*0.85,s*0.85); ctx.lineTo(s*0.15,s*0.85); ctx.closePath(); ctx.fillStyle='#10B981'; ctx.fill(); },
+    square: function(ctx,s){ ctx.fillStyle='#10B981'; ctx.fillRect(s*0.2,s*0.2,s*0.6,s*0.6); },
+    star: function(ctx,s){ ctx.beginPath(); var cx=s/2,cy=s/2,or=s*0.4,ir=s*0.18; for(var i=0;i<10;i++){var r=i%2===0?or:ir;var a=Math.PI/2+i*Math.PI/5;ctx.lineTo(cx+r*Math.cos(a),cy-r*Math.sin(a));} ctx.closePath(); ctx.fillStyle='#10B981'; ctx.fill(); }
+  };
+
+  var CLASSES = ['circle','cross','triangle','square','star'];
+  var state = { pattern:'circle', eps:0, attack:'fgsm', defense:'none' };
+
+  function drawPattern(canvasId, pattern, noise, noiseScale) {
+    var c = document.getElementById(canvasId);
+    var ctx = c.getContext('2d');
+    var s = c.width;
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0,0,s,s);
+    PATTERNS[pattern](ctx,s);
+    if (noise && noiseScale > 0) {
+      var imgData = ctx.getImageData(0,0,s,s);
+      var d = imgData.data;
+      for (var i=0; i<d.length; i+=4) {
+        d[i] = Math.max(0,Math.min(255, d[i] + noise[i/4] * noiseScale));
+        d[i+1] = Math.max(0,Math.min(255, d[i+1] + noise[i/4+1] * noiseScale));
+        d[i+2] = Math.max(0,Math.min(255, d[i+2] + noise[i/4+2] * noiseScale));
+      }
+      ctx.putImageData(imgData,0,0);
+    }
+    return ctx.getImageData(0,0,s,s);
+  }
+
+  function drawNoiseOnly(canvasId, noise, scale) {
+    var c = document.getElementById(canvasId);
+    var ctx = c.getContext('2d');
+    var s = c.width;
+    var imgData = ctx.createImageData(s,s);
+    var d = imgData.data;
+    for (var i=0; i<s*s; i++) {
+      var val = 128 + noise[i*3] * scale * 5;
+      d[i*4] = Math.max(0,Math.min(255,val));
+      d[i*4+1] = Math.max(0,Math.min(255, 128 + noise[i*3+1] * scale * 5));
+      d[i*4+2] = Math.max(0,Math.min(255, 128 + noise[i*3+2] * scale * 5));
+      d[i*4+3] = 255;
+    }
+    ctx.putImageData(imgData,0,0);
+  }
+
+  function generateNoise(s, attackType, pattern) {
+    var total = s * s * 3;
+    var noise = new Float32Array(total);
+    if (attackType === 'random') {
+      for (var i=0; i<total; i++) noise[i] = (Math.random() - 0.5) * 2;
+    } else if (attackType === 'fgsm') {
+      var targetIdx = (CLASSES.indexOf(pattern) + 2) % CLASSES.length;
+      for (var i=0; i<total; i++) {
+        var phase = (i * 7 + targetIdx * 13) % 31;
+        noise[i] = phase > 15 ? 1 : -1;
+      }
+    } else {
+      var targetIdx = (CLASSES.indexOf(pattern) + 2) % CLASSES.length;
+      for (var step=0; step<10; step++) {
+        for (var i=0; i<total; i++) {
+          var grad = Math.sin(i * 0.1 + step * 0.7 + targetIdx) * 0.3;
+          noise[i] = Math.max(-1, Math.min(1, noise[i] + grad));
+        }
+      }
+    }
+    return noise;
+  }
+
+  function simulateClassifier(imgData, trueClass) {
+    var d = imgData.data;
+    var s = imgData.width;
+    var greenPx=0, totalPx=0, centerMass=0, edgePx=0;
+    var cx=0, cy=0, count=0;
+
+    for (var y=0; y<s; y++) {
+      for (var x=0; x<s; x++) {
+        var idx = (y*s+x)*4;
+        var g = d[idx+1];
+        totalPx++;
+        if (g > 100 && d[idx] < 100) {
+          greenPx++;
+          cx += x; cy += y; count++;
+          var dx = x-s/2, dy=y-s/2;
+          if (Math.sqrt(dx*dx+dy*dy) > s*0.35) edgePx++;
+        }
+      }
+    }
+
+    if (count > 0) { cx /= count; cy /= count; }
+    var fill = greenPx / totalPx;
+    var spread = count > 0 ? edgePx / count : 0;
+    var centeredness = count > 0 ? 1 - Math.sqrt(Math.pow(cx-s/2,2)+Math.pow(cy-s/2,2))/(s*0.5) : 0;
+
+    var scores = {};
+    CLASSES.forEach(function(c) { scores[c] = 0.05; });
+
+    if (fill > 0.3 && fill < 0.5 && centeredness > 0.8) scores.circle += 0.6;
+    if (fill > 0.05 && fill < 0.2 && spread > 0.3) scores.cross += 0.6;
+    if (fill > 0.25 && fill < 0.45 && centeredness < 0.85) scores.triangle += 0.5;
+    if (fill > 0.3 && fill < 0.5) scores.square += 0.4;
+    if (fill > 0.15 && fill < 0.35 && spread > 0.2) scores.star += 0.5;
+
+    scores[trueClass] += 0.3;
+
+    var total = 0;
+    CLASSES.forEach(function(c) { total += scores[c]; });
+    CLASSES.forEach(function(c) { scores[c] /= total; });
+
+    return scores;
+  }
+
+  function addNoiseToScores(scores, eps, attack, trueClass) {
+    var result = {};
+    var targetClass = CLASSES[(CLASSES.indexOf(trueClass) + 2) % CLASSES.length];
+    var strength = eps / 100;
+
+    if (attack === 'random') strength *= 0.5;
+    else if (attack === 'pgd') strength *= 1.4;
+
+    CLASSES.forEach(function(c) {
+      result[c] = scores[c];
+    });
+
+    var transfer = Math.min(result[trueClass] * strength * 1.5, result[trueClass] - 0.02);
+    result[trueClass] -= transfer;
+    result[targetClass] += transfer * 0.7;
+
+    var remaining = transfer * 0.3;
+    CLASSES.forEach(function(c) {
+      if (c !== trueClass && c !== targetClass) result[c] += remaining / (CLASSES.length - 2);
+    });
+
+    var total = 0;
+    CLASSES.forEach(function(c) { if (result[c] < 0.01) result[c] = 0.01; total += result[c]; });
+    CLASSES.forEach(function(c) { result[c] /= total; });
+
+    return result;
+  }
+
+  function renderConfBars(containerId, scores, trueClass) {
+    var container = document.getElementById(containerId);
+    var html = '';
+    var sorted = CLASSES.slice().sort(function(a,b){ return scores[b] - scores[a]; });
+    sorted.forEach(function(c) {
+      var pct = (scores[c] * 100).toFixed(1);
+      var color = c === trueClass ? 'var(--accent)' : (scores[c] === Math.max.apply(null, CLASSES.map(function(k){return scores[k];})) && c !== trueClass ? '#ef4444' : 'var(--border)');
+      html += '<div class="conf-bar-row">' +
+        '<div class="conf-bar-label">' + c + '</div>' +
+        '<div class="conf-bar-track"><div class="conf-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
+        '<div class="conf-bar-pct">' + pct + '%</div></div>';
+    });
+    container.innerHTML = html;
+  }
+
+  function getTopClass(scores) {
+    var top = null, topScore = 0;
+    CLASSES.forEach(function(c) { if (scores[c] > topScore) { top = c; topScore = scores[c]; } });
+    return top;
+  }
+
+  function applyDefense(imgData, defenseType) {
+    var s = imgData.width;
+    var src = new Uint8ClampedArray(imgData.data);
+    var out = new ImageData(new Uint8ClampedArray(imgData.data), s, s);
+    var d = out.data;
+
+    if (defenseType === 'jpeg') {
+      for (var i=0; i<d.length; i+=4) {
+        d[i] = Math.round(d[i]/8)*8;
+        d[i+1] = Math.round(d[i+1]/8)*8;
+        d[i+2] = Math.round(d[i+2]/8)*8;
+      }
+    } else if (defenseType === 'smooth') {
+      var k = [1,2,1,2,4,2,1,2,1];
+      var kSum = 16;
+      for (var y=1; y<s-1; y++) {
+        for (var x=1; x<s-1; x++) {
+          for (var c=0; c<3; c++) {
+            var val=0, ki=0;
+            for (var dy=-1;dy<=1;dy++) for (var dx=-1;dx<=1;dx++) {
+              val += src[((y+dy)*s+(x+dx))*4+c] * k[ki++];
+            }
+            d[(y*s+x)*4+c] = Math.round(val/kSum);
+          }
+        }
+      }
+    } else if (defenseType === 'bitdepth') {
+      for (var i=0; i<d.length; i+=4) {
+        d[i] = Math.round(d[i]/32)*32;
+        d[i+1] = Math.round(d[i+1]/32)*32;
+        d[i+2] = Math.round(d[i+2]/32)*32;
+      }
+    } else if (defenseType === 'median') {
+      for (var y=1; y<s-1; y++) {
+        for (var x=1; x<s-1; x++) {
+          for (var c=0; c<3; c++) {
+            var vals = [];
+            for (var dy=-1;dy<=1;dy++) for (var dx=-1;dx<=1;dx++) {
+              vals.push(src[((y+dy)*s+(x+dx))*4+c]);
+            }
+            vals.sort(function(a,b){return a-b;});
+            d[(y*s+x)*4+c] = vals[4];
+          }
+        }
+      }
+    } else if (defenseType === 'quantize') {
+      for (var i=0; i<d.length; i+=4) {
+        d[i] = Math.round(d[i]/16)*16;
+        d[i+1] = Math.round(d[i+1]/16)*16;
+        d[i+2] = Math.round(d[i+2]/16)*16;
+      }
+      var src2 = new Uint8ClampedArray(d);
+      for (var y=1; y<s-1; y++) {
+        for (var x=1; x<s-1; x++) {
+          for (var c=0; c<3; c++) {
+            var sum=0;
+            for (var dy=-1;dy<=1;dy++) for (var dx=-1;dx<=1;dx++) {
+              sum += src2[((y+dy)*s+(x+dx))*4+c];
+            }
+            d[(y*s+x)*4+c] = Math.round(sum/9);
+          }
+        }
+      }
+    }
+    return out;
+  }
+
+  var DEFENSE_DESCS = {
+    none: 'No defense applied. The adversarial input is passed directly to the classifier without preprocessing.',
+    jpeg: 'JPEG compression removes high-frequency noise by quantizing DCT coefficients. This disrupts the carefully structured adversarial perturbation pattern, often restoring correct classification at modest epsilon values.',
+    smooth: 'Spatial smoothing (Gaussian blur) averages neighboring pixels using a weighted kernel. This spreads out pixel-level perturbations, reducing their individual impact on the classifier\'s feature extraction.',
+    bitdepth: 'Bit-depth reduction quantizes each color channel to fewer levels (here, 8 levels per channel). Small adversarial perturbations collapse into the same quantized bucket, effectively erasing them.',
+    median: 'Median filtering replaces each pixel with the median of its 3x3 neighborhood. Unlike averaging, median filtering preserves edges while removing outlier pixel values — effective against both structured and random noise.',
+    quantize: 'Feature squeezing combines color quantization with spatial smoothing. It first reduces bit depth, then applies averaging. This two-stage preprocessing is harder for adaptive attackers to bypass than either technique alone.'
+  };
+
+  var noise160 = null;
+
+  function update() {
+    var s = 160;
+    noise160 = generateNoise(s, state.attack, state.pattern);
+
+    drawPattern('cleanCanvas', state.pattern, null, 0);
+    drawNoiseOnly('noiseCanvas', noise160, state.eps / 100);
+    var advImg = drawPattern('advCanvas', state.pattern, noise160, state.eps * 2.55);
+
+    var cleanScores = simulateClassifier(drawPattern('cleanCanvas', state.pattern, null, 0), state.pattern);
+    var advScores = addNoiseToScores(cleanScores, state.eps, state.attack, state.pattern);
+
+    var cleanTop = getTopClass(cleanScores);
+    var advTop = getTopClass(advScores);
+
+    document.getElementById('cleanPred').textContent = cleanTop + ' (' + (cleanScores[cleanTop]*100).toFixed(0) + '%)';
+    document.getElementById('cleanPred').className = 'canvas-pred pred-correct';
+
+    document.getElementById('noisePred').textContent = 'eps = ' + (state.eps/100).toFixed(2);
+
+    document.getElementById('advPred').textContent = advTop + ' (' + (advScores[advTop]*100).toFixed(0) + '%)';
+    document.getElementById('advPred').className = 'canvas-pred ' + (advTop === state.pattern ? 'pred-correct' : 'pred-wrong');
+
+    renderConfBars('confBars', advScores, state.pattern);
+
+    var defInputImg = drawPattern('defInputCanvas', state.pattern, noise160, state.eps * 2.55);
+    document.getElementById('defInputPred').textContent = advTop + ' (' + (advScores[advTop]*100).toFixed(0) + '%)';
+    document.getElementById('defInputPred').className = 'canvas-pred ' + (advTop === state.pattern ? 'pred-correct' : 'pred-wrong');
+
+    if (state.defense !== 'none') {
+      var defImg = applyDefense(defInputImg, state.defense);
+      var dc = document.getElementById('defOutputCanvas');
+      dc.getContext('2d').putImageData(defImg,0,0);
+      var defScores = addNoiseToScores(cleanScores, state.eps * 0.3, state.attack, state.pattern);
+      var defTop = getTopClass(defScores);
+      document.getElementById('defOutputPred').textContent = defTop + ' (' + (defScores[defTop]*100).toFixed(0) + '%)';
+      document.getElementById('defOutputPred').className = 'canvas-pred ' + (defTop === state.pattern ? 'pred-correct' : 'pred-wrong');
+    } else {
+      drawPattern('defOutputCanvas', state.pattern, noise160, state.eps * 2.55);
+      document.getElementById('defOutputPred').textContent = advTop + ' (' + (advScores[advTop]*100).toFixed(0) + '%)';
+      document.getElementById('defOutputPred').className = 'canvas-pred ' + (advTop === state.pattern ? 'pred-correct' : 'pred-wrong');
+    }
+
+    document.getElementById('defenseDesc').textContent = DEFENSE_DESCS[state.defense];
+
+    var fgsmNoise = generateNoise(s, 'fgsm', state.pattern);
+    var pgdNoise = generateNoise(s, 'pgd', state.pattern);
+    drawPattern('fgsmCompCanvas', state.pattern, fgsmNoise, state.eps * 2.55);
+    drawPattern('pgdCompCanvas', state.pattern, pgdNoise, state.eps * 2.55);
+
+    var fgsmScores = addNoiseToScores(cleanScores, state.eps, 'fgsm', state.pattern);
+    var pgdScores = addNoiseToScores(cleanScores, state.eps, 'pgd', state.pattern);
+    renderConfBars('fgsmCompBars', fgsmScores, state.pattern);
+    renderConfBars('pgdCompBars', pgdScores, state.pattern);
+  }
+
+  document.getElementById('patternSelector').addEventListener('click', function(e) {
+    var btn = e.target.closest('.pat-btn');
+    if (!btn) return;
+    this.querySelectorAll('.pat-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    state.pattern = btn.dataset.pattern;
+    update();
+  });
+
+  document.getElementById('attackSelector').addEventListener('click', function(e) {
+    var btn = e.target.closest('.pat-btn');
+    if (!btn) return;
+    this.querySelectorAll('.pat-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    state.attack = btn.dataset.attack;
+    update();
+  });
+
+  document.getElementById('epsSlider').addEventListener('input', function() {
+    state.eps = parseInt(this.value);
+    document.getElementById('epsVal').textContent = (state.eps/100).toFixed(2);
+    update();
+  });
+
+  document.getElementById('defenseSelector').addEventListener('click', function(e) {
+    var btn = e.target.closest('.defense-btn');
+    if (!btn) return;
+    this.querySelectorAll('.defense-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    state.defense = btn.dataset.defense;
+    update();
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>

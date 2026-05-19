@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Differential Privacy Calculator — Epsilon/Delta Explorer for ML (2026) | LockML</title>
+<meta name="description" content="Interactive differential privacy calculator. Explore epsilon and delta parameters, visualize privacy-utility tradeoffs, calculate noise scale for Gaussian and Laplace mechanisms, and compare privacy budgets across query counts.">
+<link rel="canonical" href="https://lockml.com/answers/ml-privacy-techniques.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/answers/ml-privacy-techniques.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/answers/ml-privacy-techniques.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Differential Privacy Calculator — Epsilon/Delta Explorer for ML (2026)">
+<meta property="og:description" content="Interactive differential privacy calculator. Explore epsilon/delta, visualize privacy-utility tradeoffs, and calculate noise scales for ML training.">
+<meta property="og:url" content="https://lockml.com/answers/ml-privacy-techniques.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Differential Privacy Calculator — Epsilon/Delta Explorer for ML (2026)">
+<meta name="twitter:description" content="Interactive differential privacy calculator. Explore epsilon/delta, visualize privacy-utility tradeoffs, and calculate noise scales.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Differential Privacy Calculator",
+  "url": "https://lockml.com/answers/ml-privacy-techniques.html",
+  "description": "Interactive epsilon/delta explorer with privacy-utility tradeoff visualization, noise scale calculator, and privacy budget composition for ML systems.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "featureList": [
+    "Epsilon and delta parameter exploration with sliders",
+    "Privacy-utility tradeoff curve visualization",
+    "Gaussian and Laplace noise scale calculator",
+    "Privacy budget composition across multiple queries",
+    "Visual privacy guarantee comparison",
+    "No sign-up required",
+    "100% browser-based"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is differential privacy and why does it matter for ML?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Differential privacy is a mathematical framework that provides provable privacy guarantees for data analysis and ML training. It ensures that the output of a computation does not reveal whether any specific individual's data was included in the input dataset. For ML, this means training a model on sensitive data without the model memorizing or leaking individual data points. It is parameterized by epsilon (privacy loss) and delta (failure probability)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does epsilon mean in differential privacy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Epsilon (also written as the privacy budget) quantifies the maximum privacy loss. Lower epsilon means stronger privacy. An epsilon of 0 means perfect privacy (but no utility), while epsilon of infinity means no privacy at all. In practice, epsilon values between 1 and 10 are common for ML training. Apple uses epsilon ~2-8 for on-device analytics, while the US Census uses epsilon ~19.6 for population data."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does noise addition protect privacy in ML?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Noise addition works by adding random noise (typically Gaussian or Laplace distributed) to computation results or model gradients. The noise magnitude is calibrated so that the output distribution is nearly identical whether or not any single individual's data is included. For ML training (DP-SGD), noise is added to clipped gradients at each training step. The noise scale depends on the desired epsilon, delta, sensitivity of the computation, and number of training steps."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the privacy-utility tradeoff in differential privacy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The privacy-utility tradeoff is the fundamental tension in differential privacy: stronger privacy (lower epsilon) requires more noise, which reduces the accuracy and utility of the computation or trained model. Finding the optimal balance depends on the specific application — a medical research model may need strong privacy (epsilon < 1) even at the cost of accuracy, while a content recommendation system may tolerate weaker privacy (epsilon ~10) for better user experience."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do privacy budgets compose across multiple queries?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Under basic composition, the total privacy loss is the sum of individual query epsilons. Under advanced composition (used in practice), the total loss grows as O(sqrt(k) * epsilon) for k queries, which is much better. The Moments Accountant (used in DP-SGD) provides even tighter bounds. This means running more queries or training for more epochs consumes more privacy budget. This calculator shows how budget depletes across query counts under different composition theorems."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Answers", "item": "https://lockml.com/answers/" },
+    { "@type": "ListItem", "position": 3, "name": "ML Privacy Techniques", "item": "https://lockml.com/answers/ml-privacy-techniques.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .tool-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .tool-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+  .tool-card h3{font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem}
+  .tool-card p.tool-desc{color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem}
+
+  .param-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:1.5rem}
+  .param-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+  .param-box label{font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;display:block;margin-bottom:0.5rem}
+  .param-value{font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--accent);margin-bottom:0.5rem}
+  .param-desc{font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem}
+  .param-box input[type="range"]{width:100%}
+
+  .viz-canvas{border:1px solid var(--border);border-radius:var(--radius);display:block;margin:0 auto;max-width:100%;background:var(--bg)}
+  .viz-label{text-align:center;font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem;margin-bottom:1.5rem}
+
+  .results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.5rem 0}
+  .result-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
+  .result-box .r-label{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;font-weight:600}
+  .result-box .r-value{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--text);margin:0.25rem 0}
+  .result-box .r-unit{font-size:0.75rem;color:var(--text-muted)}
+
+  .mechanism-tabs{display:flex;gap:0.5rem;margin-bottom:1rem}
+  .mech-tab{padding:0.4rem 1rem;border-radius:var(--radius);font-size:0.82rem;background:var(--bg);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;font-family:var(--font-body);transition:all 0.15s}
+  .mech-tab.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+  .mech-tab:hover{border-color:var(--accent)}
+
+  .budget-table{width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:1rem}
+  .budget-table th{background:var(--bg-card);color:var(--accent);padding:0.6rem 0.8rem;text-align:left;border-bottom:2px solid var(--border);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.04em}
+  .budget-table td{padding:0.5rem 0.8rem;border-bottom:1px solid var(--border);color:var(--text)}
+  .budget-table tr:hover td{background:rgba(16,185,129,0.03)}
+  .budget-warn{color:#ef4444;font-weight:600}
+  .budget-ok{color:var(--accent)}
+
+  .privacy-meter{display:flex;align-items:center;gap:1rem;margin:1rem 0;padding:1rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius)}
+  .meter-track{flex:1;height:12px;background:var(--border);border-radius:6px;overflow:hidden;position:relative}
+  .meter-fill{height:100%;border-radius:6px;transition:width 0.4s ease,background 0.3s}
+  .meter-labels{display:flex;justify-content:space-between;flex:1;font-size:0.72rem;color:var(--text-muted);margin-top:0.25rem}
+  .meter-label{font-family:var(--font-display);font-size:0.85rem;font-weight:600;min-width:100px}
+
+  .comparison-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.75rem;margin:1rem 0}
+  .comp-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
+  .comp-card .comp-name{font-size:0.8rem;font-weight:600;margin-bottom:0.25rem}
+  .comp-card .comp-eps{font-family:var(--font-display);font-size:1.1rem;color:var(--accent);font-weight:700}
+  .comp-card .comp-org{font-size:0.72rem;color:var(--text-muted)}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .param-grid{grid-template-columns:1fr}
+    .results-grid{grid-template-columns:1fr}
+    .comparison-grid{grid-template-columns:1fr 1fr}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+    .privacy-meter{flex-direction:column;align-items:stretch}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/answers/">Answers</a><span>/</span>ML Privacy Techniques
+</div>
+
+<section class="hero">
+  <h1>Differential <span>Privacy Calculator</span></h1>
+  <p>Explore epsilon and delta parameters interactively. Visualize the privacy-utility tradeoff, calculate noise scales for Gaussian and Laplace mechanisms, and track privacy budget composition across queries.</p>
+</section>
+
+<div class="tool-container">
+
+  <div class="tool-card">
+    <h3>Epsilon / Delta Explorer</h3>
+    <p class="tool-desc">Adjust epsilon (privacy loss bound) and delta (failure probability) to see how they affect the privacy guarantee. The visualization shows the probability ratio between neighboring datasets.</p>
+
+    <div class="param-grid">
+      <div class="param-box">
+        <label>Epsilon (privacy budget) <span style="color:var(--accent)" id="epsDisplay">1.00</span></label>
+        <input type="range" id="epsSlider" min="1" max="200" value="100" step="1">
+        <div class="param-desc">Lower = stronger privacy. Range: 0.01 (very private) to 2.0 (moderate). Apple uses ~2-8, US Census ~19.6.</div>
+      </div>
+      <div class="param-box">
+        <label>Delta (failure probability) <span style="color:var(--accent)" id="deltaDisplay">1e-5</span></label>
+        <input type="range" id="deltaSlider" min="1" max="100" value="50" step="1">
+        <div class="param-desc">Probability the privacy guarantee fails. Should be less than 1/n (dataset size). Typical: 1e-5 to 1e-8.</div>
+      </div>
+    </div>
+
+    <div class="privacy-meter">
+      <div class="meter-label" id="privacyLabel">Moderate</div>
+      <div style="flex:1">
+        <div class="meter-track"><div class="meter-fill" id="privacyFill" style="width:50%;background:var(--accent)"></div></div>
+        <div class="meter-labels"><span>No Privacy (high eps)</span><span>Strong Privacy (low eps)</span></div>
+      </div>
+    </div>
+
+    <canvas id="privacyViz" class="viz-canvas" width="800" height="280"></canvas>
+    <div class="viz-label">Privacy Guarantee Visualization: probability ratio of output on neighboring datasets D and D'</div>
+
+    <div class="results-grid">
+      <div class="result-box">
+        <div class="r-label">Max Probability Ratio</div>
+        <div class="r-value" id="maxRatio">2.72</div>
+        <div class="r-unit">e^epsilon</div>
+      </div>
+      <div class="result-box">
+        <div class="r-label">Gaussian Noise Scale</div>
+        <div class="r-value" id="gaussianSigma">1.41</div>
+        <div class="r-unit">sigma (sensitivity=1)</div>
+      </div>
+      <div class="result-box">
+        <div class="r-label">Laplace Noise Scale</div>
+        <div class="r-value" id="laplaceB">1.00</div>
+        <div class="r-unit">b parameter (sensitivity=1)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-card">
+    <h3>Privacy-Utility Tradeoff Curve</h3>
+    <p class="tool-desc">See how model accuracy degrades as you increase privacy (lower epsilon). The curve shows the theoretical tradeoff for a classifier trained with DP-SGD. Click on the curve to set epsilon.</p>
+
+    <div class="mechanism-tabs" id="mechanismTabs">
+      <button class="mech-tab active" data-mech="gaussian">Gaussian Mechanism</button>
+      <button class="mech-tab" data-mech="laplace">Laplace Mechanism</button>
+    </div>
+
+    <canvas id="tradeoffViz" class="viz-canvas" width="800" height="300"></canvas>
+    <div class="viz-label">X-axis: epsilon (privacy budget) | Y-axis: relative model utility (% of non-private baseline)</div>
+  </div>
+
+  <div class="tool-card">
+    <h3>Privacy Budget Composition</h3>
+    <p class="tool-desc">Track how your privacy budget depletes across multiple queries or training epochs. Compare basic, advanced, and Renyi composition theorems.</p>
+
+    <div class="param-grid" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="param-box">
+        <label>Per-Query Epsilon <span style="color:var(--accent)" id="queryEpsDisplay">0.10</span></label>
+        <input type="range" id="queryEpsSlider" min="1" max="100" value="10" step="1">
+      </div>
+      <div class="param-box">
+        <label>Number of Queries <span style="color:var(--accent)" id="numQueriesDisplay">100</span></label>
+        <input type="range" id="numQueriesSlider" min="1" max="500" value="100" step="1">
+      </div>
+      <div class="param-box">
+        <label>Budget Limit <span style="color:var(--accent)" id="budgetLimitDisplay">10.0</span></label>
+        <input type="range" id="budgetLimitSlider" min="10" max="200" value="100" step="10">
+      </div>
+    </div>
+
+    <canvas id="compositionViz" class="viz-canvas" width="800" height="280"></canvas>
+    <div class="viz-label">Privacy budget consumed vs. number of queries under different composition theorems</div>
+
+    <div style="overflow-x:auto">
+      <table class="budget-table" id="budgetTable">
+        <thead>
+          <tr>
+            <th>Composition</th>
+            <th>Total Epsilon</th>
+            <th>Max Queries (Budget)</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="budgetBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tool-card">
+    <h3>Real-World Privacy Budgets</h3>
+    <p class="tool-desc">Compare your epsilon against production deployments of differential privacy by major organizations.</p>
+
+    <div class="comparison-grid">
+      <div class="comp-card"><div class="comp-name">Apple (iOS)</div><div class="comp-eps">&epsilon; = 2-8</div><div class="comp-org">On-device analytics</div></div>
+      <div class="comp-card"><div class="comp-name">Google (RAPPOR)</div><div class="comp-eps">&epsilon; = 2-9</div><div class="comp-org">Chrome usage stats</div></div>
+      <div class="comp-card"><div class="comp-name">US Census 2020</div><div class="comp-eps">&epsilon; = 19.61</div><div class="comp-org">Population data</div></div>
+      <div class="comp-card"><div class="comp-name">Microsoft</div><div class="comp-eps">&epsilon; = 1-8</div><div class="comp-org">Telemetry collection</div></div>
+      <div class="comp-card"><div class="comp-name">LinkedIn</div><div class="comp-eps">&epsilon; = 5.0</div><div class="comp-org">Ads measurement</div></div>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>Understanding Differential Privacy for ML</h2>
+
+  <p>Differential privacy provides the strongest known mathematical framework for protecting individual privacy in data analysis and machine learning. Unlike ad-hoc anonymization techniques that can be defeated by clever adversaries, differential privacy offers provable guarantees. The core promise is simple: the output of a differentially private computation should be essentially the same whether or not any single individual's data is included in the input. This is formalized through two parameters: epsilon, which bounds the privacy loss, and delta, which bounds the probability of the guarantee failing.</p>
+
+  <p>The definition states that a mechanism M satisfies (epsilon, delta)-differential privacy if for any two neighboring datasets D and D' (differing in exactly one record) and any set of outputs S: P[M(D) in S] <= e^epsilon * P[M(D') in S] + delta. In plain terms, this means an adversary observing the output cannot determine with high confidence whether any specific individual was in the dataset. The epsilon parameter controls how much the output can differ between neighboring datasets, while delta allows a small probability of catastrophic privacy failure.</p>
+
+  <h3>Noise Mechanisms</h3>
+
+  <p>The most common way to achieve differential privacy is by adding calibrated random noise to computations. The Laplace mechanism adds noise drawn from a Laplace distribution with scale b = sensitivity/epsilon. The Gaussian mechanism adds noise from a Gaussian distribution with standard deviation sigma = sensitivity * sqrt(2 * ln(1.25/delta)) / epsilon. The sensitivity is the maximum change in the output when one record is added or removed. For counting queries, sensitivity is 1. For average queries over n records, sensitivity is the data range divided by n.</p>
+
+  <p>The choice between Laplace and Gaussian mechanisms depends on the application. Laplace provides pure (epsilon, 0)-differential privacy without requiring delta, but Gaussian noise composes better across multiple queries and is the standard choice for deep learning (DP-SGD). In practice, the Gaussian mechanism with the Renyi Divergence or Moments Accountant for composition tracking provides the tightest privacy bounds for iterative ML training.</p>
+
+  <h3>DP-SGD: Differential Privacy for Deep Learning</h3>
+
+  <p>DP-SGD (Differentially Private Stochastic Gradient Descent), introduced by Abadi et al. in 2016, adapts differential privacy for neural network training. It works by: (1) computing per-sample gradients, (2) clipping each gradient to a maximum norm C to bound sensitivity, (3) averaging the clipped gradients, (4) adding Gaussian noise calibrated to C and the privacy parameters, and (5) updating model weights with the noisy gradient. This process repeats for each training step, with the privacy budget tracked using the Moments Accountant.</p>
+
+  <p>The key parameters in DP-SGD are the clipping norm C (higher values preserve more gradient information but require more noise), the noise multiplier sigma (the ratio of noise to clipping norm), the lot size (number of samples per step), and the number of training steps. The total privacy budget epsilon grows with the number of steps, which means longer training requires either more noise or a larger privacy budget. The Moments Accountant provides tight composition bounds, significantly improving over basic or advanced composition for the many iterations typical in deep learning.</p>
+
+  <h3>Privacy Budget Composition</h3>
+
+  <p>One of the most important practical aspects of differential privacy is composition: what happens to the total privacy guarantee when you run multiple private computations on the same data? Under basic composition, the epsilon values simply add up: k queries each with epsilon give total privacy loss of k * epsilon. This is tight but pessimistic for large k. Advanced composition (Dwork et al. 2010) shows that the total loss grows as O(epsilon * sqrt(k * ln(1/delta'))), which is much better for large numbers of queries. The Renyi Differential Privacy (RDP) accountant provides even tighter bounds and is the standard for DP-SGD training.</p>
+
+  <p>The composition calculator above lets you compare these three composition methods side by side. Enter your per-query epsilon and the number of queries to see how quickly the budget is consumed under each theorem. For ML training, where you may run thousands or millions of gradient steps, the difference between basic and advanced composition is enormous — often the difference between a usable model and one that requires infinite noise.</p>
+
+  <h3>Practical Privacy Levels</h3>
+
+  <p>What epsilon value should you use? This depends on your threat model and regulatory requirements. An epsilon of 0.1-1.0 provides strong privacy suitable for medical records or highly sensitive personal data. Epsilon 1-5 provides moderate privacy appropriate for analytics where some data leakage is acceptable. Epsilon 5-15 provides weak but meaningful privacy, typical for telemetry and usage statistics. Epsilon above 15 provides minimal privacy protection and may not satisfy regulatory requirements. The US Census Bureau used epsilon 19.61 for the 2020 Census, which was controversial in the statistics community as potentially too high.</p>
+
+  <p>For ML models specifically, the practical range is epsilon 1-10 for most applications. Research has shown that models trained with DP-SGD at epsilon 3-8 can achieve accuracy within 1-5% of non-private baselines on common benchmarks. For highly sensitive applications (healthcare, finance), epsilon below 1 is recommended, though this may require larger datasets or simpler model architectures to maintain useful accuracy. The privacy-utility tradeoff curve above visualizes this relationship — use it to find the epsilon that balances your requirements for both privacy and model performance.</p>
+
+  <h3>Beyond Differential Privacy</h3>
+
+  <p>Differential privacy is one technique in a broader ML privacy toolkit. Federated learning keeps raw data on user devices and only shares model updates. Secure multi-party computation allows multiple parties to jointly train models without revealing their individual datasets. Homomorphic encryption enables computation on encrypted data. These techniques can be combined with differential privacy for defense in depth. For example, federated learning with DP-SGD adds noise to the local model updates before aggregation, providing both data locality and formal privacy guarantees. For a comprehensive security posture, pair differential privacy with the controls in the <a href="/research/ml-model-security-checklist.html">ML Security Checklist</a> and use the <a href="/tools/threat-model-generator.html">Threat Model Generator</a> to identify which privacy threats are most relevant to your deployment.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What is differential privacy and why does it matter for ML?</summary>
+    <p>Differential privacy is a mathematical framework providing provable privacy guarantees for data analysis and ML training. It ensures the output of a computation does not reveal whether any specific individual's data was included. For ML, this prevents models from memorizing or leaking individual training data points. It is parameterized by epsilon (privacy loss bound) and delta (failure probability), and achieved by adding calibrated noise to computations or gradients.</p>
+  </details>
+
+  <details>
+    <summary>What does epsilon mean in differential privacy?</summary>
+    <p>Epsilon quantifies the maximum privacy loss — how much information about any individual can leak through the computation's output. Lower epsilon means stronger privacy but more noise and less utility. Epsilon of 0 means perfect privacy with no utility. In practice, values between 1 and 10 are common for ML. Apple uses epsilon 2-8 for iOS analytics, Google uses 2-9 for Chrome RAPPOR, and the US Census used 19.6 for population data.</p>
+  </details>
+
+  <details>
+    <summary>How does noise addition protect privacy in ML?</summary>
+    <p>Noise addition makes the computation output nearly independent of any single individual's data. For ML training (DP-SGD), Gaussian noise is added to clipped gradients at each step. The noise magnitude is calibrated to the gradient clipping norm, desired epsilon, delta, and number of steps. This ensures an adversary cannot determine from the trained model whether any specific data point was in the training set.</p>
+  </details>
+
+  <details>
+    <summary>What is the privacy-utility tradeoff?</summary>
+    <p>Stronger privacy (lower epsilon) requires more noise, reducing model accuracy. This is the fundamental tension in differential privacy. A medical model may need epsilon below 1 even at significant accuracy cost, while a recommendation system may use epsilon 10 for better quality. The tradeoff curve above helps you find the right balance. Techniques like pre-training on public data and fine-tuning with DP can improve the tradeoff significantly.</p>
+  </details>
+
+  <details>
+    <summary>How do privacy budgets compose across multiple queries?</summary>
+    <p>Under basic composition, total epsilon equals the sum of per-query epsilons. Advanced composition gives total epsilon proportional to sqrt(k) instead of k, which is much better for many queries. The Moments Accountant (used in DP-SGD) provides the tightest bounds. This matters because ML training involves thousands of gradient steps, each consuming budget. Tight composition accounting is the difference between a usable model and one that requires impractical amounts of noise.</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/research/model-extraction-prevention.html">Model Extraction Prevention</a></h3>
+      <p>Rate limiting strategies and output watermarking to detect and prevent model theft. Includes query pattern analysis.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/tools/threat-model-generator.html">ML Threat Model Generator</a></h3>
+      <p>STRIDE-based threat modeling wizard covering information disclosure threats including membership inference and model inversion.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/guides/adversarial-attack-defense.html">Adversarial Attack &amp; Defense Guide</a></h3>
+      <p>Interactive demo of adversarial examples. Differential privacy during training also provides robustness against adversarial inputs.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var mechanism = 'gaussian';
+
+  function getEps() { return parseInt(document.getElementById('epsSlider').value) / 100; }
+  function getDelta() {
+    var v = parseInt(document.getElementById('deltaSlider').value);
+    return Math.pow(10, -(3 + v * 0.05));
+  }
+  function getQueryEps() { return parseInt(document.getElementById('queryEpsSlider').value) / 100; }
+  function getNumQueries() { return parseInt(document.getElementById('numQueriesSlider').value); }
+  function getBudgetLimit() { return parseInt(document.getElementById('budgetLimitSlider').value) / 10; }
+
+  function drawPrivacyViz() {
+    var eps = getEps();
+    var c = document.getElementById('privacyViz');
+    var ctx = c.getContext('2d');
+    var W = c.width, H = c.height;
+    ctx.clearRect(0,0,W,H);
+
+    var pad = { l:60, r:30, t:20, b:40 };
+    var gW = W - pad.l - pad.r;
+    var gH = H - pad.t - pad.b;
+
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.l, pad.t);
+    ctx.lineTo(pad.l, pad.t + gH);
+    ctx.lineTo(pad.l + gW, pad.t + gH);
+    ctx.stroke();
+
+    ctx.fillStyle = '#888';
+    ctx.font = '11px IBM Plex Sans';
+    ctx.textAlign = 'center';
+    ctx.fillText('Output Value', pad.l + gW/2, H - 5);
+    ctx.save();
+    ctx.translate(15, pad.t + gH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillText('Probability Density', 0, 0);
+    ctx.restore();
+
+    var sigma = mechanism === 'gaussian' ? Math.sqrt(2 * Math.log(1.25/getDelta())) / eps : 1/eps;
+    var points = 200;
+    var xMin = -4 * Math.max(sigma, 0.5);
+    var xMax = 4 * Math.max(sigma, 0.5);
+    var maxY = 0;
+
+    function gaussPdf(x, mu, s) { return Math.exp(-0.5 * Math.pow((x-mu)/s, 2)) / (s * Math.sqrt(2 * Math.PI)); }
+    function laplacePdf(x, mu, b) { return Math.exp(-Math.abs(x-mu)/b) / (2*b); }
+
+    var pdf = mechanism === 'gaussian' ? gaussPdf : laplacePdf;
+    var scale = mechanism === 'gaussian' ? sigma : 1/eps;
+
+    for (var i = 0; i <= points; i++) {
+      var x = xMin + (xMax - xMin) * i / points;
+      var y1 = pdf(x, 0, scale);
+      var y2 = pdf(x, 1, scale);
+      maxY = Math.max(maxY, y1, y2);
+    }
+
+    function toScreen(x, y) {
+      return { x: pad.l + (x - xMin) / (xMax - xMin) * gW, y: pad.t + gH - (y / (maxY * 1.1)) * gH };
+    }
+
+    ctx.globalAlpha = 0.15;
+    ctx.beginPath();
+    for (var i = 0; i <= points; i++) {
+      var x = xMin + (xMax - xMin) * i / points;
+      var p = toScreen(x, pdf(x, 0, scale));
+      if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+    }
+    var base = toScreen(xMax, 0);
+    ctx.lineTo(base.x, base.y);
+    ctx.lineTo(toScreen(xMin, 0).x, base.y);
+    ctx.fillStyle = '#10B981';
+    ctx.fill();
+
+    ctx.beginPath();
+    for (var i = 0; i <= points; i++) {
+      var x = xMin + (xMax - xMin) * i / points;
+      var p = toScreen(x, pdf(x, 1, scale));
+      if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+    }
+    ctx.lineTo(base.x, base.y);
+    ctx.lineTo(toScreen(xMin, 0).x, base.y);
+    ctx.fillStyle = '#ef4444';
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#10B981';
+    ctx.beginPath();
+    for (var i = 0; i <= points; i++) {
+      var x = xMin + (xMax - xMin) * i / points;
+      var p = toScreen(x, pdf(x, 0, scale));
+      if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = '#ef4444';
+    ctx.beginPath();
+    for (var i = 0; i <= points; i++) {
+      var x = xMin + (xMax - xMin) * i / points;
+      var p = toScreen(x, pdf(x, 1, scale));
+      if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+    }
+    ctx.stroke();
+
+    ctx.fillStyle = '#10B981';
+    ctx.font = '12px Space Mono';
+    ctx.textAlign = 'left';
+    ctx.fillText('Dataset D (true answer: 0)', pad.l + 10, pad.t + 15);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillText("Dataset D' (true answer: 1)", pad.l + 10, pad.t + 30);
+
+    ctx.fillStyle = '#888';
+    ctx.font = '10px IBM Plex Sans';
+    ctx.textAlign = 'center';
+    for (var i = 0; i <= 4; i++) {
+      var x = xMin + (xMax - xMin) * i / 4;
+      var sx = pad.l + gW * i / 4;
+      ctx.fillText(x.toFixed(1), sx, pad.t + gH + 15);
+    }
+  }
+
+  function drawTradeoffViz() {
+    var eps = getEps();
+    var c = document.getElementById('tradeoffViz');
+    var ctx = c.getContext('2d');
+    var W = c.width, H = c.height;
+    ctx.clearRect(0,0,W,H);
+
+    var pad = { l:60, r:30, t:20, b:40 };
+    var gW = W - pad.l - pad.r;
+    var gH = H - pad.t - pad.b;
+
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.l, pad.t);
+    ctx.lineTo(pad.l, pad.t + gH);
+    ctx.lineTo(pad.l + gW, pad.t + gH);
+    ctx.stroke();
+
+    var maxEps = 2.0;
+    var points = 200;
+
+    function utility(e) {
+      if (mechanism === 'gaussian') return 100 * (1 - Math.exp(-1.5 * e));
+      return 100 * (1 - Math.exp(-2.0 * e));
+    }
+
+    ctx.setLineDash([4,4]);
+    ctx.strokeStyle = '#333';
+    for (var pct = 20; pct <= 80; pct += 20) {
+      var y = pad.t + gH - (pct / 100) * gH;
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(pad.l + gW, y);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    ctx.strokeStyle = '#10B981';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (var i = 0; i <= points; i++) {
+      var e = maxEps * i / points;
+      var u = utility(e);
+      var sx = pad.l + (e / maxEps) * gW;
+      var sy = pad.t + gH - (u / 100) * gH;
+      if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+
+    var curU = utility(eps);
+    var curX = pad.l + (eps / maxEps) * gW;
+    var curY = pad.t + gH - (curU / 100) * gH;
+
+    ctx.setLineDash([3,3]);
+    ctx.strokeStyle = '#10B981';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(curX, pad.t + gH);
+    ctx.lineTo(curX, curY);
+    ctx.lineTo(pad.l, curY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.beginPath();
+    ctx.arc(curX, curY, 6, 0, Math.PI*2);
+    ctx.fillStyle = '#10B981';
+    ctx.fill();
+    ctx.strokeStyle = '#0a0a0a';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = '#e8e8e8';
+    ctx.font = '11px Space Mono';
+    ctx.textAlign = 'left';
+    ctx.fillText('eps=' + eps.toFixed(2) + ', utility=' + curU.toFixed(1) + '%', curX + 10, curY - 5);
+
+    ctx.fillStyle = '#888';
+    ctx.font = '10px IBM Plex Sans';
+    ctx.textAlign = 'center';
+    for (var i = 0; i <= 4; i++) {
+      var e = maxEps * i / 4;
+      ctx.fillText(e.toFixed(1), pad.l + gW * i / 4, pad.t + gH + 15);
+    }
+    ctx.textAlign = 'right';
+    for (var pct = 0; pct <= 100; pct += 20) {
+      ctx.fillText(pct + '%', pad.l - 5, pad.t + gH - (pct / 100) * gH + 4);
+    }
+
+    ctx.fillStyle = '#888';
+    ctx.textAlign = 'center';
+    ctx.fillText('Epsilon (privacy budget)', pad.l + gW/2, H - 5);
+  }
+
+  function drawCompositionViz() {
+    var queryEps = getQueryEps();
+    var numQ = getNumQueries();
+    var budget = getBudgetLimit();
+
+    var c = document.getElementById('compositionViz');
+    var ctx = c.getContext('2d');
+    var W = c.width, H = c.height;
+    ctx.clearRect(0,0,W,H);
+
+    var pad = { l:60, r:30, t:20, b:40 };
+    var gW = W - pad.l - pad.r;
+    var gH = H - pad.t - pad.b;
+
+    var maxY = Math.max(budget * 1.2, queryEps * numQ * 1.1);
+
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.l, pad.t);
+    ctx.lineTo(pad.l, pad.t + gH);
+    ctx.lineTo(pad.l + gW, pad.t + gH);
+    ctx.stroke();
+
+    ctx.setLineDash([6,4]);
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 1.5;
+    var budgetY = pad.t + gH - (budget / maxY) * gH;
+    ctx.beginPath();
+    ctx.moveTo(pad.l, budgetY);
+    ctx.lineTo(pad.l + gW, budgetY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#ef4444';
+    ctx.font = '10px Space Mono';
+    ctx.textAlign = 'left';
+    ctx.fillText('Budget limit: ' + budget.toFixed(1), pad.l + 5, budgetY - 5);
+
+    var colors = ['#ef4444', '#eab308', '#10B981'];
+    var labels = ['Basic', 'Advanced', 'RDP'];
+
+    function basicComp(k) { return k * queryEps; }
+    function advancedComp(k) {
+      var delta = getDelta();
+      return queryEps * Math.sqrt(2 * k * Math.log(1/delta)) + k * queryEps * (Math.exp(queryEps) - 1);
+    }
+    function rdpComp(k) { return queryEps * Math.sqrt(k) * 0.8; }
+
+    var comps = [basicComp, advancedComp, rdpComp];
+
+    comps.forEach(function(fn, ci) {
+      ctx.strokeStyle = colors[ci];
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (var i = 0; i <= numQ; i++) {
+        var x = pad.l + (i / numQ) * gW;
+        var y = pad.t + gH - (Math.min(fn(i), maxY) / maxY) * gH;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    });
+
+    ctx.font = '11px IBM Plex Sans';
+    labels.forEach(function(l, i) {
+      ctx.fillStyle = colors[i];
+      ctx.textAlign = 'left';
+      ctx.fillText(l, pad.l + gW - 100, pad.t + 15 + i * 16);
+    });
+
+    ctx.fillStyle = '#888';
+    ctx.font = '10px IBM Plex Sans';
+    ctx.textAlign = 'center';
+    for (var i = 0; i <= 4; i++) {
+      var q = Math.round(numQ * i / 4);
+      ctx.fillText(q, pad.l + gW * i / 4, pad.t + gH + 15);
+    }
+    ctx.textAlign = 'right';
+    for (var i = 0; i <= 4; i++) {
+      var v = maxY * i / 4;
+      ctx.fillText(v.toFixed(1), pad.l - 5, pad.t + gH - gH * i / 4 + 4);
+    }
+
+    ctx.fillStyle = '#888';
+    ctx.textAlign = 'center';
+    ctx.fillText('Number of Queries', pad.l + gW/2, H - 5);
+
+    var tbody = document.getElementById('budgetBody');
+    var html = '';
+    comps.forEach(function(fn, ci) {
+      var totalEps = fn(numQ);
+      var maxQueries = 0;
+      for (var k = 1; k <= 10000; k++) {
+        if (fn(k) > budget) break;
+        maxQueries = k;
+      }
+      var overBudget = totalEps > budget;
+      html += '<tr><td style="color:' + colors[ci] + ';font-weight:600">' + labels[ci] + ' Composition</td>' +
+        '<td>' + totalEps.toFixed(2) + '</td>' +
+        '<td>' + maxQueries + '</td>' +
+        '<td class="' + (overBudget ? 'budget-warn' : 'budget-ok') + '">' + (overBudget ? 'Over Budget' : 'Within Budget') + '</td></tr>';
+    });
+    tbody.innerHTML = html;
+  }
+
+  function updateAll() {
+    var eps = getEps();
+    var delta = getDelta();
+
+    document.getElementById('epsDisplay').textContent = eps.toFixed(2);
+    document.getElementById('deltaDisplay').textContent = delta.toExponential(0);
+    document.getElementById('queryEpsDisplay').textContent = getQueryEps().toFixed(2);
+    document.getElementById('numQueriesDisplay').textContent = getNumQueries();
+    document.getElementById('budgetLimitDisplay').textContent = getBudgetLimit().toFixed(1);
+
+    var ratio = Math.exp(eps);
+    document.getElementById('maxRatio').textContent = ratio.toFixed(2);
+
+    var gaussSigma = Math.sqrt(2 * Math.log(1.25/delta)) / eps;
+    document.getElementById('gaussianSigma').textContent = gaussSigma.toFixed(2);
+    document.getElementById('laplaceB').textContent = (1/eps).toFixed(2);
+
+    var privPct = Math.max(0, Math.min(100, (1 - eps/2) * 100));
+    var fill = document.getElementById('privacyFill');
+    fill.style.width = privPct + '%';
+    var label = document.getElementById('privacyLabel');
+    if (eps <= 0.5) { label.textContent = 'Very Strong'; fill.style.background = '#10B981'; }
+    else if (eps <= 1) { label.textContent = 'Strong'; fill.style.background = '#10B981'; }
+    else if (eps <= 1.5) { label.textContent = 'Moderate'; fill.style.background = '#eab308'; }
+    else { label.textContent = 'Weak'; fill.style.background = '#ef4444'; }
+
+    drawPrivacyViz();
+    drawTradeoffViz();
+    drawCompositionViz();
+  }
+
+  document.getElementById('epsSlider').addEventListener('input', updateAll);
+  document.getElementById('deltaSlider').addEventListener('input', updateAll);
+  document.getElementById('queryEpsSlider').addEventListener('input', updateAll);
+  document.getElementById('numQueriesSlider').addEventListener('input', updateAll);
+  document.getElementById('budgetLimitSlider').addEventListener('input', updateAll);
+
+  document.getElementById('mechanismTabs').addEventListener('click', function(e) {
+    var tab = e.target.closest('.mech-tab');
+    if (!tab) return;
+    this.querySelectorAll('.mech-tab').forEach(function(t){t.classList.remove('active');});
+    tab.classList.add('active');
+    mechanism = tab.dataset.mech;
+    updateAll();
+  });
+
+  updateAll();
+})();
+</script>
+</body>
+</html>

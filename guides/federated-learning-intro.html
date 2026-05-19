@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Federated Learning Introduction — Interactive Simulator (2026) | LockML</title>
+<meta name="description" content="Learn federated learning through an interactive simulator. Visualize N clients training locally, gradient aggregation, and global model updates. Compare federated vs centralized accuracy with privacy budget tracking.">
+<link rel="canonical" href="https://lockml.com/guides/federated-learning-intro.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/guides/federated-learning-intro.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/guides/federated-learning-intro.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Federated Learning Introduction — Interactive Simulator (2026)">
+<meta property="og:description" content="Learn federated learning with an interactive simulator. Watch training rounds, gradient aggregation, and compare federated vs centralized accuracy curves.">
+<meta property="og:url" content="https://lockml.com/guides/federated-learning-intro.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Federated Learning Introduction — Interactive Simulator (2026)">
+<meta name="twitter:description" content="Learn federated learning with an interactive simulator. Watch training rounds, gradient aggregation, and compare federated vs centralized accuracy curves.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Federated Learning Introduction — Interactive Simulator",
+  "url": "https://lockml.com/guides/federated-learning-intro.html",
+  "description": "Learn federated learning through an interactive simulator. Visualize N clients training locally, gradient aggregation, and global model updates. Compare federated vs centralized accuracy with privacy budget tracking.",
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "mainEntityOfPage": "https://lockml.com/guides/federated-learning-intro.html",
+  "image": "https://lockml.com/assets/og-image.png"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is federated learning and why does it matter?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Federated learning is a machine learning approach where multiple clients (devices or organizations) collaboratively train a shared model without sharing their raw data. Instead of sending data to a central server, each client trains a local model on its own data and sends only model updates (gradients or weights) to an aggregation server. This preserves data privacy, reduces data transfer costs, and enables training on sensitive datasets that cannot be centralized due to regulations like GDPR, HIPAA, or CCPA."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does the FedAvg aggregation algorithm work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "FedAvg (Federated Averaging) works in rounds. Each round, the server sends the current global model to selected clients. Each client trains the model on its local data for one or more epochs, producing updated weights. The server then computes a weighted average of all client model updates, where the weight for each client is proportional to the size of its local dataset. This averaged model becomes the new global model for the next round. FedAvg is communication-efficient because it requires far fewer rounds than sending individual gradient updates."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a privacy budget in federated learning?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A privacy budget, measured in epsilon (ε), quantifies the maximum privacy loss allowed during training. It comes from differential privacy theory. A smaller epsilon means stronger privacy guarantees but typically reduces model accuracy. Each training round consumes some privacy budget because model updates can leak information about the underlying data. Once the budget is exhausted, no more training can occur without exceeding the privacy guarantee. Common epsilon values range from 1 (strong privacy) to 10 (moderate privacy)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does federated learning compare to centralized training in accuracy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Federated learning typically achieves 1-5% lower accuracy than centralized training on the same data, primarily due to non-IID (non-identically distributed) data across clients. When clients have different data distributions, averaging their updates introduces noise. However, federated learning enables training on data that would otherwise be inaccessible due to privacy or regulatory constraints, so the real-world accuracy can be higher because the total training data is larger. Techniques like FedProx, SCAFFOLD, and personalization layers can close the accuracy gap."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the main security risks in federated learning?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The main security risks include model poisoning (malicious clients sending manipulated gradients to corrupt the global model), gradient inversion attacks (reconstructing client training data from shared gradient updates), free-rider attacks (clients sending random updates without training to benefit from the global model), and inference attacks on the aggregated model. Defenses include secure aggregation (encrypting individual updates so the server only sees the aggregate), robust aggregation methods that detect outlier updates, differential privacy for gradient clipping, and Byzantine-fault-tolerant protocols."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://lockml.com/guides/" },
+    { "@type": "ListItem", "position": 3, "name": "Federated Learning Introduction", "item": "https://lockml.com/guides/federated-learning-intro.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .sim-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .sim-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+
+  .config-row{display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem}
+  .config-item{display:flex;flex-direction:column;gap:0.3rem}
+  .config-item label{font-size:0.8rem;font-weight:600;color:var(--text-muted)}
+  .config-item input[type="range"]{accent-color:var(--accent);width:140px}
+  .config-item .val{font-family:var(--font-display);font-size:0.9rem;color:var(--accent)}
+  .config-item select{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:0.3rem 0.6rem;color:var(--text);font-family:var(--font-body);font-size:0.85rem}
+
+  .btn-sim{padding:0.5rem 1.5rem;border-radius:var(--radius);font-size:0.85rem;font-weight:600;cursor:pointer;border:none;background:var(--accent);color:#000;font-family:var(--font-body);transition:opacity 0.15s;margin-right:0.5rem}
+  .btn-sim:hover{opacity:0.85}
+  .btn-sim.secondary{background:var(--bg);color:var(--text-muted);border:1px solid var(--border)}
+  .btn-sim.secondary:hover{border-color:var(--accent);color:var(--accent)}
+
+  .sim-viz{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem}
+  .viz-panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+  .viz-panel h4{font-family:var(--font-display);font-size:0.9rem;margin-bottom:0.75rem;color:var(--accent)}
+  .viz-panel canvas{width:100%;height:auto;display:block}
+
+  .clients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:0.5rem;margin-top:0.75rem}
+  .client-node{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:0.5rem;text-align:center;transition:all 0.3s;font-size:0.75rem}
+  .client-node.training{border-color:var(--accent);background:var(--accent-dim)}
+  .client-node.sending{border-color:#eab308;background:rgba(234,179,8,0.1)}
+  .client-node .c-icon{font-size:1.2rem;display:block}
+  .client-node .c-label{font-weight:600;display:block;margin-top:0.2rem}
+  .client-node .c-samples{color:var(--text-muted);font-size:0.7rem}
+  .client-node .c-loss{font-family:var(--font-display);color:var(--accent);font-size:0.72rem;margin-top:0.15rem}
+
+  .server-node{background:var(--accent-dim);border:2px solid var(--accent);border-radius:var(--radius);padding:1rem;text-align:center;margin:1rem 0}
+  .server-node .sv-icon{font-size:1.5rem}
+  .server-node .sv-label{font-weight:600;font-size:0.9rem;margin-top:0.3rem;display:block}
+  .server-node .sv-status{font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem}
+
+  .round-info{display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem}
+  .round-info .r-item{font-size:0.85rem}
+  .round-info .r-item strong{color:var(--accent);font-family:var(--font-display)}
+
+  .privacy-meter{margin-top:1rem}
+  .privacy-meter .pm-label{font-size:0.8rem;font-weight:600;margin-bottom:0.3rem;display:flex;justify-content:space-between}
+  .pm-bar{height:10px;background:var(--border);border-radius:5px;overflow:hidden}
+  .pm-bar-fill{height:100%;border-radius:5px;transition:width 0.5s ease;background:linear-gradient(90deg,#22c55e,#eab308,#ef4444)}
+  .pm-warning{font-size:0.75rem;color:#ef4444;margin-top:0.3rem;display:none}
+
+  .log-panel{max-height:200px;overflow-y:auto;font-family:var(--font-display);font-size:0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;margin-top:1rem}
+  .log-entry{padding:0.2rem 0;border-bottom:1px solid rgba(34,34,34,0.3)}
+  .log-entry:last-child{border-bottom:none}
+  .log-round{color:var(--accent)}
+  .log-agg{color:#eab308}
+  .log-done{color:#22c55e}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .sim-viz{grid-template-columns:1fr}
+    .config-row{flex-direction:column;align-items:flex-start}
+    .clients-grid{grid-template-columns:repeat(3,1fr)}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/guides/">Guides</a><span>/</span>Federated Learning Introduction
+</div>
+
+<section class="hero">
+  <h1>Federated <span>Learning</span> Introduction</h1>
+  <p>Learn how federated learning works through an interactive simulator. Configure clients, watch local training rounds and gradient aggregation, compare federated vs centralized accuracy, and track your privacy budget in real time.</p>
+</section>
+
+<div class="sim-container">
+  <div class="sim-card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem">Simulation Configuration</h3>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem">Adjust the parameters below and start the federated learning simulation.</p>
+    <div class="config-row">
+      <div class="config-item">
+        <label>Number of Clients</label>
+        <input type="range" id="cfgClients" min="2" max="10" value="4">
+        <span class="val" id="valClients">4</span>
+      </div>
+      <div class="config-item">
+        <label>Training Rounds</label>
+        <input type="range" id="cfgRounds" min="5" max="30" value="15">
+        <span class="val" id="valRounds">15</span>
+      </div>
+      <div class="config-item">
+        <label>Privacy Budget (&#949;)</label>
+        <input type="range" id="cfgEpsilon" min="1" max="20" value="8" step="0.5">
+        <span class="val" id="valEpsilon">8.0</span>
+      </div>
+      <div class="config-item">
+        <label>Data Distribution</label>
+        <select id="cfgDistribution">
+          <option value="iid">IID (Uniform)</option>
+          <option value="noniid" selected>Non-IID (Skewed)</option>
+          <option value="extreme">Extreme Non-IID</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <button class="btn-sim" id="btnStart" onclick="startSimulation()">Start Simulation</button>
+      <button class="btn-sim secondary" id="btnReset" onclick="resetSimulation()">Reset</button>
+    </div>
+  </div>
+
+  <div id="simOutput" style="display:none">
+    <div class="round-info" id="roundInfo">
+      <span class="r-item">Round: <strong id="riRound">0</strong> / <strong id="riTotal">15</strong></span>
+      <span class="r-item">Global Accuracy: <strong id="riAccuracy">0.0%</strong></span>
+      <span class="r-item">Status: <strong id="riStatus">Initializing...</strong></span>
+    </div>
+
+    <div class="sim-card" style="padding:1.25rem">
+      <h4 style="font-family:var(--font-display);font-size:0.95rem;margin-bottom:0.5rem">Client Nodes</h4>
+      <div class="clients-grid" id="clientsGrid"></div>
+      <div class="server-node" id="serverNode">
+        <span class="sv-icon">&#9729;</span>
+        <span class="sv-label">Aggregation Server</span>
+        <span class="sv-status" id="svStatus">Waiting for client updates...</span>
+      </div>
+    </div>
+
+    <div class="sim-viz">
+      <div class="viz-panel">
+        <h4>Accuracy Curves</h4>
+        <canvas id="accChart" width="400" height="280"></canvas>
+      </div>
+      <div class="viz-panel">
+        <h4>Client Loss Distribution</h4>
+        <canvas id="lossChart" width="400" height="280"></canvas>
+      </div>
+    </div>
+
+    <div class="sim-card" style="padding:1.25rem">
+      <div class="privacy-meter">
+        <div class="pm-label">
+          <span>Privacy Budget Consumed</span>
+          <span id="pmValue">0.0 / 8.0 &#949;</span>
+        </div>
+        <div class="pm-bar"><div class="pm-bar-fill" id="pmFill" style="width:0%"></div></div>
+        <div class="pm-warning" id="pmWarning">Privacy budget exhausted. No further training allowed without exceeding privacy guarantee.</div>
+      </div>
+    </div>
+
+    <div class="sim-card" style="padding:1.25rem">
+      <h4 style="font-family:var(--font-display);font-size:0.9rem;margin-bottom:0.5rem">Training Log</h4>
+      <div class="log-panel" id="logPanel"></div>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>Understanding Federated Learning</h2>
+
+  <p>Federated learning is a paradigm shift in how machine learning models are trained. In traditional centralized training, all data is collected in a single location, and the model trains on the entire dataset at once. This approach works well when data can be freely moved and centralized, but it breaks down when data is sensitive, regulated, or simply too large to transfer. Federated learning solves this by bringing the model to the data instead of bringing the data to the model. Each participating client keeps its data locally and only shares model updates, never raw data.</p>
+
+  <p>The concept was pioneered by Google in 2016 for training the next-word prediction model on Android keyboards. Millions of phones each trained a local model on the user's typing patterns, sent encrypted gradient updates to Google's servers, and received an improved global model in return. No individual typing data ever left any phone. Since then, federated learning has expanded to healthcare (training diagnostic models across hospitals without sharing patient records), finance (fraud detection across banks without sharing transaction data), and autonomous driving (sharing driving experience across vehicles without uploading sensor footage).</p>
+
+  <h3>The FedAvg Algorithm</h3>
+
+  <p>The most widely used federated learning algorithm is Federated Averaging (FedAvg), proposed by McMahan et al. in 2017. It works in communication rounds. At the start of each round, the aggregation server sends the current global model weights to a selected subset of clients. Each client initializes its local model with these global weights, then trains on its local data for one or more epochs using standard stochastic gradient descent. After local training, each client sends its updated model weights back to the server. The server computes a weighted average of all received updates, where each client's contribution is weighted by the number of local training samples. This averaged model becomes the new global model.</p>
+
+  <p>FedAvg is communication-efficient because clients perform multiple local training steps before communicating. This reduces the number of communication rounds needed for convergence compared to sending individual gradient updates after every batch. The trade-off is that more local steps can cause client models to diverge from each other, especially when data is non-IID (not identically distributed across clients). The simulator above lets you observe this effect directly by comparing IID and non-IID data distributions.</p>
+
+  <h3>Non-IID Data: The Central Challenge</h3>
+
+  <p>In real-world federated learning, each client typically has a different data distribution. A hospital in a rural area sees different patient demographics than a hospital in an urban center. A smartphone user in one country has different typing patterns than a user in another country. This non-IID (non-independently and identically distributed) data is the central challenge of federated learning. When clients train on very different data, their local model updates push the model in different directions. Averaging these conflicting updates slows convergence and reduces final accuracy.</p>
+
+  <p>The simulator demonstrates this with three distribution modes. In IID mode, each client receives a random, representative sample of the full dataset — this is the ideal case where federated learning performs closest to centralized training. In non-IID mode, each client's data is skewed toward certain classes, simulating realistic data heterogeneity. In extreme non-IID mode, each client has data from only one or two classes, representing the worst case. Watch how the accuracy curves diverge as you increase the non-IID severity.</p>
+
+  <h3>Privacy Budget and Differential Privacy</h3>
+
+  <p>Federated learning protects data by keeping it local, but the model updates themselves can leak information. Gradient inversion attacks can reconstruct training images from the shared gradients with surprising fidelity. Differential privacy addresses this by adding calibrated noise to the gradient updates before they leave the client. The amount of noise is controlled by the privacy budget epsilon (ε). A smaller epsilon means more noise and stronger privacy, but also lower model accuracy because the aggregation server receives noisier updates.</p>
+
+  <p>Each training round consumes a portion of the privacy budget. The privacy meter in the simulator tracks this consumption. When the budget is exhausted, no further training is possible without exceeding the privacy guarantee. This creates a fundamental trade-off: more training rounds improve accuracy but consume more privacy budget. In practice, teams must carefully balance the number of rounds, local epochs, noise level, and total budget to achieve acceptable accuracy within the privacy constraints. The Renyi Divergence-based accounting used in modern implementations provides tighter budget tracking than the original composition theorem.</p>
+
+  <h3>Security Considerations</h3>
+
+  <p>Federated learning introduces unique security challenges that do not exist in centralized training. Model poisoning attacks occur when malicious clients send carefully crafted gradient updates designed to corrupt the global model. Unlike data poisoning (where bad data is injected), model poisoning directly manipulates the training process. A Byzantine attacker can cause the global model to misclassify specific inputs while maintaining normal performance on others, making the attack difficult to detect.</p>
+
+  <p>Defenses include Byzantine-fault-tolerant aggregation methods (Krum, Trimmed Mean, Median) that identify and exclude outlier updates, secure aggregation protocols that encrypt individual client updates so the server can only compute the aggregate without seeing individual contributions, and anomaly detection on the pattern of updates over time. The LockML <a href="/tools/threat-model-generator.html">Threat Model Generator</a> includes federated learning-specific threats in its assessment.</p>
+
+  <h3>Beyond FedAvg: Advanced Algorithms</h3>
+
+  <p>Several algorithms improve on FedAvg for specific scenarios. FedProx adds a proximal term that penalizes client models for diverging too far from the global model, improving stability with non-IID data. SCAFFOLD uses control variates to correct for client drift, achieving faster convergence. FedBN keeps batch normalization parameters local to each client, accommodating distribution differences without compromising the shared model. Personalized federated learning techniques train a shared base model while allowing each client to fine-tune top layers on local data, combining global knowledge with local specialization.</p>
+
+  <p>For production deployments, cross-silo federated learning (small number of reliable organizations) differs significantly from cross-device federated learning (millions of unreliable mobile devices). Cross-silo settings can afford synchronous communication and full participation, while cross-device settings must handle partial participation, stragglers, and device dropouts. The simulator models the cross-silo scenario where all clients participate in every round. Frameworks like Flower, PySyft, and NVIDIA FLARE provide production-ready implementations for both scenarios.</p>
+
+  <h3>Practical Implementation Guide</h3>
+
+  <p>To implement federated learning in production, start by evaluating whether your use case truly requires it. If you can centralize data without regulatory or competitive barriers, centralized training will be simpler and achieve higher accuracy. If data must stay distributed, begin with FedAvg and IID-similar data as a baseline. Measure the accuracy gap against centralized training on a test subset. Then introduce non-IID handling with FedProx or SCAFFOLD if the gap exceeds your tolerance. Add differential privacy with a generous initial budget (ε = 8-10) and tighten it as you gain experience with the accuracy trade-off. Finally, implement secure aggregation if the threat model requires protection against an honest-but-curious server.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What is federated learning and why does it matter?</summary>
+    <p>Federated learning is a machine learning approach where multiple clients collaboratively train a shared model without sharing raw data. Each client trains locally and sends only model updates (gradients or weights) to an aggregation server. This preserves privacy, reduces data transfer, and enables training on sensitive datasets that cannot be centralized due to regulations like GDPR, HIPAA, or CCPA. It was pioneered by Google for keyboard prediction and has since expanded to healthcare, finance, and autonomous driving.</p>
+  </details>
+
+  <details>
+    <summary>How does the FedAvg aggregation algorithm work?</summary>
+    <p>FedAvg works in rounds. The server sends the global model to clients, each trains locally for one or more epochs, then sends updated weights back. The server computes a weighted average of all client updates (weighted by local dataset size), producing the new global model. It is communication-efficient because multiple local steps reduce the total rounds needed, though more local steps can cause client divergence on non-IID data.</p>
+  </details>
+
+  <details>
+    <summary>What is a privacy budget in federated learning?</summary>
+    <p>A privacy budget, measured in epsilon (ε), quantifies maximum allowable privacy loss during training from differential privacy theory. Smaller epsilon means stronger privacy but lower accuracy. Each training round consumes some budget as model updates can leak information about underlying data. Common values range from 1 (strong privacy) to 10 (moderate). Once exhausted, no further training is possible without exceeding the privacy guarantee.</p>
+  </details>
+
+  <details>
+    <summary>How does federated learning compare to centralized training in accuracy?</summary>
+    <p>Federated learning typically achieves 1-5% lower accuracy than centralized training, primarily due to non-IID data across clients. However, it enables training on data that would be inaccessible otherwise, potentially resulting in a larger effective dataset and higher real-world accuracy. Techniques like FedProx, SCAFFOLD, and personalization layers can close the gap significantly.</p>
+  </details>
+
+  <details>
+    <summary>What are the main security risks in federated learning?</summary>
+    <p>Main risks include model poisoning (malicious clients sending manipulated gradients), gradient inversion (reconstructing training data from shared updates), free-rider attacks (fake updates to benefit from the global model), and inference attacks on aggregated models. Defenses include secure aggregation, Byzantine-fault-tolerant protocols, differential privacy for gradient clipping, and anomaly detection on update patterns.</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/tools/threat-model-generator.html">ML Threat Model Generator</a></h3>
+      <p>STRIDE-based threat modeling for ML systems including federated learning-specific threats and mitigations.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/research/data-poisoning-detection.html">Data Poisoning Detection</a></h3>
+      <p>Statistical detection techniques for identifying poisoned data points. Essential for federated learning data integrity.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/answers/ml-compliance-checker.html">ML Compliance Checker</a></h3>
+      <p>Check GDPR, CCPA, EU AI Act compliance for your federated learning deployment with risk scoring.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var sim = null;
+  var animFrame = null;
+
+  document.getElementById('cfgClients').addEventListener('input', function() { document.getElementById('valClients').textContent = this.value; });
+  document.getElementById('cfgRounds').addEventListener('input', function() { document.getElementById('valRounds').textContent = this.value; });
+  document.getElementById('cfgEpsilon').addEventListener('input', function() { document.getElementById('valEpsilon').textContent = parseFloat(this.value).toFixed(1); });
+
+  function rand(min, max) { return Math.random() * (max - min) + min; }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  function generateClientData(numClients, dist) {
+    var clients = [];
+    for (var i = 0; i < numClients; i++) {
+      var samples = Math.floor(rand(80, 200));
+      var skew = 0;
+      if (dist === 'noniid') skew = rand(0.2, 0.5);
+      else if (dist === 'extreme') skew = rand(0.5, 0.9);
+      clients.push({ id: i, samples: samples, skew: skew, localLoss: rand(2.0, 3.5), localAcc: rand(0.1, 0.3), weights: null });
+    }
+    return clients;
+  }
+
+  function simulateLocalTraining(client, globalAcc, round, totalRounds) {
+    var baseLR = 0.15;
+    var progress = round / totalRounds;
+    var lr = baseLR * (1 - progress * 0.6);
+    var noiseSkew = client.skew * rand(0.02, 0.08);
+    var improvement = lr * (1 - globalAcc) * rand(0.5, 1.2) - noiseSkew;
+    client.localLoss = clamp(client.localLoss - improvement * 2, 0.05, 3.5);
+    client.localAcc = clamp(client.localAcc + improvement, 0.1, 0.98);
+    return { loss: client.localLoss, acc: client.localAcc, delta: improvement };
+  }
+
+  function fedAvgAggregate(clients) {
+    var totalSamples = clients.reduce(function(s, c) { return s + c.samples; }, 0);
+    var aggAcc = 0, aggLoss = 0;
+    clients.forEach(function(c) {
+      var w = c.samples / totalSamples;
+      aggAcc += c.localAcc * w;
+      aggLoss += c.localLoss * w;
+    });
+    return { acc: aggAcc, loss: aggLoss };
+  }
+
+  function drawChart(canvas, datasets, xLabel, yLabel, maxY) {
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height;
+    var pad = { top: 20, right: 20, bottom: 35, left: 45 };
+    var cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0a0a0a';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    for (var i = 0; i <= 4; i++) {
+      var y = pad.top + (ch / 4) * i;
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+    }
+
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '10px system-ui';
+    ctx.textAlign = 'right';
+    for (var j = 0; j <= 4; j++) {
+      var val = maxY - (maxY / 4) * j;
+      ctx.fillText(val.toFixed(1), pad.left - 5, pad.top + (ch / 4) * j + 3);
+    }
+
+    ctx.textAlign = 'center';
+    ctx.fillText(xLabel, pad.left + cw / 2, H - 5);
+    ctx.save();
+    ctx.translate(12, pad.top + ch / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(yLabel, 0, 0);
+    ctx.restore();
+
+    datasets.forEach(function(ds) {
+      if (ds.data.length < 2) return;
+      ctx.beginPath();
+      ctx.strokeStyle = ds.color;
+      ctx.lineWidth = ds.width || 2;
+      if (ds.dash) ctx.setLineDash(ds.dash);
+      else ctx.setLineDash([]);
+      ds.data.forEach(function(val, idx) {
+        var x = pad.left + (idx / (ds.data.length - 1)) * cw;
+        var y = pad.top + (1 - val / maxY) * ch;
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    if (datasets.length > 0) {
+      var lx = pad.left + 8, ly = pad.top + 8;
+      datasets.forEach(function(ds, di) {
+        ctx.fillStyle = ds.color;
+        ctx.fillRect(lx, ly + di * 16, 12, 3);
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.font = '9px system-ui';
+        ctx.textAlign = 'left';
+        ctx.fillText(ds.label, lx + 16, ly + di * 16 + 5);
+      });
+    }
+  }
+
+  window.startSimulation = function() {
+    if (sim && sim.running) return;
+
+    var numClients = parseInt(document.getElementById('cfgClients').value);
+    var numRounds = parseInt(document.getElementById('cfgRounds').value);
+    var epsilon = parseFloat(document.getElementById('cfgEpsilon').value);
+    var dist = document.getElementById('cfgDistribution').value;
+
+    document.getElementById('simOutput').style.display = 'block';
+    document.getElementById('riTotal').textContent = numRounds;
+
+    var clients = generateClientData(numClients, dist);
+    var grid = document.getElementById('clientsGrid');
+    grid.innerHTML = '';
+    clients.forEach(function(c) {
+      var node = document.createElement('div');
+      node.className = 'client-node';
+      node.id = 'client-' + c.id;
+      node.innerHTML = '<span class="c-icon">&#128187;</span><span class="c-label">Client ' + (c.id + 1) + '</span>' +
+        '<span class="c-samples">' + c.samples + ' samples</span><span class="c-loss">loss: --</span>';
+      grid.appendChild(node);
+    });
+
+    var fedAccHistory = [0.1];
+    var cenAccHistory = [0.1];
+    var clientLossHistories = clients.map(function() { return []; });
+    var privacyUsed = 0;
+    var epsilonPerRound = epsilon / numRounds;
+    var cenAcc = 0.1;
+    var globalAcc = 0.1;
+    var logPanel = document.getElementById('logPanel');
+    logPanel.innerHTML = '';
+
+    sim = { running: true, round: 0, phase: 'train', phaseTimer: 0, clients: clients, numRounds: numRounds, epsilon: epsilon };
+
+    function addLog(cls, text) {
+      var entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = '<span class="' + cls + '">' + text + '</span>';
+      logPanel.appendChild(entry);
+      logPanel.scrollTop = logPanel.scrollHeight;
+    }
+
+    function runRound() {
+      if (!sim.running || sim.round >= numRounds) {
+        sim.running = false;
+        document.getElementById('riStatus').textContent = 'Complete';
+        addLog('log-done', 'Simulation complete. Final federated accuracy: ' + (globalAcc * 100).toFixed(1) + '%');
+        return;
+      }
+
+      sim.round++;
+      document.getElementById('riRound').textContent = sim.round;
+      document.getElementById('riStatus').textContent = 'Local training...';
+      addLog('log-round', 'Round ' + sim.round + ': Distributing global model to ' + clients.length + ' clients');
+
+      clients.forEach(function(c) {
+        var node = document.getElementById('client-' + c.id);
+        if (node) node.classList.add('training');
+      });
+
+      setTimeout(function() {
+        clients.forEach(function(c, ci) {
+          simulateLocalTraining(c, globalAcc, sim.round, numRounds);
+          clientLossHistories[ci].push(c.localLoss);
+          var node = document.getElementById('client-' + c.id);
+          if (node) {
+            node.classList.remove('training');
+            node.classList.add('sending');
+            node.querySelector('.c-loss').textContent = 'loss: ' + c.localLoss.toFixed(2);
+          }
+        });
+
+        document.getElementById('riStatus').textContent = 'Aggregating...';
+        document.getElementById('svStatus').textContent = 'Aggregating ' + clients.length + ' client updates...';
+        addLog('log-agg', 'Round ' + sim.round + ': FedAvg aggregation of ' + clients.length + ' updates');
+
+        setTimeout(function() {
+          var agg = fedAvgAggregate(clients);
+          globalAcc = agg.acc;
+          fedAccHistory.push(globalAcc);
+
+          var cenImprove = 0.15 * (1 - cenAcc) * rand(0.8, 1.2) * (1 - sim.round / numRounds * 0.3);
+          cenAcc = clamp(cenAcc + cenImprove, 0.1, 0.99);
+          cenAccHistory.push(cenAcc);
+
+          privacyUsed += epsilonPerRound * rand(0.8, 1.2);
+          var pctUsed = Math.min(100, (privacyUsed / epsilon) * 100);
+          document.getElementById('pmFill').style.width = pctUsed + '%';
+          document.getElementById('pmValue').textContent = privacyUsed.toFixed(1) + ' / ' + epsilon.toFixed(1) + ' \u03B5';
+          if (pctUsed >= 100) document.getElementById('pmWarning').style.display = 'block';
+
+          document.getElementById('riAccuracy').textContent = (globalAcc * 100).toFixed(1) + '%';
+          document.getElementById('svStatus').textContent = 'Global model updated (acc: ' + (globalAcc * 100).toFixed(1) + '%)';
+
+          clients.forEach(function(c) {
+            var node = document.getElementById('client-' + c.id);
+            if (node) node.classList.remove('sending');
+          });
+
+          var accCanvas = document.getElementById('accChart');
+          drawChart(accCanvas, [
+            { label: 'Federated', data: fedAccHistory, color: '#10B981', width: 2 },
+            { label: 'Centralized', data: cenAccHistory, color: '#60a5fa', width: 2, dash: [5, 3] }
+          ], 'Training Round', 'Accuracy', 1.0);
+
+          var lossDatasets = clientLossHistories.map(function(hist, i) {
+            var hue = (i / clients.length) * 300;
+            return { label: 'Client ' + (i + 1), data: hist, color: 'hsl(' + hue + ',70%,60%)', width: 1.5 };
+          });
+          var lossCanvas = document.getElementById('lossChart');
+          drawChart(lossCanvas, lossDatasets, 'Training Round', 'Loss', 4.0);
+
+          addLog('log-round', 'Round ' + sim.round + ' complete: accuracy=' + (globalAcc * 100).toFixed(1) + '%, privacy=' + privacyUsed.toFixed(1) + '\u03B5');
+
+          setTimeout(runRound, 400);
+        }, 300);
+      }, 400);
+    }
+
+    document.getElementById('simOutput').scrollIntoView({ behavior: 'smooth' });
+    setTimeout(runRound, 500);
+  };
+
+  window.resetSimulation = function() {
+    if (sim) sim.running = false;
+    sim = null;
+    document.getElementById('simOutput').style.display = 'none';
+    document.getElementById('pmWarning').style.display = 'none';
+    document.getElementById('pmFill').style.width = '0%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+})();
+</script>
+</body>
+</html>

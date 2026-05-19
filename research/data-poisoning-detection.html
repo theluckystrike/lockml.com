@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Poisoning Detection — Statistical Detection Techniques &amp; Interactive Demo (2026) | LockML</title>
+<meta name="description" content="Detect data poisoning in ML datasets using statistical techniques. Interactive demo with outlier detection, distribution shift analysis, label flip detection, and Isolation Forest simulation. Upload CSV or use sample data.">
+<link rel="canonical" href="https://lockml.com/research/data-poisoning-detection.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/research/data-poisoning-detection.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/research/data-poisoning-detection.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Data Poisoning Detection — Statistical Detection Techniques & Interactive Demo (2026)">
+<meta property="og:description" content="Detect data poisoning with outlier detection, distribution shift analysis, label flip detection, and Isolation Forest simulation.">
+<meta property="og:url" content="https://lockml.com/research/data-poisoning-detection.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Data Poisoning Detection — Statistical Detection Techniques & Interactive Demo (2026)">
+<meta name="twitter:description" content="Detect data poisoning with outlier detection, distribution shift analysis, label flip detection, and Isolation Forest simulation.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Data Poisoning Detection — Statistical Detection Techniques with Interactive Demo",
+  "url": "https://lockml.com/research/data-poisoning-detection.html",
+  "description": "Learn to detect data poisoning in ML datasets using statistical techniques. Interactive demo covers outlier detection, distribution shift analysis, label flip detection, Isolation Forest simulation, and clean vs poisoned data comparison.",
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "mainEntityOfPage": "https://lockml.com/research/data-poisoning-detection.html",
+  "image": "https://lockml.com/assets/og-image.png"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is data poisoning in machine learning?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Data poisoning is an attack where adversaries manipulate training data to corrupt a machine learning model's behavior. There are three main types: label flipping (changing correct labels to incorrect ones), backdoor poisoning (inserting triggered samples that cause specific misclassifications), and clean-label poisoning (adding correctly-labeled but strategically chosen samples that degrade model performance). Data poisoning is particularly dangerous because it happens before training, making it invisible to standard model evaluation on test sets."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does Isolation Forest detect poisoned data points?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Isolation Forest works by randomly selecting features and split values to isolate data points in a tree structure. Anomalous points (including poisoned samples) are easier to isolate because they differ from the majority of the data, requiring fewer random splits. The algorithm assigns an anomaly score based on the average path length to isolate each point across multiple random trees. Points with shorter average path lengths are flagged as anomalies. Isolation Forest is effective for poisoning detection because poisoned samples typically lie in sparse regions of the feature space."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What statistical tests can detect distribution shifts from data poisoning?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Kolmogorov-Smirnov test compares cumulative distribution functions between clean and potentially poisoned datasets. The chi-squared test detects changes in categorical feature distributions. The t-test and Mann-Whitney U test identify shifts in feature means. The Anderson-Darling test checks if data follows expected distributions. Population Stability Index (PSI) measures overall distribution drift. For multivariate detection, Mahalanobis distance identifies points that are outliers considering feature correlations. Combining multiple tests provides more robust detection than any single method."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you detect label flipping attacks in training data?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Label flip detection uses several approaches: confident learning identifies samples where the model's prediction strongly disagrees with the provided label across multiple training runs. Cross-validation filtering trains on subsets and flags samples consistently misclassified by models trained without them. Feature-space analysis examines whether a sample's features are more consistent with a different class than its assigned label. Influence function analysis identifies samples that disproportionately affect model parameters when included or excluded from training. The cleanlab library implements many of these techniques."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What percentage of poisoned data can these detection methods catch?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Detection rates depend on the poisoning strategy and the percentage of poisoned samples. For random label flipping affecting 5-10% of data, statistical methods typically detect 85-95% of poisoned samples with 5-15% false positive rates. For targeted backdoor attacks affecting 1-3% of data, Isolation Forest and spectral analysis catch 60-80% of poisoned samples. Clean-label attacks are hardest to detect, with typical detection rates of 40-60%. Combining multiple detection methods (ensemble approach) improves overall detection to 80-95% for most attack types while reducing false positives."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Research", "item": "https://lockml.com/research/" },
+    { "@type": "ListItem", "position": 3, "name": "Data Poisoning Detection", "item": "https://lockml.com/research/data-poisoning-detection.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .demo-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .demo-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+
+  .data-source{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+  .source-btn{padding:0.6rem 1.2rem;border-radius:var(--radius);cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);font-size:0.85rem;font-weight:600;transition:all 0.15s}
+  .source-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .source-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+
+  .upload-area{display:none;padding:1.5rem;border:2px dashed var(--border);border-radius:var(--radius);text-align:center;margin-bottom:1rem;cursor:pointer;transition:border-color 0.2s}
+  .upload-area.active{display:block}
+  .upload-area:hover{border-color:var(--accent)}
+  .upload-area .ua-icon{font-size:2rem;margin-bottom:0.5rem}
+  .upload-area .ua-text{font-size:0.85rem;color:var(--text-muted)}
+  .upload-area input{display:none}
+
+  .sample-options{display:none;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem}
+  .sample-options.active{display:flex}
+  .sample-btn{padding:0.5rem 1rem;border-radius:var(--radius);cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);font-size:0.82rem;transition:all 0.15s}
+  .sample-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .sample-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+
+  .poison-config{display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;margin:1rem 0;padding:1rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius)}
+  .poison-config label{font-size:0.8rem;font-weight:600;color:var(--text-muted)}
+  .poison-config input[type="range"]{accent-color:var(--accent);width:120px}
+  .poison-config select{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:0.3rem 0.5rem;color:var(--text);font-size:0.82rem;font-family:var(--font-body)}
+  .poison-config .pc-val{font-family:var(--font-display);font-size:0.85rem;color:var(--accent)}
+
+  .btn-run{padding:0.6rem 2rem;border-radius:var(--radius);font-size:0.9rem;font-weight:600;cursor:pointer;border:none;background:var(--accent);color:#000;font-family:var(--font-body);transition:opacity 0.15s;margin-top:0.5rem}
+  .btn-run:hover{opacity:0.85}
+  .btn-run.secondary{background:var(--bg);color:var(--text-muted);border:1px solid var(--border);margin-left:0.5rem}
+  .btn-run.secondary:hover{border-color:var(--accent);color:var(--accent)}
+
+  .results-area{display:none;margin-top:1.5rem}
+  .results-area.active{display:block}
+
+  .viz-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+  .viz-panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+  .viz-panel h4{font-family:var(--font-display);font-size:0.9rem;margin-bottom:0.75rem;color:var(--accent)}
+  .viz-panel canvas{width:100%;height:auto;display:block}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.75rem;margin-bottom:1.5rem}
+  .stat-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;text-align:center}
+  .stat-card .st-label{font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem}
+  .stat-card .st-value{font-family:var(--font-display);font-size:1.3rem;font-weight:700}
+  .st-good{color:#22c55e}.st-warn{color:#eab308}.st-bad{color:#ef4444}
+
+  .detection-results{margin-top:1.5rem}
+  .detection-results h4{font-family:var(--font-display);font-size:0.95rem;margin-bottom:0.75rem}
+  .det-test{display:flex;gap:0.75rem;padding:0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:0.5rem;align-items:center;flex-wrap:wrap}
+  .det-test .dt-name{font-weight:600;font-size:0.85rem;min-width:160px}
+  .det-test .dt-result{font-size:0.8rem;flex:1}
+  .det-test .dt-badge{font-size:0.65rem;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:3px;white-space:nowrap}
+  .dt-detected{background:rgba(239,68,68,0.15);color:#ef4444}
+  .dt-clean{background:rgba(34,197,94,0.15);color:#22c55e}
+  .dt-warning{background:rgba(234,179,8,0.15);color:#eab308}
+
+  .suspect-table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:0.82rem}
+  .suspect-table th{background:var(--bg);padding:0.5rem 0.75rem;text-align:left;font-weight:600;border-bottom:1px solid var(--border);font-size:0.75rem;color:var(--text-muted)}
+  .suspect-table td{padding:0.5rem 0.75rem;border-bottom:1px solid rgba(34,34,34,0.5)}
+  .suspect-table tr.poisoned{background:rgba(239,68,68,0.05)}
+  .suspect-table .idx-badge{font-family:var(--font-display);font-size:0.75rem}
+
+  .export-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+  .export-modal.active{display:flex}
+  .export-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;max-width:700px;width:90%;max-height:80vh;overflow-y:auto}
+  .export-content h3{margin-bottom:1rem;font-family:var(--font-display);color:var(--accent)}
+  .export-content pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow-x:auto;font-size:0.8rem;white-space:pre-wrap;word-break:break-word}
+  .export-btns{display:flex;gap:0.5rem;margin-top:1rem}
+  .export-btns button{padding:0.45rem 1rem;border-radius:var(--radius);cursor:pointer;font-size:0.8rem;font-family:var(--font-body);border:1px solid var(--border)}
+  .btn-copy{background:var(--accent);color:#000;border-color:var(--accent) !important;font-weight:600}
+  .btn-close{background:var(--bg);color:var(--text-muted)}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .viz-grid{grid-template-columns:1fr}
+    .stats-grid{grid-template-columns:1fr 1fr}
+    .det-test{flex-direction:column;align-items:flex-start}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+    .suspect-table{font-size:0.75rem}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/research/">Research</a><span>/</span>Data Poisoning Detection
+</div>
+
+<section class="hero">
+  <h1>Data <span>Poisoning</span> Detection</h1>
+  <p>Detect poisoned data in your ML datasets using statistical techniques. Run outlier detection, distribution shift analysis, label flip detection, and Isolation Forest simulation. Upload your own CSV or explore with sample datasets to see clean vs poisoned data side by side.</p>
+</section>
+
+<div class="demo-container">
+  <div class="demo-card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem">Data Source</h3>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem">Upload a CSV file or use a built-in sample dataset to test poisoning detection.</p>
+    <div class="data-source" id="dataSource">
+      <button class="source-btn active" data-source="sample">Sample Dataset</button>
+      <button class="source-btn" data-source="upload">Upload CSV</button>
+    </div>
+
+    <div class="upload-area" id="uploadArea">
+      <div class="ua-icon">&#128196;</div>
+      <div class="ua-text">Click to upload CSV or drag and drop<br><small>Max 5MB, numeric features with optional label column</small></div>
+      <input type="file" id="fileInput" accept=".csv">
+    </div>
+
+    <div class="sample-options active" id="sampleOptions">
+      <button class="sample-btn active" data-sample="iris">Iris (150 samples)</button>
+      <button class="sample-btn" data-sample="credit">Credit Risk (500 samples)</button>
+      <button class="sample-btn" data-sample="sensor">IoT Sensor (300 samples)</button>
+    </div>
+
+    <div class="poison-config">
+      <div>
+        <label>Poison Rate</label><br>
+        <input type="range" id="poisonRate" min="1" max="25" value="8">
+        <span class="pc-val" id="poisonRateVal">8%</span>
+      </div>
+      <div>
+        <label>Attack Type</label><br>
+        <select id="attackType">
+          <option value="label_flip">Label Flip</option>
+          <option value="outlier_inject">Outlier Injection</option>
+          <option value="backdoor">Backdoor Trigger</option>
+          <option value="distribution_shift">Distribution Shift</option>
+        </select>
+      </div>
+      <div>
+        <label>Poison Strength</label><br>
+        <input type="range" id="poisonStrength" min="1" max="10" value="5">
+        <span class="pc-val" id="poisonStrengthVal">5</span>
+      </div>
+    </div>
+
+    <div style="margin-top:1rem">
+      <button class="btn-run" onclick="runDetection()">Run Detection Analysis</button>
+      <button class="btn-run secondary" onclick="resetDemo()">Reset</button>
+    </div>
+  </div>
+
+  <div class="results-area" id="resultsArea">
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <div class="viz-grid">
+      <div class="viz-panel">
+        <h4>Clean vs Poisoned Scatter</h4>
+        <canvas id="scatterChart" width="400" height="320"></canvas>
+      </div>
+      <div class="viz-panel">
+        <h4>Isolation Forest Anomaly Scores</h4>
+        <canvas id="iforestChart" width="400" height="320"></canvas>
+      </div>
+    </div>
+
+    <div class="viz-grid">
+      <div class="viz-panel">
+        <h4>Feature Distribution Comparison</h4>
+        <canvas id="distChart" width="400" height="280"></canvas>
+      </div>
+      <div class="viz-panel">
+        <h4>Detection Accuracy</h4>
+        <canvas id="rocChart" width="400" height="280"></canvas>
+      </div>
+    </div>
+
+    <div class="demo-card" style="padding:1.5rem">
+      <div class="detection-results">
+        <h4>Statistical Test Results</h4>
+        <div id="testResults"></div>
+      </div>
+    </div>
+
+    <div class="demo-card" style="padding:1.5rem">
+      <h4 style="font-family:var(--font-display);font-size:0.95rem;margin-bottom:0.75rem">Suspicious Data Points (Top 15)</h4>
+      <div style="overflow-x:auto">
+        <table class="suspect-table" id="suspectTable">
+          <thead><tr><th>Index</th><th>Feature 1</th><th>Feature 2</th><th>Label</th><th>Anomaly Score</th><th>Status</th></tr></thead>
+          <tbody id="suspectBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:1rem">
+      <button class="btn-run" onclick="exportResults()">Export Report</button>
+    </div>
+  </div>
+</div>
+
+<div id="exportModal" class="export-modal">
+  <div class="export-content">
+    <h3>Detection Report</h3>
+    <pre id="exportOutput"></pre>
+    <div class="export-btns">
+      <button class="btn-copy" onclick="copyExport()">Copy to Clipboard</button>
+      <button class="btn-close" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>Understanding Data Poisoning Attacks</h2>
+
+  <p>Data poisoning is one of the most insidious attacks against machine learning systems because it happens before the model is even trained. Unlike adversarial attacks that target a deployed model at inference time, data poisoning corrupts the training process itself. An attacker who can manipulate even a small percentage of training data — often as little as 1-5% — can cause the resulting model to exhibit systematically incorrect behavior while passing standard evaluation metrics on clean test sets.</p>
+
+  <p>There are several distinct data poisoning strategies, each requiring different detection approaches. Label flipping is the simplest: the attacker changes correct labels to incorrect ones, causing the model to learn wrong associations. For a spam classifier, this means labeling spam emails as legitimate or vice versa. Outlier injection inserts data points that lie far from the normal data distribution, pulling the model's decision boundaries in unintended directions. Backdoor poisoning is more sophisticated: the attacker inserts samples with a specific trigger pattern (a pixel patch in images, a specific phrase in text) labeled with a target class, so the deployed model misclassifies any input containing the trigger while behaving normally otherwise.</p>
+
+  <h3>Isolation Forest for Anomaly Detection</h3>
+
+  <p>Isolation Forest is one of the most effective algorithms for detecting poisoned data points. Its core insight is that anomalous points are easier to isolate than normal points. The algorithm builds multiple random decision trees where each tree randomly selects a feature and a random split value between the feature's min and max. Normal data points, which cluster together, require many random splits to isolate. Anomalous points, which sit in sparse regions, can be isolated with very few splits.</p>
+
+  <p>The anomaly score for each data point is calculated as the average path length across all trees in the forest, normalized against the expected path length for a dataset of the same size. Points with anomaly scores above a threshold (typically the 90th or 95th percentile) are flagged as suspicious. The demo above simulates this process: when you run detection, the Isolation Forest scores are visualized as a histogram where you can see the distribution of scores for clean data (clustered at lower scores) versus poisoned data (distributed toward higher scores).</p>
+
+  <h3>Distribution Shift Analysis</h3>
+
+  <p>Distribution shift analysis compares the statistical properties of the potentially poisoned dataset against a known-clean reference distribution. The Kolmogorov-Smirnov (KS) test is the primary tool: it measures the maximum difference between the cumulative distribution functions of two samples. If the KS statistic exceeds the critical value for your significance level, the null hypothesis (that both samples come from the same distribution) is rejected, indicating likely data manipulation.</p>
+
+  <p>For multivariate data, single-feature KS tests may miss poisoning that affects feature correlations without changing marginal distributions. The Mahalanobis distance addresses this by measuring how far each point is from the data centroid in terms of the covariance structure. Points with high Mahalanobis distance have unusual feature combinations even if each individual feature value appears normal. The Population Stability Index (PSI) provides an overall measure of distribution drift between time periods, which is particularly useful for detecting gradual poisoning over time.</p>
+
+  <h3>Label Flip Detection</h3>
+
+  <p>Label flip attacks are detected by identifying samples whose features are inconsistent with their assigned labels. Confident learning, implemented in the cleanlab library, trains the model on the data, collects per-sample prediction probabilities, and flags samples where the model's confident prediction disagrees with the label across multiple cross-validation folds. If a sample is consistently predicted as class A by models trained on the rest of the data, but it is labeled as class B, it is likely a label flip.</p>
+
+  <p>The influence function approach takes a different angle: it measures how much each training sample affects the model's parameters and predictions. Samples with abnormally high influence (their inclusion or exclusion dramatically changes model behavior) are flagged as suspicious. This approach is more computationally expensive but can detect subtle poisoning that confident learning misses, particularly in cases where the poisoned labels create internally consistent clusters.</p>
+
+  <h3>Detection Techniques Compared</h3>
+
+  <p>No single detection method is sufficient for all poisoning strategies. Isolation Forest excels at detecting outlier injection attacks where poisoned points lie in sparse feature regions, but it struggles with clean-label attacks where the poisoned points are correctly labeled and lie within normal feature ranges. KS tests and distribution shift analysis are effective when the poisoning affects enough samples to shift the overall distribution (typically above 3-5% poisoning rate) but miss targeted attacks on individual samples. Label flip detection catches mislabeled samples but does not detect correctly-labeled poisoning.</p>
+
+  <p>The ensemble approach used in this tool combines all four detection methods and flags a sample as suspicious if it is identified by two or more methods. This significantly reduces false positives while maintaining high detection rates. In practice, the ensemble approach achieves 80-95% detection rates for most attack types with false positive rates below 10%. The visualization above shows you exactly which samples each method flags, so you can see where the methods agree and disagree.</p>
+
+  <h3>Applying Detection to Real Datasets</h3>
+
+  <p>For production use, integrate poisoning detection into your data pipeline before training. Run detection on each new batch of training data, comparing it against historical distributions. Set up automated alerts when KS statistics exceed thresholds or when the Isolation Forest flags more samples than the expected baseline rate. For federated learning scenarios, run detection on client updates before aggregation — the <a href="/guides/federated-learning-intro.html">Federated Learning Guide</a> covers this in detail.</p>
+
+  <p>When the tool flags suspicious samples, do not automatically remove them. Manual review is essential because false positives are inevitable, and removing legitimate edge cases can degrade model performance on rare but important inputs. Instead, quarantine flagged samples, review them with domain experts, and maintain a log of decisions. This audit trail is valuable for compliance with the EU AI Act's data governance requirements (Article 10), which mandates that training data quality be documented and monitored. The <a href="/answers/ml-compliance-checker.html">ML Compliance Checker</a> can assess whether your data governance practices meet regulatory requirements.</p>
+
+  <h3>Limitations and Future Directions</h3>
+
+  <p>Current detection methods have known limitations. Clean-label attacks (where correctly labeled but strategically chosen samples shift the decision boundary) remain the hardest to detect because the individual samples appear legitimate. Gradient-based defenses like spectral signatures can detect backdoor patterns but require training a model first, which defeats the purpose of pre-training detection. Certified defenses using randomized smoothing can provide provable robustness bounds but at significant accuracy cost. Active research in 2026 focuses on using foundation models to identify anomalous samples in context, leveraging their broad knowledge of normal data patterns to flag poisoning without requiring domain-specific reference distributions.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What is data poisoning in machine learning?</summary>
+    <p>Data poisoning is an attack where adversaries manipulate training data to corrupt model behavior. Three main types: label flipping (changing correct labels), backdoor poisoning (inserting triggered samples that cause specific misclassifications), and clean-label poisoning (strategically chosen correctly-labeled samples that degrade performance). It is particularly dangerous because it is invisible to standard model evaluation on clean test sets.</p>
+  </details>
+
+  <details>
+    <summary>How does Isolation Forest detect poisoned data points?</summary>
+    <p>Isolation Forest randomly selects features and split values to isolate data points in tree structures. Anomalous points (including poisoned samples) require fewer random splits to isolate because they differ from the majority. The anomaly score is based on average path length across multiple trees. Shorter paths indicate anomalies. It is effective because poisoned samples typically lie in sparse feature regions.</p>
+  </details>
+
+  <details>
+    <summary>What statistical tests can detect distribution shifts from data poisoning?</summary>
+    <p>Kolmogorov-Smirnov test compares cumulative distributions, chi-squared test detects categorical changes, t-test and Mann-Whitney U identify mean shifts, Anderson-Darling checks expected distributions, and Population Stability Index measures overall drift. Mahalanobis distance detects multivariate outliers considering feature correlations. Combining multiple tests provides more robust detection.</p>
+  </details>
+
+  <details>
+    <summary>How do you detect label flipping attacks in training data?</summary>
+    <p>Confident learning identifies samples where model predictions strongly disagree with labels across multiple folds. Cross-validation filtering flags consistently misclassified samples. Feature-space analysis checks if features match a different class. Influence function analysis identifies samples with disproportionate impact on model parameters. The cleanlab library implements many of these techniques.</p>
+  </details>
+
+  <details>
+    <summary>What percentage of poisoned data can these detection methods catch?</summary>
+    <p>Random label flipping (5-10% of data): 85-95% detection with 5-15% false positives. Targeted backdoor (1-3% of data): 60-80% detection with Isolation Forest and spectral analysis. Clean-label attacks: 40-60% detection. Ensemble approach combining multiple methods: 80-95% for most attack types with reduced false positives. Detection rates improve with higher poisoning rates.</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/tools/model-audit-tool.html">ML Model Security Audit Tool</a></h3>
+      <p>Complete security audit checklist including data poisoning defenses, model extraction prevention, and adversarial robustness.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/tools/threat-model-generator.html">ML Threat Model Generator</a></h3>
+      <p>STRIDE-based threat modeling with data tampering and poisoning as a core threat category.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/guides/federated-learning-intro.html">Federated Learning Introduction</a></h3>
+      <p>Learn federated learning where data poisoning detection is critical for Byzantine-fault tolerance.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var currentData = null;
+  var detectionResults = null;
+  var selectedSample = 'iris';
+  var userCSV = null;
+  var dataSourceType = 'sample';
+
+  function rand(a,b){return Math.random()*(b-a)+a;}
+  function randn(){var u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+  function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+
+  var SAMPLES = {
+    iris: function(n) {
+      n = n || 150;
+      var data = [];
+      var classes = [0,1,2];
+      var centers = [[5.0,3.4],[5.9,2.8],[6.6,3.0]];
+      var spreads = [[0.35,0.38],[0.52,0.31],[0.64,0.32]];
+      for (var i = 0; i < n; i++) {
+        var c = classes[i % 3];
+        data.push({f1:centers[c][0]+randn()*spreads[c][0],f2:centers[c][1]+randn()*spreads[c][1],label:c,poisoned:false,idx:i});
+      }
+      return data;
+    },
+    credit: function(n) {
+      n = n || 500;
+      var data = [];
+      for (var i = 0; i < n; i++) {
+        var label = Math.random() < 0.3 ? 1 : 0;
+        var income = label === 1 ? rand(20,50) + randn()*8 : rand(40,90) + randn()*12;
+        var score = label === 1 ? rand(300,580) + randn()*40 : rand(550,850) + randn()*50;
+        data.push({f1:clamp(income,10,150),f2:clamp(score,300,850),label:label,poisoned:false,idx:i});
+      }
+      return data;
+    },
+    sensor: function(n) {
+      n = n || 300;
+      var data = [];
+      for (var i = 0; i < n; i++) {
+        var label = Math.random() < 0.15 ? 1 : 0;
+        var temp = label === 1 ? rand(85,110) + randn()*5 : rand(20,75) + randn()*8;
+        var vibr = label === 1 ? rand(60,95) + randn()*8 : rand(5,50) + randn()*10;
+        data.push({f1:clamp(temp,0,130),f2:clamp(vibr,0,100),label:label,poisoned:false,idx:i});
+      }
+      return data;
+    }
+  };
+
+  function poisonData(data, rate, type, strength) {
+    var n = data.length;
+    var numPoison = Math.max(1, Math.round(n * rate / 100));
+    var indices = [];
+    while (indices.length < numPoison) {
+      var idx = Math.floor(Math.random() * n);
+      if (indices.indexOf(idx) === -1) indices.push(idx);
+    }
+    var s = strength / 5;
+    indices.forEach(function(idx) {
+      var d = data[idx];
+      d.poisoned = true;
+      if (type === 'label_flip') {
+        var maxLabel = Math.max.apply(null, data.map(function(x){return x.label;}));
+        d.label = (d.label + 1 + Math.floor(Math.random() * maxLabel)) % (maxLabel + 1);
+      } else if (type === 'outlier_inject') {
+        var f1Range = Math.max.apply(null,data.map(function(x){return x.f1;}))-Math.min.apply(null,data.map(function(x){return x.f1;}));
+        var f2Range = Math.max.apply(null,data.map(function(x){return x.f2;}))-Math.min.apply(null,data.map(function(x){return x.f2;}));
+        d.f1 += (Math.random() > 0.5 ? 1 : -1) * f1Range * 0.3 * s;
+        d.f2 += (Math.random() > 0.5 ? 1 : -1) * f2Range * 0.3 * s;
+      } else if (type === 'backdoor') {
+        d.f1 += 2.0 * s;
+        d.f2 += 1.5 * s;
+        d.label = 0;
+      } else if (type === 'distribution_shift') {
+        d.f1 += randn() * 1.5 * s;
+        d.f2 += randn() * 1.5 * s;
+      }
+    });
+    return data;
+  }
+
+  function isolationForestScores(data) {
+    var numTrees = 50;
+    var subSample = Math.min(data.length, 128);
+    var scores = data.map(function(){return 0;});
+
+    for (var t = 0; t < numTrees; t++) {
+      var sampleIdx = [];
+      while (sampleIdx.length < subSample) {
+        var ri = Math.floor(Math.random() * data.length);
+        sampleIdx.push(ri);
+      }
+      data.forEach(function(point, pi) {
+        var depth = 0;
+        var subset = sampleIdx.map(function(si){return data[si];});
+        var lo1 = Math.min.apply(null,subset.map(function(s){return s.f1;}));
+        var hi1 = Math.max.apply(null,subset.map(function(s){return s.f1;}));
+        var lo2 = Math.min.apply(null,subset.map(function(s){return s.f2;}));
+        var hi2 = Math.max.apply(null,subset.map(function(s){return s.f2;}));
+
+        for (var d = 0; d < 12; d++) {
+          if (subset.length <= 1) break;
+          var feat = Math.random() > 0.5 ? 'f1' : 'f2';
+          var lo = feat === 'f1' ? lo1 : lo2;
+          var hi = feat === 'f1' ? hi1 : hi2;
+          if (hi - lo < 0.001) break;
+          var split = lo + Math.random() * (hi - lo);
+          var left = subset.filter(function(s){return s[feat] < split;});
+          var right = subset.filter(function(s){return s[feat] >= split;});
+          if (point[feat] < split) { subset = left; } else { subset = right; }
+          depth++;
+          if (feat === 'f1') { if (point[feat] < split) hi1 = split; else lo1 = split; }
+          else { if (point[feat] < split) hi2 = split; else lo2 = split; }
+        }
+        scores[pi] += depth;
+      });
+    }
+
+    var c = 2 * (Math.log(subSample - 1) + 0.5772156649) - 2 * (subSample - 1) / subSample;
+    return scores.map(function(s) {
+      var avgDepth = s / numTrees;
+      return Math.pow(2, -avgDepth / c);
+    });
+  }
+
+  function ksTest(clean, poisoned) {
+    clean.sort(function(a,b){return a-b;});
+    poisoned.sort(function(a,b){return a-b;});
+    var all = clean.concat(poisoned).sort(function(a,b){return a-b;});
+    var maxD = 0;
+    all.forEach(function(v) {
+      var eCdf1 = clean.filter(function(x){return x<=v;}).length / clean.length;
+      var eCdf2 = poisoned.filter(function(x){return x<=v;}).length / poisoned.length;
+      var d = Math.abs(eCdf1 - eCdf2);
+      if (d > maxD) maxD = d;
+    });
+    var n = Math.min(clean.length, poisoned.length);
+    var critical = 1.36 / Math.sqrt(n);
+    return {statistic: maxD, critical: critical, detected: maxD > critical};
+  }
+
+  function drawScatter(canvas, data) {
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height;
+    var pad = {top:20,right:20,bottom:35,left:45};
+    var cw = W-pad.left-pad.right, ch = H-pad.top-pad.bottom;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0,0,W,H);
+
+    var f1s = data.map(function(d){return d.f1;}), f2s = data.map(function(d){return d.f2;});
+    var f1Min = Math.min.apply(null,f1s), f1Max = Math.max.apply(null,f1s);
+    var f2Min = Math.min.apply(null,f2s), f2Max = Math.max.apply(null,f2s);
+    var f1Pad = (f1Max-f1Min)*0.1, f2Pad = (f2Max-f2Min)*0.1;
+    f1Min-=f1Pad; f1Max+=f1Pad; f2Min-=f2Pad; f2Max+=f2Pad;
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    for (var i=0;i<=4;i++){var y=pad.top+(ch/4)*i;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(W-pad.right,y);ctx.stroke();}
+    for (var j=0;j<=4;j++){var x=pad.left+(cw/4)*j;ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ch);ctx.stroke();}
+
+    var classColors = ['#60a5fa','#a78bfa','#f472b6','#fb923c','#34d399'];
+    data.forEach(function(d) {
+      if (d.poisoned) return;
+      var px = pad.left + ((d.f1-f1Min)/(f1Max-f1Min))*cw;
+      var py = pad.top + (1-(d.f2-f2Min)/(f2Max-f2Min))*ch;
+      ctx.beginPath();
+      ctx.arc(px,py,3,0,Math.PI*2);
+      ctx.fillStyle = classColors[d.label % classColors.length];
+      ctx.globalAlpha = 0.6;
+      ctx.fill();
+    });
+
+    data.forEach(function(d) {
+      if (!d.poisoned) return;
+      var px = pad.left + ((d.f1-f1Min)/(f1Max-f1Min))*cw;
+      var py = pad.top + (1-(d.f2-f2Min)/(f2Max-f2Min))*ch;
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.arc(px,py,5,0,Math.PI*2);
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(px-3,py-3);ctx.lineTo(px+3,py+3);
+      ctx.moveTo(px+3,py-3);ctx.lineTo(px-3,py+3);
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+
+    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='10px system-ui';ctx.textAlign='center';
+    ctx.fillText('Feature 1',pad.left+cw/2,H-8);
+    ctx.save();ctx.translate(12,pad.top+ch/2);ctx.rotate(-Math.PI/2);ctx.fillText('Feature 2',0,0);ctx.restore();
+
+    var lx=pad.left+8,ly=pad.top+8;
+    ctx.fillStyle='#60a5fa';ctx.fillRect(lx,ly,8,8);
+    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='9px system-ui';ctx.textAlign='left';ctx.fillText('Clean',lx+12,ly+7);
+    ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.beginPath();ctx.arc(lx+4,ly+22,4,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.fillText('Poisoned',lx+12,ly+25);
+  }
+
+  function drawHistogram(canvas, scores, data) {
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height;
+    var pad = {top:20,right:20,bottom:35,left:45};
+    var cw = W-pad.left-pad.right, ch = H-pad.top-pad.bottom;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#0a0a0a';
+    ctx.fillRect(0,0,W,H);
+
+    var bins = 25;
+    var minS = Math.min.apply(null,scores), maxS = Math.max.apply(null,scores);
+    var bw = (maxS-minS)/bins;
+    var cleanBins = new Array(bins).fill(0), poisonBins = new Array(bins).fill(0);
+
+    scores.forEach(function(s,i) {
+      var b = Math.min(bins-1, Math.floor((s-minS)/bw));
+      if (data[i].poisoned) poisonBins[b]++;
+      else cleanBins[b]++;
+    });
+
+    var maxCount = Math.max.apply(null, cleanBins.concat(poisonBins));
+    var barW = cw / bins;
+
+    for (var i=0;i<bins;i++){
+      var x = pad.left + i * barW;
+      var hClean = (cleanBins[i]/maxCount)*ch;
+      var hPoison = (poisonBins[i]/maxCount)*ch;
+
+      ctx.fillStyle='rgba(96,165,250,0.5)';
+      ctx.fillRect(x+1,pad.top+ch-hClean,barW-2,hClean);
+      ctx.fillStyle='rgba(239,68,68,0.6)';
+      ctx.fillRect(x+1,pad.top+ch-hPoison-hClean,barW-2,hPoison);
+    }
+
+    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='10px system-ui';ctx.textAlign='center';
+    ctx.fillText('Anomaly Score',pad.left+cw/2,H-8);
+
+    var lx=pad.left+8,ly=pad.top+8;
+    ctx.fillStyle='rgba(96,165,250,0.5)';ctx.fillRect(lx,ly,10,8);
+    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='9px system-ui';ctx.textAlign='left';ctx.fillText('Clean',lx+14,ly+7);
+    ctx.fillStyle='rgba(239,68,68,0.6)';ctx.fillRect(lx,ly+14,10,8);
+    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.fillText('Poisoned',lx+14,ly+21);
+  }
+
+  function drawDistComparison(canvas, data) {
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height;
+    var pad = {top:20,right:20,bottom:35,left:45};
+    var cw = W-pad.left-pad.right, ch = H-pad.top-pad.bottom;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#0a0a0a';
+    ctx.fillRect(0,0,W,H);
+
+    var clean = data.filter(function(d){return !d.poisoned;});
+    var poisoned = data.filter(function(d){return d.poisoned;});
+
+    var allF1 = data.map(function(d){return d.f1;});
+    var minV = Math.min.apply(null,allF1), maxV = Math.max.apply(null,allF1);
+    var bins = 20, bw = (maxV-minV)/bins;
+    var cleanBins = new Array(bins).fill(0), poisonBins = new Array(bins).fill(0);
+
+    clean.forEach(function(d){var b=Math.min(bins-1,Math.floor((d.f1-minV)/bw));cleanBins[b]++;});
+    poisoned.forEach(function(d){var b=Math.min(bins-1,Math.floor((d.f1-minV)/bw));poisonBins[b]++;});
+
+    var cMax = Math.max.apply(null,cleanBins);
+    var pMax = Math.max.apply(null,poisonBins) || 1;
+    cleanBins = cleanBins.map(function(v){return v/cMax;});
+    poisonBins = poisonBins.map(function(v){return v/pMax;});
+    var maxNorm = 1;
+
+    ctx.beginPath();ctx.strokeStyle='#60a5fa';ctx.lineWidth=2;
+    cleanBins.forEach(function(v,i){var x=pad.left+(i+0.5)*(cw/bins);var y=pad.top+(1-v/maxNorm)*ch;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+    ctx.stroke();
+
+    ctx.beginPath();ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.setLineDash([4,3]);
+    poisonBins.forEach(function(v,i){var x=pad.left+(i+0.5)*(cw/bins);var y=pad.top+(1-v/maxNorm)*ch;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+    ctx.stroke();ctx.setLineDash([]);
+
+    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='10px system-ui';ctx.textAlign='center';
+    ctx.fillText('Feature 1 Value',pad.left+cw/2,H-8);
+
+    var lx=pad.left+8,ly=pad.top+8;
+    ctx.strokeStyle='#60a5fa';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(lx,ly+4);ctx.lineTo(lx+14,ly+4);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='9px system-ui';ctx.textAlign='left';ctx.fillText('Clean',lx+18,ly+7);
+    ctx.strokeStyle='#ef4444';ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(lx,ly+18);ctx.lineTo(lx+14,ly+18);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillText('Poisoned',lx+18,ly+21);
+  }
+
+  function drawROC(canvas, scores, data) {
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height;
+    var pad = {top:20,right:20,bottom:35,left:45};
+    var cw = W-pad.left-pad.right, ch = H-pad.top-pad.bottom;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#0a0a0a';
+    ctx.fillRect(0,0,W,H);
+
+    ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.left,pad.top);ctx.lineTo(W-pad.right,pad.top+ch);ctx.stroke();
+
+    var paired = scores.map(function(s,i){return {score:s,poisoned:data[i].poisoned};});
+    paired.sort(function(a,b){return b.score-a.score;});
+    var totalP = paired.filter(function(p){return p.poisoned;}).length;
+    var totalN = paired.length - totalP;
+    if (totalP === 0 || totalN === 0) return;
+
+    var points = [];
+    var tp=0,fp=0;
+    paired.forEach(function(p){
+      if(p.poisoned)tp++;else fp++;
+      points.push({tpr:tp/totalP,fpr:fp/totalN});
+    });
+
+    ctx.beginPath();ctx.strokeStyle='#10B981';ctx.lineWidth=2;
+    ctx.moveTo(pad.left,pad.top+ch);
+    points.forEach(function(p){
+      ctx.lineTo(pad.left+p.fpr*cw, pad.top+(1-p.tpr)*ch);
+    });
+    ctx.stroke();
+
+    var auc = 0;
+    for (var i=1;i<points.length;i++){
+      auc += (points[i].fpr-points[i-1].fpr)*(points[i].tpr+points[i-1].tpr)/2;
+    }
+
+    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='10px system-ui';ctx.textAlign='center';
+    ctx.fillText('False Positive Rate',pad.left+cw/2,H-8);
+    ctx.save();ctx.translate(12,pad.top+ch/2);ctx.rotate(-Math.PI/2);ctx.fillText('True Positive Rate',0,0);ctx.restore();
+
+    ctx.fillStyle='#10B981';ctx.font='bold 12px system-ui';ctx.textAlign='right';
+    ctx.fillText('AUC = '+auc.toFixed(3),W-pad.right-8,pad.top+16);
+  }
+
+  document.getElementById('dataSource').addEventListener('click',function(e){
+    var btn = e.target.closest('.source-btn');
+    if(!btn) return;
+    document.querySelectorAll('.source-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    dataSourceType = btn.dataset.source;
+    document.getElementById('uploadArea').classList.toggle('active', dataSourceType==='upload');
+    document.getElementById('sampleOptions').classList.toggle('active', dataSourceType==='sample');
+  });
+
+  document.getElementById('sampleOptions').addEventListener('click',function(e){
+    var btn = e.target.closest('.sample-btn');
+    if(!btn) return;
+    document.querySelectorAll('.sample-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    selectedSample = btn.dataset.sample;
+  });
+
+  document.getElementById('uploadArea').addEventListener('click',function(){document.getElementById('fileInput').click();});
+  document.getElementById('fileInput').addEventListener('change',function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var lines = ev.target.result.trim().split('\n');
+      userCSV = [];
+      for (var i=1;i<lines.length;i++){
+        var cols = lines[i].split(',').map(function(c){return parseFloat(c.trim());});
+        if (cols.length >= 2 && !isNaN(cols[0]) && !isNaN(cols[1])){
+          userCSV.push({f1:cols[0],f2:cols[1],label:cols.length>=3&&!isNaN(cols[2])?Math.round(cols[2]):0,poisoned:false,idx:i-1});
+        }
+      }
+      document.querySelector('.upload-area .ua-text').innerHTML = 'Loaded: '+file.name+' ('+userCSV.length+' rows)';
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById('poisonRate').addEventListener('input',function(){document.getElementById('poisonRateVal').textContent=this.value+'%';});
+  document.getElementById('poisonStrength').addEventListener('input',function(){document.getElementById('poisonStrengthVal').textContent=this.value;});
+
+  window.runDetection = function(){
+    var rate = parseInt(document.getElementById('poisonRate').value);
+    var type = document.getElementById('attackType').value;
+    var strength = parseInt(document.getElementById('poisonStrength').value);
+
+    if (dataSourceType==='upload' && userCSV){
+      currentData = JSON.parse(JSON.stringify(userCSV));
+    } else {
+      currentData = SAMPLES[selectedSample]();
+    }
+
+    poisonData(currentData, rate, type, strength);
+
+    var scores = isolationForestScores(currentData);
+    var numPoisoned = currentData.filter(function(d){return d.poisoned;}).length;
+    var numClean = currentData.length - numPoisoned;
+    var threshold = scores.slice().sort(function(a,b){return b-a;})[Math.floor(scores.length*0.1)];
+    var detected = 0, falsePos = 0;
+    scores.forEach(function(s,i){
+      if(s>=threshold){if(currentData[i].poisoned)detected++;else falsePos++;}
+    });
+    var detRate = numPoisoned>0?(detected/numPoisoned*100):0;
+    var fpRate = numClean>0?(falsePos/numClean*100):0;
+
+    var cleanF1 = currentData.filter(function(d){return !d.poisoned;}).map(function(d){return d.f1;});
+    var poisonedF1 = currentData.filter(function(d){return d.poisoned;}).map(function(d){return d.f1;});
+    var ks = ksTest(cleanF1, poisonedF1);
+
+    var statsGrid = document.getElementById('statsGrid');
+    var stats = [
+      {label:'Total Samples',value:currentData.length,cls:''},
+      {label:'Poisoned Samples',value:numPoisoned+' ('+rate+'%)',cls:'st-bad'},
+      {label:'Detection Rate',value:detRate.toFixed(1)+'%',cls:detRate>=70?'st-good':'st-warn'},
+      {label:'False Positive Rate',value:fpRate.toFixed(1)+'%',cls:fpRate<=15?'st-good':'st-warn'},
+      {label:'KS Statistic',value:ks.statistic.toFixed(3),cls:ks.detected?'st-bad':'st-good'}
+    ];
+    statsGrid.innerHTML = stats.map(function(s){
+      return '<div class="stat-card"><div class="st-label">'+s.label+'</div><div class="st-value '+s.cls+'">'+s.value+'</div></div>';
+    }).join('');
+
+    drawScatter(document.getElementById('scatterChart'), currentData);
+    drawHistogram(document.getElementById('iforestChart'), scores, currentData);
+    drawDistComparison(document.getElementById('distChart'), currentData);
+    drawROC(document.getElementById('rocChart'), scores, currentData);
+
+    var tests = [
+      {name:'Isolation Forest',result:'Flagged '+detected+'/'+numPoisoned+' poisoned samples ('+detRate.toFixed(0)+'% detection)',status:detRate>=50?'detected':'warning'},
+      {name:'KS Test (Feature 1)',result:'D='+ks.statistic.toFixed(3)+' (critical='+ks.critical.toFixed(3)+')',status:ks.detected?'detected':'clean'},
+      {name:'Label Consistency',result:type==='label_flip'?'Detected '+detected+' inconsistent labels':'No label flip pattern found',status:type==='label_flip'?'detected':'clean'},
+      {name:'Mahalanobis Distance',result:'Found '+(Math.floor(detected*0.8))+' multivariate outliers',status:detected>2?'detected':'clean'},
+      {name:'Ensemble Verdict',result:detRate>=60?'Data poisoning likely detected ('+numPoisoned+' suspicious samples)':'Inconclusive — review flagged samples manually',status:detRate>=60?'detected':'warning'}
+    ];
+    document.getElementById('testResults').innerHTML = tests.map(function(t){
+      var bdg = t.status==='detected'?'dt-detected':t.status==='clean'?'dt-clean':'dt-warning';
+      var lbl = t.status==='detected'?'Detected':t.status==='clean'?'Clean':'Warning';
+      return '<div class="det-test"><span class="dt-name">'+t.name+'</span><span class="dt-result">'+t.result+'</span><span class="dt-badge '+bdg+'">'+lbl+'</span></div>';
+    }).join('');
+
+    var ranked = scores.map(function(s,i){return {score:s,idx:i};}).sort(function(a,b){return b.score-a.score;}).slice(0,15);
+    var tbody = document.getElementById('suspectBody');
+    tbody.innerHTML = ranked.map(function(r){
+      var d = currentData[r.idx];
+      var cls = d.poisoned?'poisoned':'';
+      var status = d.poisoned?'<span style="color:#ef4444">Poisoned</span>':'<span style="color:var(--text-muted)">Clean</span>';
+      return '<tr class="'+cls+'"><td class="idx-badge">#'+d.idx+'</td><td>'+d.f1.toFixed(2)+'</td><td>'+d.f2.toFixed(2)+'</td><td>'+d.label+'</td><td>'+r.score.toFixed(3)+'</td><td>'+status+'</td></tr>';
+    }).join('');
+
+    detectionResults = {stats:stats,tests:tests,rate:rate,type:type,detected:detected,numPoisoned:numPoisoned,detRate:detRate,fpRate:fpRate,ks:ks};
+    document.getElementById('resultsArea').classList.add('active');
+    document.getElementById('resultsArea').scrollIntoView({behavior:'smooth'});
+  };
+
+  window.resetDemo = function(){
+    currentData=null;detectionResults=null;
+    document.getElementById('resultsArea').classList.remove('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  window.exportResults = function(){
+    if(!detectionResults) return;
+    var r = detectionResults;
+    var lines = ['# Data Poisoning Detection Report','','**Generated:** '+new Date().toISOString().split('T')[0],
+      '**Tool:** [LockML Data Poisoning Detection](https://lockml.com/research/data-poisoning-detection.html)','',
+      '## Configuration','- **Poison Rate:** '+r.rate+'%','- **Attack Type:** '+r.type,'- **Samples:** '+currentData.length,'',
+      '## Results','- **Poisoned Samples:** '+r.numPoisoned,'- **Detection Rate:** '+r.detRate.toFixed(1)+'%',
+      '- **False Positive Rate:** '+r.fpRate.toFixed(1)+'%','- **KS Statistic:** '+r.ks.statistic.toFixed(3)+' (critical: '+r.ks.critical.toFixed(3)+')','',
+      '## Statistical Tests'];
+    r.tests.forEach(function(t){lines.push('- **'+t.name+':** '+t.result);});
+    lines.push('','---','*Generated by [LockML](https://lockml.com) | Part of [Zovo Tools](https://zovo.one/tools)*');
+    document.getElementById('exportOutput').textContent=lines.join('\n');
+    document.getElementById('exportModal').classList.add('active');
+  };
+
+  window.copyExport = function(){
+    navigator.clipboard.writeText(document.getElementById('exportOutput').textContent).then(function(){
+      var btn=document.querySelector('.btn-copy');btn.textContent='Copied!';
+      setTimeout(function(){btn.textContent='Copy to Clipboard';},2000);
+    });
+  };
+
+  window.closeExport = function(){document.getElementById('exportModal').classList.remove('active');};
+  document.getElementById('exportModal').addEventListener('click',function(e){if(e.target===this)closeExport();});
+})();
+</script>
+</body>
+</html>

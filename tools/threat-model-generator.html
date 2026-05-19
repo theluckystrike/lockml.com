@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Threat Model Generator — STRIDE for Machine Learning (2026) | LockML</title>
+<meta name="description" content="Generate comprehensive ML threat models using STRIDE framework adapted for machine learning. Interactive wizard covers model impersonation, adversarial inputs, audit trails, model extraction, resource exhaustion, and privilege escalation.">
+<link rel="canonical" href="https://lockml.com/tools/threat-model-generator.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/tools/threat-model-generator.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/tools/threat-model-generator.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ML Threat Model Generator — STRIDE for Machine Learning (2026)">
+<meta property="og:description" content="Generate comprehensive ML threat models using STRIDE adapted for machine learning. Interactive wizard produces risk scores and mitigations.">
+<meta property="og:url" content="https://lockml.com/tools/threat-model-generator.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ML Threat Model Generator — STRIDE for Machine Learning (2026)">
+<meta name="twitter:description" content="Generate comprehensive ML threat models using STRIDE adapted for machine learning. Interactive wizard produces risk scores and mitigations.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "ML Threat Model Generator",
+  "url": "https://lockml.com/tools/threat-model-generator.html",
+  "description": "Interactive STRIDE-based threat modeling wizard for machine learning systems. Generates threat models with identified threats, risk scores, and mitigations.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "featureList": [
+    "STRIDE framework adapted for ML systems",
+    "Step-by-step threat modeling wizard",
+    "Risk scoring with severity levels",
+    "Mitigation recommendations per threat",
+    "Export threat model as markdown",
+    "No sign-up required",
+    "100% browser-based"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is STRIDE threat modeling for machine learning?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "STRIDE is a threat classification framework originally developed by Microsoft, adapted here for ML systems. It covers six categories: Spoofing (model impersonation), Tampering (adversarial inputs and data poisoning), Repudiation (lack of audit trails), Information Disclosure (model extraction and data leakage), Denial of Service (resource exhaustion attacks), and Elevation of Privilege (exploiting ML components to gain unauthorized access)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I create a threat model for my ML system?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Start by documenting your system architecture: model type, deployment method, data sensitivity, and access levels. Then systematically evaluate each STRIDE category against your architecture. For each threat, assess likelihood and impact to calculate risk scores. Finally, identify mitigations and prioritize them by risk level. This tool automates this process with a guided wizard."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the most common threats to ML models in production?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The most common threats include adversarial examples (crafted inputs causing misclassification), model extraction (stealing model behavior through API queries), data poisoning (manipulating training data), model inversion (reconstructing training data from model outputs), and supply chain attacks (compromised dependencies or pre-trained weights). The severity depends on your deployment context and data sensitivity."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this threat model generator free to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, the ML Threat Model Generator is completely free. It runs entirely in your browser with no data sent to any server. You can export the generated threat model as markdown for documentation purposes. No sign-up or account required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does STRIDE differ from OWASP ML Top 10?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "STRIDE is a general threat classification framework that can be applied to any system, while OWASP ML Top 10 is a curated list of the most critical ML security risks. STRIDE provides a systematic methodology for discovering threats through six categories, whereas OWASP ML Top 10 ranks known vulnerability classes by prevalence and impact. Both are complementary — use STRIDE for comprehensive threat discovery and OWASP ML Top 10 for prioritizing known attack vectors."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://lockml.com/tools/" },
+    { "@type": "ListItem", "position": 3, "name": "ML Threat Model Generator", "item": "https://lockml.com/tools/threat-model-generator.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .wizard-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .wizard-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+  .wizard-steps{display:flex;gap:0.5rem;margin-bottom:2rem;flex-wrap:wrap}
+  .wizard-step{padding:0.4rem 1rem;border-radius:20px;font-size:0.75rem;font-weight:600;background:var(--bg);border:1px solid var(--border);color:var(--text-muted);transition:all 0.2s}
+  .wizard-step.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+  .wizard-step.completed{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:var(--accent);opacity:0.7}
+  .step-panel{display:none}
+  .step-panel.active{display:block}
+  .step-panel h3{font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem}
+  .step-panel p.step-desc{color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem}
+
+  .option-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem}
+  .option-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;cursor:pointer;transition:all 0.15s;text-align:center}
+  .option-card:hover{border-color:var(--accent)}
+  .option-card.selected{background:var(--accent-dim);border-color:var(--accent)}
+  .option-card .opt-icon{font-size:1.5rem;margin-bottom:0.5rem;display:block}
+  .option-card .opt-label{font-size:0.85rem;font-weight:600;display:block}
+  .option-card .opt-desc{font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;display:block}
+
+  .wizard-nav{display:flex;justify-content:space-between;margin-top:1.5rem}
+  .btn-wizard{padding:0.5rem 1.5rem;border-radius:var(--radius);font-size:0.85rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);transition:all 0.15s}
+  .btn-wizard:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-wizard.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+  .btn-wizard.primary:hover{opacity:0.85}
+
+  .threat-report{display:none}
+  .threat-report.active{display:block}
+  .report-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+  .report-header h3{font-family:var(--font-display);font-size:1.2rem;margin:0}
+  .overall-risk{padding:0.4rem 1rem;border-radius:var(--radius);font-size:0.85rem;font-weight:700;text-transform:uppercase}
+  .risk-critical{background:rgba(239,68,68,0.15);color:#ef4444}
+  .risk-high{background:rgba(249,115,22,0.15);color:#f97316}
+  .risk-medium{background:rgba(234,179,8,0.15);color:#eab308}
+  .risk-low{background:rgba(34,197,94,0.15);color:#22c55e}
+
+  .stride-section{margin-bottom:1.5rem}
+  .stride-header{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0;cursor:pointer}
+  .stride-header .s-letter{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--accent);width:28px}
+  .stride-header .s-name{font-weight:600;font-size:0.9rem;flex:1}
+  .stride-header .s-score{font-family:var(--font-display);font-size:0.8rem;padding:2px 8px;border-radius:3px}
+  .stride-threats{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius)}
+  .threat-item{padding:0.75rem 1rem;border-bottom:1px solid rgba(34,34,34,0.5);font-size:0.88rem}
+  .threat-item:last-child{border-bottom:none}
+  .threat-item .t-name{font-weight:600;margin-bottom:0.25rem}
+  .threat-item .t-desc{color:var(--text-muted);font-size:0.82rem;margin-bottom:0.4rem}
+  .threat-item .t-mitigation{font-size:0.8rem;color:var(--accent);padding:0.3rem 0.5rem;background:var(--accent-dim);border-radius:3px;display:inline-block;margin-top:0.25rem}
+  .threat-item .t-risk-badge{font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;padding:2px 6px;border-radius:3px;margin-left:0.5rem}
+
+  .export-section{margin-top:1.5rem;text-align:center}
+  .export-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+  .export-modal.active{display:flex}
+  .export-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;max-width:700px;width:90%;max-height:80vh;overflow-y:auto}
+  .export-content h3{margin-bottom:1rem;font-family:var(--font-display);color:var(--accent)}
+  .export-content pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow-x:auto;font-size:0.8rem;white-space:pre-wrap;word-break:break-word}
+  .export-btns{display:flex;gap:0.5rem;margin-top:1rem}
+  .export-btns button{padding:0.45rem 1rem;border-radius:var(--radius);cursor:pointer;font-size:0.8rem;font-family:var(--font-body);border:1px solid var(--border)}
+  .btn-copy{background:var(--accent);color:#000;border-color:var(--accent) !important;font-weight:600}
+  .btn-close{background:var(--bg);color:var(--text-muted)}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .wizard-steps{gap:0.3rem}
+    .wizard-step{font-size:0.7rem;padding:0.3rem 0.6rem}
+    .option-grid{grid-template-columns:1fr 1fr}
+    .report-header{flex-direction:column;align-items:flex-start}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/tools/">Tools</a><span>/</span>Threat Model Generator
+</div>
+
+<section class="hero">
+  <h1>ML <span>Threat Model</span> Generator</h1>
+  <p>Generate comprehensive threat models for your ML systems using STRIDE adapted for machine learning. Step-by-step wizard produces risk scores, identified threats, and actionable mitigations.</p>
+</section>
+
+<div class="wizard-container">
+  <div class="wizard-card">
+    <div class="wizard-steps" id="wizardSteps">
+      <div class="wizard-step active" data-step="0">1. Model Type</div>
+      <div class="wizard-step" data-step="1">2. Deployment</div>
+      <div class="wizard-step" data-step="2">3. Data Sensitivity</div>
+      <div class="wizard-step" data-step="3">4. Access Level</div>
+      <div class="wizard-step" data-step="4">5. Generate</div>
+    </div>
+
+    <div class="step-panel active" id="step-0">
+      <h3>What type of ML model are you deploying?</h3>
+      <p class="step-desc">Select the model architecture. Different model types have different attack surfaces and vulnerability profiles.</p>
+      <div class="option-grid" data-field="modelType">
+        <div class="option-card" data-value="llm">
+          <span class="opt-icon">&#129302;</span>
+          <span class="opt-label">LLM / Chatbot</span>
+          <span class="opt-desc">GPT, Llama, Mistral, etc.</span>
+        </div>
+        <div class="option-card" data-value="classifier">
+          <span class="opt-icon">&#128202;</span>
+          <span class="opt-label">Image Classifier</span>
+          <span class="opt-desc">CNN, ResNet, ViT</span>
+        </div>
+        <div class="option-card" data-value="recommender">
+          <span class="opt-icon">&#127919;</span>
+          <span class="opt-label">Recommender System</span>
+          <span class="opt-desc">Collaborative/content filtering</span>
+        </div>
+        <div class="option-card" data-value="tabular">
+          <span class="opt-icon">&#128200;</span>
+          <span class="opt-label">Tabular / Regression</span>
+          <span class="opt-desc">XGBoost, Random Forest</span>
+        </div>
+        <div class="option-card" data-value="nlp">
+          <span class="opt-icon">&#128221;</span>
+          <span class="opt-label">NLP Pipeline</span>
+          <span class="opt-desc">NER, sentiment, classification</span>
+        </div>
+        <div class="option-card" data-value="generative">
+          <span class="opt-icon">&#127912;</span>
+          <span class="opt-label">Generative (Image/Audio)</span>
+          <span class="opt-desc">Diffusion, GAN, TTS</span>
+        </div>
+      </div>
+      <div class="wizard-nav">
+        <div></div>
+        <button class="btn-wizard primary" onclick="nextStep()">Next &rarr;</button>
+      </div>
+    </div>
+
+    <div class="step-panel" id="step-1">
+      <h3>How is the model deployed?</h3>
+      <p class="step-desc">Deployment context determines the attack surface. Cloud APIs have different risks than edge devices.</p>
+      <div class="option-grid" data-field="deployment">
+        <div class="option-card" data-value="cloud-api">
+          <span class="opt-icon">&#9729;</span>
+          <span class="opt-label">Cloud API</span>
+          <span class="opt-desc">REST/gRPC endpoint</span>
+        </div>
+        <div class="option-card" data-value="on-premise">
+          <span class="opt-icon">&#127970;</span>
+          <span class="opt-label">On-Premise Server</span>
+          <span class="opt-desc">Internal infrastructure</span>
+        </div>
+        <div class="option-card" data-value="edge">
+          <span class="opt-icon">&#128241;</span>
+          <span class="opt-label">Edge / Mobile</span>
+          <span class="opt-desc">Device-side inference</span>
+        </div>
+        <div class="option-card" data-value="embedded">
+          <span class="opt-icon">&#9881;</span>
+          <span class="opt-label">Embedded System</span>
+          <span class="opt-desc">IoT, autonomous vehicle</span>
+        </div>
+        <div class="option-card" data-value="batch">
+          <span class="opt-icon">&#128230;</span>
+          <span class="opt-label">Batch Processing</span>
+          <span class="opt-desc">Offline, scheduled jobs</span>
+        </div>
+        <div class="option-card" data-value="multi-tenant">
+          <span class="opt-icon">&#128101;</span>
+          <span class="opt-label">Multi-Tenant SaaS</span>
+          <span class="opt-desc">Shared inference per customer</span>
+        </div>
+      </div>
+      <div class="wizard-nav">
+        <button class="btn-wizard" onclick="prevStep()">&larr; Back</button>
+        <button class="btn-wizard primary" onclick="nextStep()">Next &rarr;</button>
+      </div>
+    </div>
+
+    <div class="step-panel" id="step-2">
+      <h3>What is the data sensitivity level?</h3>
+      <p class="step-desc">Higher sensitivity means stricter confidentiality requirements and greater impact from data leakage threats.</p>
+      <div class="option-grid" data-field="dataSensitivity">
+        <div class="option-card" data-value="public">
+          <span class="opt-icon">&#127760;</span>
+          <span class="opt-label">Public Data</span>
+          <span class="opt-desc">Open datasets, no PII</span>
+        </div>
+        <div class="option-card" data-value="internal">
+          <span class="opt-icon">&#128274;</span>
+          <span class="opt-label">Internal / Business</span>
+          <span class="opt-desc">Proprietary but not regulated</span>
+        </div>
+        <div class="option-card" data-value="pii">
+          <span class="opt-icon">&#128100;</span>
+          <span class="opt-label">PII / Personal Data</span>
+          <span class="opt-desc">GDPR, CCPA applicable</span>
+        </div>
+        <div class="option-card" data-value="healthcare">
+          <span class="opt-icon">&#127973;</span>
+          <span class="opt-label">Healthcare / HIPAA</span>
+          <span class="opt-desc">PHI, medical records</span>
+        </div>
+        <div class="option-card" data-value="financial">
+          <span class="opt-icon">&#128176;</span>
+          <span class="opt-label">Financial / PCI</span>
+          <span class="opt-desc">Payment data, transactions</span>
+        </div>
+        <div class="option-card" data-value="classified">
+          <span class="opt-icon">&#128272;</span>
+          <span class="opt-label">Classified / Govt</span>
+          <span class="opt-desc">National security, defense</span>
+        </div>
+      </div>
+      <div class="wizard-nav">
+        <button class="btn-wizard" onclick="prevStep()">&larr; Back</button>
+        <button class="btn-wizard primary" onclick="nextStep()">Next &rarr;</button>
+      </div>
+    </div>
+
+    <div class="step-panel" id="step-3">
+      <h3>Who has access to the model?</h3>
+      <p class="step-desc">Access level determines what adversaries can observe, query, or manipulate. More access means larger attack surface.</p>
+      <div class="option-grid" data-field="accessLevel">
+        <div class="option-card" data-value="public-api">
+          <span class="opt-icon">&#128275;</span>
+          <span class="opt-label">Public API</span>
+          <span class="opt-desc">Anyone can query</span>
+        </div>
+        <div class="option-card" data-value="authenticated">
+          <span class="opt-icon">&#128273;</span>
+          <span class="opt-label">Authenticated Users</span>
+          <span class="opt-desc">Login required, API keys</span>
+        </div>
+        <div class="option-card" data-value="internal-only">
+          <span class="opt-icon">&#128736;</span>
+          <span class="opt-label">Internal Only</span>
+          <span class="opt-desc">Employees, VPN access</span>
+        </div>
+        <div class="option-card" data-value="restricted">
+          <span class="opt-icon">&#128737;</span>
+          <span class="opt-label">Restricted / Need-to-Know</span>
+          <span class="opt-desc">Minimal access, approval required</span>
+        </div>
+      </div>
+      <div class="wizard-nav">
+        <button class="btn-wizard" onclick="prevStep()">&larr; Back</button>
+        <button class="btn-wizard primary" onclick="generateThreatModel()">Generate Threat Model &rarr;</button>
+      </div>
+    </div>
+
+    <div class="step-panel" id="step-4">
+      <h3>Review Your Configuration</h3>
+      <p class="step-desc">Generating your STRIDE-based ML threat model...</p>
+    </div>
+  </div>
+
+  <div class="threat-report" id="threatReport">
+    <div class="wizard-card">
+      <div class="report-header">
+        <h3>ML Threat Model Report</h3>
+        <div class="overall-risk" id="overallRisk"></div>
+      </div>
+      <div id="reportSummary" style="margin-bottom:1.5rem;padding:1rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);font-size:0.88rem;color:var(--text-muted)"></div>
+      <div id="strideResults"></div>
+      <div class="export-section">
+        <button class="btn-wizard primary" onclick="exportReport()">Export as Markdown</button>
+        <button class="btn-wizard" onclick="resetWizard()" style="margin-left:0.5rem">Start Over</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="exportModal" class="export-modal">
+  <div class="export-content">
+    <h3>Threat Model Export</h3>
+    <pre id="exportOutput"></pre>
+    <div class="export-btns">
+      <button class="btn-copy" onclick="copyExport()">Copy to Clipboard</button>
+      <button class="btn-close" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>How the ML Threat Model Generator Works</h2>
+
+  <p>The ML Threat Model Generator applies Microsoft's STRIDE framework to machine learning systems. STRIDE was originally created to systematically identify security threats in software applications, but traditional STRIDE does not account for the unique attack surfaces introduced by ML components. This tool adapts each STRIDE category to the specific risks that affect ML pipelines, model inference, and training data.</p>
+
+  <p>When you use the wizard, you provide four key parameters about your ML system: the model type, deployment method, data sensitivity, and access level. The tool uses these inputs to calculate risk scores for each STRIDE category, adjusted for your specific architecture. An LLM deployed as a public cloud API with healthcare data faces very different threats than an image classifier running on an edge device with public data. The wizard accounts for these differences automatically.</p>
+
+  <h3>STRIDE Categories Adapted for ML</h3>
+
+  <p>Spoofing in the ML context means model impersonation. Attackers can create counterfeit model endpoints that mimic your API, redirect user traffic, or deploy trojanized models that appear legitimate but contain backdoors. When a model is distributed as a downloadable artifact, verifying its authenticity becomes critical. Model signing, checksum verification, and secure model registries are the primary defenses against ML spoofing attacks.</p>
+
+  <p>Tampering covers adversarial inputs, data poisoning, and model manipulation. Adversarial examples are carefully crafted inputs that look normal to humans but cause the model to misclassify. Data poisoning happens during training, where an attacker injects malicious samples to alter model behavior. Both attacks exploit the fundamental statistical nature of ML models. Defenses include input validation, adversarial training, robust aggregation methods, and data provenance tracking.</p>
+
+  <p>Repudiation addresses the lack of audit trails in ML systems. When a model makes a decision, you need to be able to trace which version of the model was used, what inputs it received, and what outputs it produced. This is particularly important for regulated industries where decisions must be explainable and auditable. Comprehensive logging, model versioning, and immutable prediction records are essential mitigations.</p>
+
+  <p>Information Disclosure in ML encompasses model extraction attacks, membership inference, and training data reconstruction. Model extraction allows attackers to steal your model's behavior by making systematic queries and training a surrogate model on the outputs. Membership inference reveals whether specific data points were in the training set, which can leak private information. Model inversion can reconstruct approximations of training data from model outputs. Rate limiting, differential privacy, and output perturbation are key defenses.</p>
+
+  <p>Denial of Service for ML systems goes beyond traditional network-layer attacks. ML-specific DoS includes crafting inputs that maximize compute time (adversarial complexity attacks), exploiting auto-scaling to cause cost exhaustion, and triggering excessive resource allocation through specially designed batch requests. Inference endpoints are particularly vulnerable because ML models are computationally expensive to run compared to traditional API endpoints.</p>
+
+  <p>Elevation of Privilege through ML components happens when attackers exploit model behavior to bypass access controls, extract credentials from training data memorization, or use prompt injection to make LLMs execute unauthorized actions. In systems where ML outputs influence access decisions (fraud detection, authentication), adversarial manipulation of model outputs can effectively grant elevated privileges.</p>
+
+  <h3>Risk Scoring Methodology</h3>
+
+  <p>The threat model generator calculates risk scores using a combination of likelihood and impact, adjusted for your system profile. Likelihood factors include the attack surface size (public API vs. restricted access), the technical sophistication required (adversarial examples on LLMs vs. edge classifiers), and the availability of existing tools and research for each attack type. Impact factors include data sensitivity (public data vs. HIPAA/PCI), the consequences of model compromise (recommendation quality vs. autonomous vehicle safety), and regulatory exposure (GDPR fines, EU AI Act compliance).</p>
+
+  <p>Each threat receives a risk score from 1 to 10, categorized as Critical (8-10), High (6-7), Medium (4-5), or Low (1-3). The overall system risk is calculated as the weighted average across all STRIDE categories, with additional weight given to the highest-scoring individual threats. This ensures that a single critical vulnerability does not get averaged away by many low-risk items.</p>
+
+  <h3>Using the Generated Threat Model</h3>
+
+  <p>The exported threat model document serves as a living security artifact. Review it during architecture reviews, update it when you change model types or deployment methods, and use it to prioritize security investments. For teams subject to the EU AI Act (fully enforced from August 2026), this threat model can serve as part of your risk assessment documentation. For organizations following NIST AI RMF or ISO 42001, the STRIDE-based approach maps well to their required risk identification processes.</p>
+
+  <p>The mitigations listed in the report are actionable recommendations, not theoretical suggestions. Each mitigation is specific enough to turn into a Jira ticket or engineering task. Prioritize mitigations for critical and high threats first, then systematically work through medium and low items. Re-run the generator whenever your system architecture changes, such as moving from batch to real-time inference, switching model types, or changing data sensitivity levels. For a comprehensive security posture assessment, pair this threat model with the <a href="/research/ml-model-security-checklist.html">ML Model Security Checklist</a> which provides 50+ granular controls to verify.</p>
+
+  <h3>Integrating with Existing Security Processes</h3>
+
+  <p>This tool is designed to complement, not replace, your existing security practices. If your organization already uses STRIDE for application security, the ML-adapted version extends your threat modeling to cover ML-specific attack vectors. The output format is compatible with common threat modeling tools and can be imported into risk registers. Teams using the OWASP ML Top 10 can cross-reference the STRIDE categories with OWASP's ranked list to validate coverage. The generator ensures you are not missing threats that fall outside the OWASP top 10 but are still relevant to your specific deployment context.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What is STRIDE threat modeling for machine learning?</summary>
+    <p>STRIDE is a threat classification framework originally developed by Microsoft, adapted here for ML systems. It covers six categories: Spoofing (model impersonation), Tampering (adversarial inputs and data poisoning), Repudiation (lack of audit trails), Information Disclosure (model extraction and data leakage), Denial of Service (resource exhaustion attacks), and Elevation of Privilege (exploiting ML components to gain unauthorized access). Each category maps to specific ML attacks and defenses.</p>
+  </details>
+
+  <details>
+    <summary>How do I create a threat model for my ML system?</summary>
+    <p>Start by documenting your system architecture: model type, deployment method, data sensitivity, and access levels. Then systematically evaluate each STRIDE category against your architecture. For each threat, assess likelihood and impact to calculate risk scores. Finally, identify mitigations and prioritize them by risk level. This tool automates the entire process with a guided wizard that asks four questions and generates a complete threat model document.</p>
+  </details>
+
+  <details>
+    <summary>What are the most common threats to ML models in production?</summary>
+    <p>The most common threats include adversarial examples (crafted inputs causing misclassification), model extraction (stealing model behavior through API queries), data poisoning (manipulating training data), model inversion (reconstructing training data from outputs), and supply chain attacks (compromised dependencies or pre-trained weights). For LLMs specifically, prompt injection is the dominant new attack vector. Severity depends on deployment context and data sensitivity.</p>
+  </details>
+
+  <details>
+    <summary>Is this threat model generator free to use?</summary>
+    <p>Yes, the ML Threat Model Generator is completely free. It runs entirely in your browser with no data sent to any server. You can export the generated threat model as markdown for documentation. No sign-up or account required. The tool is part of the <a href="https://zovo.one/tools">Zovo Tools</a> network of free developer utilities.</p>
+  </details>
+
+  <details>
+    <summary>How does STRIDE differ from OWASP ML Top 10?</summary>
+    <p>STRIDE is a general threat classification framework providing a systematic methodology for discovering threats through six categories. OWASP ML Top 10 is a curated, ranked list of the most critical ML security risks based on prevalence and impact. Both are complementary: use STRIDE for comprehensive threat discovery to ensure nothing is missed, and use OWASP ML Top 10 to validate your prioritization against industry consensus on the most critical attack vectors.</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/research/ml-model-security-checklist.html">ML Model Security Checklist</a></h3>
+      <p>50+ security controls across data, model, inference, pipeline, and monitoring. Score your ML security posture.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/research/model-extraction-prevention.html">Model Extraction Prevention</a></h3>
+      <p>Rate limiting strategies and watermarking techniques to detect and prevent model theft via API queries.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/guides/adversarial-attack-defense.html">Adversarial Attack & Defense Guide</a></h3>
+      <p>Interactive demo of adversarial examples and defense techniques including input preprocessing and noise filtering.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var state = { step: 0, modelType: null, deployment: null, dataSensitivity: null, accessLevel: null };
+
+  var THREATS = {
+    spoofing: {
+      letter: 'S', name: 'Spoofing (Model Impersonation)', threats: [
+        { name: 'Counterfeit Model Endpoint', desc: 'Attacker creates fake API mimicking your model to intercept queries and responses.', mitigation: 'Implement mutual TLS, domain pinning, and model endpoint verification.', base: 5, apiMult: 1.6, edgeMult: 0.8 },
+        { name: 'Trojanized Model Weights', desc: 'Compromised model artifacts with hidden backdoors distributed through unofficial channels.', mitigation: 'Cryptographic model signing, checksum verification, secure model registry.', base: 6, apiMult: 1.0, edgeMult: 1.4 },
+        { name: 'Supply Chain Model Swap', desc: 'Attacker substitutes a different model during deployment pipeline.', mitigation: 'Immutable CI/CD pipelines, model provenance tracking, SBOM for ML artifacts.', base: 4, apiMult: 1.2, edgeMult: 1.3 },
+        { name: 'Identity Spoofing via ML Output', desc: 'Using generative models to create deepfakes or synthetic identities.', mitigation: 'Output watermarking, content authenticity metadata (C2PA).', base: 3, generativeMult: 2.0, llmMult: 1.5 }
+      ]
+    },
+    tampering: {
+      letter: 'T', name: 'Tampering (Adversarial Inputs)', threats: [
+        { name: 'Adversarial Examples', desc: 'Crafted inputs with imperceptible perturbations causing misclassification.', mitigation: 'Adversarial training, input preprocessing, ensemble defenses.', base: 7, classifierMult: 1.5, llmMult: 1.0 },
+        { name: 'Data Poisoning', desc: 'Injecting malicious samples into training data to alter model behavior.', mitigation: 'Data provenance tracking, statistical anomaly detection, robust aggregation.', base: 6, publicDataMult: 0.7, piiMult: 1.4 },
+        { name: 'Prompt Injection', desc: 'Manipulating LLM behavior through specially crafted prompts that override instructions.', mitigation: 'Input sanitization, system prompt isolation, output filtering.', base: 2, llmMult: 4.0, nlpMult: 2.0 },
+        { name: 'Model Weight Tampering', desc: 'Unauthorized modification of model parameters in storage or transit.', mitigation: 'Integrity hashing, read-only model storage, tamper detection.', base: 4, edgeMult: 1.5, embeddedMult: 1.6 }
+      ]
+    },
+    repudiation: {
+      letter: 'R', name: 'Repudiation (Audit Trail Gaps)', threats: [
+        { name: 'Unlogged Inference Requests', desc: 'Model predictions without audit trails make incident investigation impossible.', mitigation: 'Comprehensive request/response logging with immutable storage.', base: 5, regulatedMult: 1.8, publicMult: 0.6 },
+        { name: 'Model Version Ambiguity', desc: 'Cannot determine which model version produced a specific prediction.', mitigation: 'Model versioning, deployment tracking, prediction-to-version mapping.', base: 4, apiMult: 1.3 },
+        { name: 'Training Data Provenance Loss', desc: 'Unable to trace which data was used to train which model version.', mitigation: 'Data lineage tracking, dataset versioning (DVC), training run metadata.', base: 4, healthcareMult: 1.8, financialMult: 1.6 },
+        { name: 'Decision Attribution Failure', desc: 'Cannot explain why the model made a specific prediction for compliance purposes.', mitigation: 'Explainability tools (SHAP, LIME), decision audit logs, human-in-the-loop.', base: 3, regulatedMult: 2.0 }
+      ]
+    },
+    infoDisclosure: {
+      letter: 'I', name: 'Information Disclosure (Model Extraction)', threats: [
+        { name: 'Model Extraction Attack', desc: 'Attacker reconstructs model behavior by systematically querying the API.', mitigation: 'Rate limiting, query pattern detection, output perturbation.', base: 7, publicApiMult: 1.6, restrictedMult: 0.4 },
+        { name: 'Membership Inference', desc: 'Determining whether specific data points were in the training set.', mitigation: 'Differential privacy during training, regularization, output rounding.', base: 5, piiMult: 1.8, healthcareMult: 2.0 },
+        { name: 'Model Inversion', desc: 'Reconstructing training data approximations from model outputs.', mitigation: 'Limit output confidence scores, differential privacy, access controls.', base: 5, piiMult: 1.6, classifierMult: 1.3 },
+        { name: 'Training Data Memorization', desc: 'Model memorizes and can regurgitate sensitive training data verbatim.', mitigation: 'Deduplication, differential privacy, output filtering for PII.', base: 4, llmMult: 2.2, piiMult: 1.5 }
+      ]
+    },
+    dos: {
+      letter: 'D', name: 'Denial of Service (Resource Exhaustion)', threats: [
+        { name: 'Compute Exhaustion Attack', desc: 'Crafted inputs that maximize inference time and GPU memory usage.', mitigation: 'Input size limits, inference timeouts, request queuing.', base: 6, apiMult: 1.5, llmMult: 1.4 },
+        { name: 'Cost Exhaustion (Cloud)', desc: 'Triggering auto-scaling to cause extreme compute bills.', mitigation: 'Spending caps, rate limiting per user, anomaly-based throttling.', base: 5, cloudMult: 1.8, batchMult: 0.5 },
+        { name: 'Model Loading Attack', desc: 'Forcing repeated model reloads to exhaust memory and cause downtime.', mitigation: 'Model caching, warm pools, health check monitoring.', base: 3, multiTenantMult: 1.6 },
+        { name: 'Adversarial Complexity Exploitation', desc: 'Inputs designed to hit worst-case computational paths in the model.', mitigation: 'Input validation, complexity budgets, early termination.', base: 4, llmMult: 1.5, recommenderMult: 1.3 }
+      ]
+    },
+    elevationOfPrivilege: {
+      letter: 'E', name: 'Elevation of Privilege (ML-Assisted Escalation)', threats: [
+        { name: 'Prompt Injection Privilege Escalation', desc: 'Using prompt injection to make LLM execute privileged operations or access restricted data.', mitigation: 'Principle of least privilege for LLM tool access, sandboxing, output validation.', base: 2, llmMult: 4.0, nlpMult: 1.5 },
+        { name: 'ML-Gated Access Bypass', desc: 'Manipulating model outputs to bypass ML-based access controls (fraud detection, auth).', mitigation: 'Defense in depth, ML decisions as signals not sole gatekeepers, human review.', base: 5, financialMult: 1.8, tabularMult: 1.4 },
+        { name: 'Training Pipeline Code Injection', desc: 'Exploiting deserialization (pickle) or custom layers to execute arbitrary code.', mitigation: 'Use SafeTensors, sandbox training environments, code review for custom layers.', base: 6, llmMult: 1.2, generativeMult: 1.2 },
+        { name: 'Multi-Tenant Data Leakage', desc: 'Exploiting shared infrastructure to access other tenants model data or predictions.', mitigation: 'Tenant isolation, separate model instances, namespace enforcement.', base: 3, multiTenantMult: 2.5, internalMult: 0.5 }
+      ]
+    }
+  };
+
+  function calcThreatScore(threat) {
+    var score = threat.base;
+    var mt = state.modelType;
+    var dp = state.deployment;
+    var ds = state.dataSensitivity;
+    var al = state.accessLevel;
+
+    if (mt === 'llm' && threat.llmMult) score *= threat.llmMult;
+    if (mt === 'classifier' && threat.classifierMult) score *= threat.classifierMult;
+    if (mt === 'recommender' && threat.recommenderMult) score *= threat.recommenderMult;
+    if (mt === 'tabular' && threat.tabularMult) score *= threat.tabularMult;
+    if (mt === 'nlp' && threat.nlpMult) score *= threat.nlpMult;
+    if (mt === 'generative' && threat.generativeMult) score *= threat.generativeMult;
+
+    if (dp === 'cloud-api' && threat.apiMult) score *= threat.apiMult;
+    if (dp === 'cloud-api' && threat.cloudMult) score *= threat.cloudMult;
+    if (dp === 'edge' && threat.edgeMult) score *= threat.edgeMult;
+    if (dp === 'embedded' && threat.embeddedMult) score *= threat.embeddedMult;
+    if (dp === 'batch' && threat.batchMult) score *= threat.batchMult;
+    if (dp === 'multi-tenant' && threat.multiTenantMult) score *= threat.multiTenantMult;
+    if (dp === 'on-premise' && threat.internalMult) score *= threat.internalMult;
+
+    if (ds === 'public' && threat.publicDataMult) score *= threat.publicDataMult;
+    if (ds === 'public' && threat.publicMult) score *= threat.publicMult;
+    if (ds === 'pii' && threat.piiMult) score *= threat.piiMult;
+    if (ds === 'healthcare' && threat.healthcareMult) score *= threat.healthcareMult;
+    if (ds === 'financial' && threat.financialMult) score *= threat.financialMult;
+    if ((ds === 'healthcare' || ds === 'financial' || ds === 'classified') && threat.regulatedMult) score *= threat.regulatedMult;
+
+    if (al === 'public-api' && threat.publicApiMult) score *= threat.publicApiMult;
+    if (al === 'restricted' && threat.restrictedMult) score *= threat.restrictedMult;
+
+    return Math.min(10, Math.max(1, Math.round(score * 10) / 10));
+  }
+
+  function getRiskClass(score) {
+    if (score >= 8) return 'risk-critical';
+    if (score >= 6) return 'risk-high';
+    if (score >= 4) return 'risk-medium';
+    return 'risk-low';
+  }
+  function getRiskLabel(score) {
+    if (score >= 8) return 'Critical';
+    if (score >= 6) return 'High';
+    if (score >= 4) return 'Medium';
+    return 'Low';
+  }
+
+  document.querySelectorAll('.option-grid').forEach(function(grid) {
+    grid.addEventListener('click', function(e) {
+      var card = e.target.closest('.option-card');
+      if (!card) return;
+      grid.querySelectorAll('.option-card').forEach(function(c) { c.classList.remove('selected'); });
+      card.classList.add('selected');
+      state[grid.dataset.field] = card.dataset.value;
+    });
+  });
+
+  function updateSteps() {
+    document.querySelectorAll('.wizard-step').forEach(function(s, i) {
+      s.classList.remove('active', 'completed');
+      if (i === state.step) s.classList.add('active');
+      else if (i < state.step) s.classList.add('completed');
+    });
+    document.querySelectorAll('.step-panel').forEach(function(p, i) {
+      p.classList.remove('active');
+      if (i === state.step) p.classList.add('active');
+    });
+  }
+
+  window.nextStep = function() {
+    var fields = ['modelType', 'deployment', 'dataSensitivity', 'accessLevel'];
+    if (state.step < 4 && !state[fields[state.step]]) {
+      var panels = document.querySelectorAll('.step-panel');
+      panels[state.step].style.animation = 'none';
+      panels[state.step].offsetHeight;
+      panels[state.step].style.animation = '';
+      return;
+    }
+    if (state.step < 4) { state.step++; updateSteps(); }
+  };
+
+  window.prevStep = function() {
+    if (state.step > 0) { state.step--; updateSteps(); }
+  };
+
+  window.generateThreatModel = function() {
+    if (!state.accessLevel) return;
+    state.step = 4;
+    updateSteps();
+
+    var report = document.getElementById('threatReport');
+    var results = document.getElementById('strideResults');
+    results.innerHTML = '';
+
+    var allScores = [];
+    var maxScore = 0;
+    var html = '';
+
+    Object.keys(THREATS).forEach(function(catKey) {
+      var cat = THREATS[catKey];
+      var catScores = [];
+
+      var threatsHtml = '';
+      cat.threats.forEach(function(threat) {
+        var score = calcThreatScore(threat);
+        catScores.push(score);
+        allScores.push(score);
+        if (score > maxScore) maxScore = score;
+
+        threatsHtml += '<div class="threat-item">' +
+          '<div class="t-name">' + threat.name +
+          ' <span class="t-risk-badge ' + getRiskClass(score) + '">' + score.toFixed(1) + ' ' + getRiskLabel(score) + '</span></div>' +
+          '<div class="t-desc">' + threat.desc + '</div>' +
+          '<div class="t-mitigation">Mitigation: ' + threat.mitigation + '</div>' +
+          '</div>';
+      });
+
+      var catAvg = catScores.reduce(function(a,b){return a+b;},0) / catScores.length;
+
+      html += '<div class="stride-section">' +
+        '<div class="stride-header">' +
+        '<span class="s-letter">' + cat.letter + '</span>' +
+        '<span class="s-name">' + cat.name + '</span>' +
+        '<span class="s-score ' + getRiskClass(catAvg) + '">' + catAvg.toFixed(1) + '</span>' +
+        '</div>' +
+        '<div class="stride-threats">' + threatsHtml + '</div>' +
+        '</div>';
+    });
+
+    results.innerHTML = html;
+
+    var avgScore = allScores.reduce(function(a,b){return a+b;},0) / allScores.length;
+    var weightedScore = (avgScore * 0.6) + (maxScore * 0.4);
+
+    var riskEl = document.getElementById('overallRisk');
+    riskEl.className = 'overall-risk ' + getRiskClass(weightedScore);
+    riskEl.textContent = 'Overall Risk: ' + weightedScore.toFixed(1) + '/10 (' + getRiskLabel(weightedScore) + ')';
+
+    var labels = {
+      modelType: { llm:'LLM/Chatbot', classifier:'Image Classifier', recommender:'Recommender', tabular:'Tabular/Regression', nlp:'NLP Pipeline', generative:'Generative (Image/Audio)' },
+      deployment: { 'cloud-api':'Cloud API', 'on-premise':'On-Premise', edge:'Edge/Mobile', embedded:'Embedded', batch:'Batch', 'multi-tenant':'Multi-Tenant SaaS' },
+      dataSensitivity: { 'public':'Public', internal:'Internal', pii:'PII/Personal', healthcare:'Healthcare/HIPAA', financial:'Financial/PCI', classified:'Classified/Govt' },
+      accessLevel: { 'public-api':'Public API', authenticated:'Authenticated', 'internal-only':'Internal Only', restricted:'Restricted' }
+    };
+
+    document.getElementById('reportSummary').innerHTML =
+      '<strong>System Profile:</strong> ' + labels.modelType[state.modelType] + ' | ' +
+      labels.deployment[state.deployment] + ' | ' +
+      labels.dataSensitivity[state.dataSensitivity] + ' data | ' +
+      labels.accessLevel[state.accessLevel] + ' access<br>' +
+      '<strong>Threats Identified:</strong> ' + allScores.length + ' across 6 STRIDE categories. ' +
+      '<strong>Critical/High:</strong> ' + allScores.filter(function(s){return s>=6;}).length + ' threats require immediate attention.';
+
+    report.classList.add('active');
+    report.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  window.exportReport = function() {
+    var lines = ['# ML Threat Model Report', '', '**Generated:** ' + new Date().toISOString().split('T')[0],
+      '**Tool:** [LockML Threat Model Generator](https://lockml.com/tools/threat-model-generator.html)', ''];
+
+    var labels = {
+      modelType: { llm:'LLM/Chatbot', classifier:'Image Classifier', recommender:'Recommender', tabular:'Tabular/Regression', nlp:'NLP Pipeline', generative:'Generative' },
+      deployment: { 'cloud-api':'Cloud API', 'on-premise':'On-Premise', edge:'Edge/Mobile', embedded:'Embedded', batch:'Batch', 'multi-tenant':'Multi-Tenant SaaS' },
+      dataSensitivity: { 'public':'Public', internal:'Internal', pii:'PII/Personal', healthcare:'Healthcare/HIPAA', financial:'Financial/PCI', classified:'Classified/Govt' },
+      accessLevel: { 'public-api':'Public API', authenticated:'Authenticated', 'internal-only':'Internal Only', restricted:'Restricted' }
+    };
+
+    lines.push('## System Profile');
+    lines.push('- **Model Type:** ' + labels.modelType[state.modelType]);
+    lines.push('- **Deployment:** ' + labels.deployment[state.deployment]);
+    lines.push('- **Data Sensitivity:** ' + labels.dataSensitivity[state.dataSensitivity]);
+    lines.push('- **Access Level:** ' + labels.accessLevel[state.accessLevel]);
+    lines.push('');
+
+    Object.keys(THREATS).forEach(function(catKey) {
+      var cat = THREATS[catKey];
+      lines.push('## ' + cat.letter + ' — ' + cat.name);
+      lines.push('');
+      cat.threats.forEach(function(threat) {
+        var score = calcThreatScore(threat);
+        lines.push('### ' + threat.name + ' [' + getRiskLabel(score) + ' ' + score.toFixed(1) + '/10]');
+        lines.push(threat.desc);
+        lines.push('**Mitigation:** ' + threat.mitigation);
+        lines.push('');
+      });
+    });
+
+    lines.push('---');
+    lines.push('*Generated by [LockML](https://lockml.com) | Part of [Zovo Tools](https://zovo.one/tools)*');
+
+    document.getElementById('exportOutput').textContent = lines.join('\n');
+    document.getElementById('exportModal').classList.add('active');
+  };
+
+  window.copyExport = function() {
+    navigator.clipboard.writeText(document.getElementById('exportOutput').textContent).then(function() {
+      var btn = document.querySelector('.btn-copy');
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
+    });
+  };
+
+  window.closeExport = function() {
+    document.getElementById('exportModal').classList.remove('active');
+  };
+
+  window.resetWizard = function() {
+    state.step = 0;
+    state.modelType = null;
+    state.deployment = null;
+    state.dataSensitivity = null;
+    state.accessLevel = null;
+    document.querySelectorAll('.option-card').forEach(function(c) { c.classList.remove('selected'); });
+    document.getElementById('threatReport').classList.remove('active');
+    updateSteps();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExport();
+  });
+})();
+</script>
+</body>
+</html>

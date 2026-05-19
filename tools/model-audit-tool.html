@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Model Security Audit Tool — Automated Checklist Generator (2026) | LockML</title>
+<meta name="description" content="Generate tailored security audit checklists for ML models. Select your model type and get 20+ items covering data poisoning, model extraction, adversarial robustness, privacy, and access control with severity ratings.">
+<link rel="canonical" href="https://lockml.com/tools/model-audit-tool.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/tools/model-audit-tool.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/tools/model-audit-tool.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ML Model Security Audit Tool — Automated Checklist Generator (2026)">
+<meta property="og:description" content="Generate tailored security audit checklists for ML models. 20+ items covering data poisoning, model extraction, adversarial robustness, privacy, and access control.">
+<meta property="og:url" content="https://lockml.com/tools/model-audit-tool.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ML Model Security Audit Tool — Automated Checklist Generator (2026)">
+<meta name="twitter:description" content="Generate tailored security audit checklists for ML models. 20+ items covering data poisoning, model extraction, adversarial robustness, privacy, and access control.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "ML Model Security Audit Tool",
+  "url": "https://lockml.com/tools/model-audit-tool.html",
+  "description": "Interactive security audit checklist generator for machine learning models. Select model type to get tailored 20+ item checklists covering data poisoning, model extraction, adversarial robustness, privacy, and access control.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "featureList": [
+    "Tailored checklists for 5 model types",
+    "20+ security audit items per checklist",
+    "Severity ratings for each item",
+    "Data poisoning assessment",
+    "Model extraction risk analysis",
+    "Adversarial robustness checks",
+    "Privacy and compliance controls",
+    "Export as PDF or Markdown",
+    "No sign-up required",
+    "100% browser-based"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does an ML model security audit cover?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "An ML model security audit covers five key domains: data poisoning defenses (training data integrity, label validation, outlier detection), model extraction prevention (rate limiting, watermarking, output perturbation), adversarial robustness (input validation, adversarial training, certified defenses), privacy controls (differential privacy, membership inference protection, data minimization), and access control (authentication, authorization, API security). Each domain contains specific, actionable checklist items tailored to your model type."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How are severity ratings assigned to audit items?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Severity ratings are assigned based on the potential impact and likelihood of exploitation for each security control. Critical items (red) represent controls that, if missing, expose the model to high-probability, high-impact attacks. High items (orange) are important defenses that significantly reduce attack surface. Medium items (yellow) provide defense-in-depth but are less likely to be exploited in isolation. Low items (green) are best practices that improve overall security posture. Ratings are adjusted based on your specific model type."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which model types does the audit tool support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The tool supports five model types: Classification models (CNNs, decision trees, SVMs), Regression models (linear regression, XGBoost, neural networks), NLP models (transformers, BERT, GPT, sentiment analysis), Computer Vision models (object detection, image segmentation, GANs), and Recommender Systems (collaborative filtering, content-based, hybrid). Each type generates a different checklist because their attack surfaces differ significantly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I export the audit checklist for my team?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, the audit checklist can be exported in two formats: Markdown (for documentation systems like Confluence, Notion, or GitHub) and PDF (for formal audit reports and compliance documentation). The export includes all checklist items, severity ratings, your completion status, and an overall security score. You can share the exported report with your security team or include it in compliance documentation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How often should I run an ML model security audit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run an ML model security audit whenever you retrain your model, change the training data pipeline, modify the deployment architecture, or update dependencies. At minimum, conduct quarterly audits for production models. For models processing sensitive data (PII, healthcare, financial), monthly audits are recommended. The EU AI Act (enforced August 2026) requires ongoing risk assessment for high-risk AI systems, making regular audits a compliance requirement."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://lockml.com/tools/" },
+    { "@type": "ListItem", "position": 3, "name": "ML Model Security Audit Tool", "item": "https://lockml.com/tools/model-audit-tool.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .audit-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .audit-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+
+  .model-selector{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:0.75rem;margin-bottom:1.5rem}
+  .model-btn{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;cursor:pointer;transition:all 0.15s;text-align:center}
+  .model-btn:hover{border-color:var(--accent)}
+  .model-btn.active{background:var(--accent-dim);border-color:var(--accent)}
+  .model-btn .m-icon{font-size:1.5rem;display:block;margin-bottom:0.4rem}
+  .model-btn .m-label{font-size:0.85rem;font-weight:600;display:block}
+  .model-btn .m-desc{font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.2rem}
+
+  .generate-row{text-align:center;margin:1.5rem 0}
+  .btn-generate{padding:0.6rem 2rem;border-radius:var(--radius);font-size:0.9rem;font-weight:600;cursor:pointer;border:none;background:var(--accent);color:#000;font-family:var(--font-body);transition:opacity 0.15s}
+  .btn-generate:hover{opacity:0.85}
+
+  .score-banner{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1.5rem;flex-wrap:wrap;gap:0.5rem}
+  .score-banner .score-label{font-size:0.9rem;font-weight:600}
+  .score-banner .score-bar-wrap{flex:1;min-width:200px;margin:0 1rem}
+  .score-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+  .score-bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease}
+  .score-value{font-family:var(--font-display);font-size:1.1rem;font-weight:700}
+
+  .checklist-section{margin-bottom:1.5rem}
+  .section-header{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0;cursor:pointer}
+  .section-header .s-icon{font-size:1rem}
+  .section-header .s-name{font-weight:600;font-size:0.9rem;flex:1}
+  .section-header .s-count{font-size:0.75rem;color:var(--text-muted)}
+  .section-items{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius)}
+
+  .audit-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.75rem 1rem;border-bottom:1px solid rgba(34,34,34,0.5);font-size:0.88rem}
+  .audit-item:last-child{border-bottom:none}
+  .audit-item input[type="checkbox"]{margin-top:3px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+  .audit-item .item-content{flex:1}
+  .audit-item .item-name{font-weight:600;margin-bottom:0.2rem}
+  .audit-item .item-desc{color:var(--text-muted);font-size:0.82rem}
+  .severity-badge{font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;padding:2px 6px;border-radius:3px;margin-left:0.5rem;white-space:nowrap}
+  .sev-critical{background:rgba(239,68,68,0.15);color:#ef4444}
+  .sev-high{background:rgba(249,115,22,0.15);color:#f97316}
+  .sev-medium{background:rgba(234,179,8,0.15);color:#eab308}
+  .sev-low{background:rgba(34,197,94,0.15);color:#22c55e}
+
+  .export-row{display:flex;gap:0.5rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap}
+  .btn-export{padding:0.5rem 1.5rem;border-radius:var(--radius);font-size:0.85rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);transition:all 0.15s}
+  .btn-export:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-export.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+  .btn-export.primary:hover{opacity:0.85}
+
+  .export-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+  .export-modal.active{display:flex}
+  .export-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;max-width:700px;width:90%;max-height:80vh;overflow-y:auto}
+  .export-content h3{margin-bottom:1rem;font-family:var(--font-display);color:var(--accent)}
+  .export-content pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow-x:auto;font-size:0.8rem;white-space:pre-wrap;word-break:break-word}
+  .export-btns{display:flex;gap:0.5rem;margin-top:1rem}
+  .export-btns button{padding:0.45rem 1rem;border-radius:var(--radius);cursor:pointer;font-size:0.8rem;font-family:var(--font-body);border:1px solid var(--border)}
+  .btn-copy{background:var(--accent);color:#000;border-color:var(--accent) !important;font-weight:600}
+  .btn-close{background:var(--bg);color:var(--text-muted)}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .model-selector{grid-template-columns:1fr 1fr}
+    .score-banner{flex-direction:column;text-align:center}
+    .score-banner .score-bar-wrap{margin:0.5rem 0;width:100%}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/tools/">Tools</a><span>/</span>Model Security Audit
+</div>
+
+<section class="hero">
+  <h1>ML Model <span>Security Audit</span> Tool</h1>
+  <p>Generate tailored security audit checklists for your machine learning models. Select your model type and receive 20+ actionable items covering data poisoning, model extraction, adversarial robustness, privacy, and access control — each with severity ratings.</p>
+</section>
+
+<div class="audit-container">
+  <div class="audit-card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem">Select Your Model Type</h3>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem">Different model architectures have different security profiles. The audit checklist adapts to your selection.</p>
+    <div class="model-selector" id="modelSelector">
+      <div class="model-btn" data-model="classification">
+        <span class="m-icon">&#128202;</span>
+        <span class="m-label">Classification</span>
+        <span class="m-desc">CNN, SVM, Decision Trees</span>
+      </div>
+      <div class="model-btn" data-model="regression">
+        <span class="m-icon">&#128200;</span>
+        <span class="m-label">Regression</span>
+        <span class="m-desc">Linear, XGBoost, Neural Nets</span>
+      </div>
+      <div class="model-btn" data-model="nlp">
+        <span class="m-icon">&#128221;</span>
+        <span class="m-label">NLP</span>
+        <span class="m-desc">Transformers, BERT, GPT</span>
+      </div>
+      <div class="model-btn" data-model="vision">
+        <span class="m-icon">&#128065;</span>
+        <span class="m-label">Computer Vision</span>
+        <span class="m-desc">Object Detection, Segmentation</span>
+      </div>
+      <div class="model-btn" data-model="recommender">
+        <span class="m-icon">&#127919;</span>
+        <span class="m-label">Recommender</span>
+        <span class="m-desc">Collaborative, Content-Based</span>
+      </div>
+    </div>
+    <div class="generate-row">
+      <button class="btn-generate" id="btnGenerate" onclick="generateAudit()">Generate Audit Checklist</button>
+    </div>
+  </div>
+
+  <div id="auditResults" style="display:none">
+    <div class="score-banner" id="scoreBanner">
+      <span class="score-label">Security Score:</span>
+      <div class="score-bar-wrap"><div class="score-bar"><div class="score-bar-fill" id="scoreBarFill"></div></div></div>
+      <span class="score-value" id="scoreValue">0%</span>
+    </div>
+    <div id="checklistSections"></div>
+    <div class="export-row">
+      <button class="btn-export primary" onclick="exportMarkdown()">Export Markdown</button>
+      <button class="btn-export primary" onclick="exportPDF()">Export PDF</button>
+      <button class="btn-export" onclick="resetAudit()">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<div id="exportModal" class="export-modal">
+  <div class="export-content">
+    <h3 id="exportTitle">Audit Export</h3>
+    <pre id="exportOutput"></pre>
+    <div class="export-btns">
+      <button class="btn-copy" onclick="copyExport()">Copy to Clipboard</button>
+      <button class="btn-close" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>How the ML Model Security Audit Tool Works</h2>
+
+  <p>Security audits for machine learning models differ fundamentally from traditional software security assessments. While conventional audits focus on code vulnerabilities, injection attacks, and network security, ML systems introduce entirely new attack surfaces: the training data, the model weights, the inference pipeline, and the feedback loops that connect predictions back to future training. This tool generates comprehensive security checklists tailored to your specific model architecture, because a computer vision model faces different threats than a recommender system or an NLP transformer.</p>
+
+  <p>When you select your model type, the audit engine loads a curated database of security controls organized into five categories. Each control is weighted for relevance to your model architecture, producing severity ratings that reflect real-world risk rather than theoretical concern. A prompt injection check is critical for NLP models but irrelevant for regression models. An adversarial patch defense is essential for vision models but does not apply to recommender systems. The tailoring eliminates noise and ensures every item on your checklist is actionable for your specific deployment.</p>
+
+  <h3>Data Poisoning Assessment</h3>
+
+  <p>Data poisoning is the process of manipulating training data to corrupt a model's learned behavior. The audit checks for label integrity verification (ensuring training labels have not been flipped), statistical distribution monitoring (detecting whether injected samples have shifted the data distribution), provenance tracking (knowing the origin of every training sample), and outlier detection pipelines (automatically flagging anomalous data points before they enter training). For classification models, the audit includes targeted poisoning checks where specific classes are manipulated. For NLP models, it covers text poisoning through synonym replacement and character-level perturbations that survive preprocessing.</p>
+
+  <p>The severity of each data poisoning control depends on your data sourcing strategy. Models trained on scraped web data face higher poisoning risk than models trained on curated internal datasets. The audit adjusts accordingly, marking web-sourced data validation as critical while treating internal data lineage as medium priority. This context-aware rating prevents teams from over-investing in low-risk controls while neglecting high-risk ones.</p>
+
+  <h3>Model Extraction Prevention</h3>
+
+  <p>Model extraction attacks steal your model's behavior by making systematic queries to the inference API and training a surrogate model on the input-output pairs. The audit covers API rate limiting configuration (queries per minute, per hour, per user), output perturbation (adding calibrated noise to confidence scores), watermarking techniques (embedding detectable signatures in model outputs), query pattern detection (identifying systematic probing behavior), and model fingerprinting (techniques to prove ownership if a stolen model is discovered). For recommender systems, extraction is particularly dangerous because the recommendation logic represents significant business value.</p>
+
+  <h3>Adversarial Robustness Controls</h3>
+
+  <p>Adversarial robustness refers to a model's ability to produce correct outputs when inputs are deliberately perturbed. The audit checks for input validation and sanitization, adversarial training implementation (training on adversarial examples to build resistance), ensemble defenses (using multiple models to reduce single-point failures), certified defense mechanisms (provably robust within defined perturbation bounds), and runtime adversarial detection (identifying and rejecting adversarial inputs during inference). Vision models receive additional checks for spatial transformations, patch attacks, and physical-world adversarial objects. Classification models get targeted vs. untargeted attack resilience checks.</p>
+
+  <h3>Privacy and Compliance Controls</h3>
+
+  <p>Privacy in ML extends beyond data encryption and access control. The audit verifies differential privacy implementation during training (mathematically bounding what the model can reveal about individual training samples), membership inference resistance (preventing attackers from determining if a specific record was in the training set), model inversion protection (stopping reconstruction of training data from outputs), data minimization practices (collecting and retaining only what is necessary), and right-to-erasure compliance (the ability to remove a person's data influence from a trained model, which requires either retraining or machine unlearning techniques).</p>
+
+  <p>With the EU AI Act enforcement beginning August 2026, privacy controls are no longer optional for high-risk AI systems. The audit maps each control to relevant regulations including GDPR, CCPA, EU AI Act, and HIPAA, making it straightforward to identify which controls serve compliance requirements versus security-only purposes. This dual mapping helps teams justify security investments to stakeholders who prioritize regulatory compliance.</p>
+
+  <h3>Access Control and Infrastructure</h3>
+
+  <p>The final category covers the infrastructure surrounding your model: API authentication mechanisms, authorization granularity (who can query which models), model artifact storage security (encrypted at rest, signed, versioned), CI/CD pipeline security (preventing unauthorized model deployments), monitoring and alerting (detecting anomalous query patterns, model drift, and performance degradation), and incident response procedures specific to ML failures (model rollback procedures, data breach protocols for training data exposure). These controls form the foundation that makes all other security measures effective.</p>
+
+  <h3>Interpreting Your Security Score</h3>
+
+  <p>The security score is calculated as a weighted completion percentage across all five categories. Critical items carry four times the weight of low-severity items, and high items carry twice the weight. This means checking off several low-severity items will not compensate for missing critical controls. A score above 80% indicates a strong security posture with critical and high items addressed. Between 50-80% suggests significant gaps that should be prioritized. Below 50% indicates the model has fundamental security vulnerabilities that need immediate attention. Use the export feature to share the checklist with your team and track progress over time.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What does an ML model security audit cover?</summary>
+    <p>An ML model security audit covers five key domains: data poisoning defenses (training data integrity, label validation, outlier detection), model extraction prevention (rate limiting, watermarking, output perturbation), adversarial robustness (input validation, adversarial training, certified defenses), privacy controls (differential privacy, membership inference protection, data minimization), and access control (authentication, authorization, API security). Each domain contains specific, actionable checklist items tailored to your model type.</p>
+  </details>
+
+  <details>
+    <summary>How are severity ratings assigned to audit items?</summary>
+    <p>Severity ratings are assigned based on potential impact and likelihood of exploitation. Critical items represent controls that, if missing, expose the model to high-probability, high-impact attacks. High items are important defenses that significantly reduce attack surface. Medium items provide defense-in-depth. Low items are best practices for improved security posture. Ratings are adjusted based on your specific model type, so the same control may be critical for one architecture and low for another.</p>
+  </details>
+
+  <details>
+    <summary>Which model types does the audit tool support?</summary>
+    <p>The tool supports five model types: Classification (CNNs, decision trees, SVMs), Regression (linear, XGBoost, neural networks), NLP (transformers, BERT, GPT, sentiment analysis), Computer Vision (object detection, segmentation, GANs), and Recommender Systems (collaborative filtering, content-based, hybrid). Each generates a different checklist because attack surfaces differ significantly between architectures.</p>
+  </details>
+
+  <details>
+    <summary>Can I export the audit checklist for my team?</summary>
+    <p>Yes, export in two formats: Markdown for documentation systems (Confluence, Notion, GitHub) and PDF for formal audit reports. The export includes all items, severity ratings, your completion status, and an overall security score. Share with your security team or include in compliance documentation for EU AI Act, GDPR, or SOC 2 requirements.</p>
+  </details>
+
+  <details>
+    <summary>How often should I run an ML model security audit?</summary>
+    <p>Run an audit whenever you retrain, change training data, modify deployment architecture, or update dependencies. At minimum, conduct quarterly audits for production models. For sensitive data (PII, healthcare, financial), monthly audits are recommended. The EU AI Act (enforced August 2026) requires ongoing risk assessment for high-risk AI systems, making regular audits a compliance requirement rather than a recommendation.</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/tools/threat-model-generator.html">ML Threat Model Generator</a></h3>
+      <p>STRIDE-based threat modeling wizard for ML systems. Generates risk scores and actionable mitigations for six threat categories.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/research/data-poisoning-detection.html">Data Poisoning Detection</a></h3>
+      <p>Statistical detection techniques with interactive demo. Run outlier detection, distribution shift analysis, and label flip detection on datasets.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/answers/ml-compliance-checker.html">ML Compliance Checker</a></h3>
+      <p>GDPR, CCPA, EU AI Act, and HIPAA compliance checklist with risk scoring and exportable compliance reports.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var selectedModel = null;
+  var checklistData = {};
+  var CHECKLISTS = {
+    classification: {
+      dataPoisoning: [
+        {name:'Label Integrity Verification',desc:'Validate that training labels have not been flipped or corrupted. Implement multi-annotator consensus and automated label auditing.',sev:'critical'},
+        {name:'Training Data Distribution Monitoring',desc:'Track statistical distributions of training data over time. Alert on sudden shifts that may indicate poisoning attempts.',sev:'critical'},
+        {name:'Outlier Detection Pipeline',desc:'Deploy automated outlier detection (Isolation Forest, LOF) on incoming training data before it enters the training pipeline.',sev:'high'},
+        {name:'Data Provenance Tracking',desc:'Maintain a complete chain of custody for all training data. Record source, transformations, and access history.',sev:'high'},
+        {name:'Backdoor Pattern Scanning',desc:'Scan training images for known backdoor trigger patterns (pixel patches, watermarks) using spectral signature analysis.',sev:'medium'},
+        {name:'Class Imbalance Monitoring',desc:'Monitor per-class sample counts for unexpected changes that could indicate targeted poisoning of specific classes.',sev:'medium'}
+      ],
+      modelExtraction: [
+        {name:'API Rate Limiting',desc:'Enforce per-user and per-IP rate limits on inference endpoints. Set thresholds based on legitimate usage patterns.',sev:'critical'},
+        {name:'Confidence Score Perturbation',desc:'Add calibrated noise to output probability distributions. Prevent exact decision boundary reconstruction.',sev:'high'},
+        {name:'Query Pattern Detection',desc:'Monitor for systematic probing patterns (grid searches, boundary walking) that indicate extraction attempts.',sev:'high'},
+        {name:'Model Watermarking',desc:'Embed detectable watermarks in model behavior that survive extraction. Enables ownership proof if theft occurs.',sev:'medium'},
+        {name:'Output Rounding',desc:'Round confidence scores to reduce precision available to attackers. Return top-k classes instead of full distribution.',sev:'medium'}
+      ],
+      adversarialRobustness: [
+        {name:'Input Validation and Bounds Checking',desc:'Validate input dimensions, data types, and value ranges. Reject malformed inputs before inference.',sev:'critical'},
+        {name:'Adversarial Training Implementation',desc:'Include adversarial examples (PGD, FGSM) in training data to build model resistance to perturbation attacks.',sev:'critical'},
+        {name:'Ensemble Defense Deployment',desc:'Use multiple diverse models and aggregate predictions. Single-model adversarial examples rarely fool all ensemble members.',sev:'high'},
+        {name:'Input Preprocessing Defenses',desc:'Apply JPEG compression, spatial smoothing, or feature squeezing to neutralize adversarial perturbations.',sev:'high'},
+        {name:'Adversarial Example Detection',desc:'Deploy a separate detector model trained to distinguish clean inputs from adversarial examples at inference time.',sev:'medium'},
+        {name:'Certified Robustness Bounds',desc:'Implement randomized smoothing or interval bound propagation to provide provable robustness within epsilon bounds.',sev:'low'}
+      ],
+      privacy: [
+        {name:'Differential Privacy in Training',desc:'Apply DP-SGD or PATE framework during training to bound what the model reveals about individual training samples.',sev:'high'},
+        {name:'Membership Inference Resistance',desc:'Test model against membership inference attacks. Apply regularization and output perturbation to reduce vulnerability.',sev:'high'},
+        {name:'Model Inversion Protection',desc:'Limit output detail (top-k only, rounded scores) to prevent reconstruction of training data from predictions.',sev:'medium'},
+        {name:'Data Minimization Compliance',desc:'Verify that only necessary features are used for training. Remove or anonymize PII from training pipelines.',sev:'medium'},
+        {name:'Right-to-Erasure Implementation',desc:'Implement machine unlearning or maintain ability to retrain without specific individual data upon GDPR deletion requests.',sev:'low'}
+      ],
+      accessControl: [
+        {name:'API Authentication Enforcement',desc:'Require API keys or OAuth tokens for all inference endpoints. No unauthenticated access to model predictions.',sev:'critical'},
+        {name:'Model Artifact Encryption',desc:'Encrypt model weights at rest and in transit. Use signed model artifacts with integrity verification on load.',sev:'high'},
+        {name:'CI/CD Pipeline Security',desc:'Restrict model deployment permissions. Require code review and approval for model updates in production.',sev:'high'},
+        {name:'Inference Logging and Monitoring',desc:'Log all prediction requests with timestamps, user IDs, inputs (hashed if sensitive), and outputs for audit trails.',sev:'high'},
+        {name:'Model Rollback Procedures',desc:'Maintain previous model versions with automated rollback capability. Test rollback procedures regularly.',sev:'medium'},
+        {name:'Anomaly-Based Alerting',desc:'Alert on unusual query volumes, latency spikes, or accuracy drops that may indicate attacks or model degradation.',sev:'medium'}
+      ]
+    },
+    regression: {
+      dataPoisoning: [
+        {name:'Target Value Distribution Monitoring',desc:'Monitor the distribution of target values in training data for unexpected shifts or outliers that indicate poisoning.',sev:'critical'},
+        {name:'Feature Correlation Auditing',desc:'Track feature-target correlations over time. Sudden decorrelation or new spurious correlations suggest data manipulation.',sev:'high'},
+        {name:'Influential Sample Detection',desc:'Use Cook\'s distance or leave-one-out analysis to identify training samples with outsized influence on model parameters.',sev:'high'},
+        {name:'Data Source Authentication',desc:'Verify the integrity and authenticity of data sources. Implement checksums and secure transfer for training data.',sev:'medium'},
+        {name:'Temporal Consistency Checks',desc:'Validate that time-series data maintains expected patterns. Flag sudden regime changes for human review.',sev:'medium'},
+        {name:'Synthetic Data Detection',desc:'Scan for artificially generated data points that could be injected to shift model predictions in a desired direction.',sev:'low'}
+      ],
+      modelExtraction: [
+        {name:'Prediction Rate Limiting',desc:'Enforce strict rate limits on regression endpoints. Regression models are easier to extract than classifiers due to continuous outputs.',sev:'critical'},
+        {name:'Output Noise Injection',desc:'Add calibrated Gaussian noise to predictions. Balance utility with extraction resistance based on your precision requirements.',sev:'high'},
+        {name:'Prediction Range Clamping',desc:'Clamp outputs to reasonable ranges. Prevent extrapolation queries that help attackers map decision boundaries.',sev:'medium'},
+        {name:'Batch Query Detection',desc:'Flag users submitting systematic grid-pattern queries designed to reconstruct the regression surface.',sev:'medium'},
+        {name:'Feature Importance Concealment',desc:'Do not expose feature importance scores or SHAP values through the API unless explicitly needed.',sev:'low'}
+      ],
+      adversarialRobustness: [
+        {name:'Input Feature Validation',desc:'Validate feature ranges, types, and relationships. Reject inputs with physically impossible or contradictory feature values.',sev:'critical'},
+        {name:'Robust Regression Training',desc:'Use Huber loss or quantile regression to reduce sensitivity to outlier inputs and adversarial perturbations.',sev:'high'},
+        {name:'Ensemble Prediction Aggregation',desc:'Deploy multiple models (different algorithms or subsets) and use median aggregation for attack-resistant predictions.',sev:'high'},
+        {name:'Feature Preprocessing Normalization',desc:'Apply robust scaling (median/IQR instead of mean/std) to reduce the impact of adversarial feature manipulation.',sev:'medium'},
+        {name:'Prediction Confidence Intervals',desc:'Report uncertainty bounds with predictions. Wide intervals on adversarial inputs naturally flag suspicious queries.',sev:'medium'},
+        {name:'Monotonicity Constraints',desc:'Where domain knowledge dictates, enforce monotonic relationships to prevent adversarial exploitation of non-monotonic artifacts.',sev:'low'}
+      ],
+      privacy: [
+        {name:'Output Privacy Protection',desc:'Ensure individual predictions cannot be linked back to specific training examples through prediction values alone.',sev:'high'},
+        {name:'Feature Attribution Privacy',desc:'Protect feature importance explanations from leaking training data characteristics through SHAP or LIME outputs.',sev:'high'},
+        {name:'Training Data Anonymization',desc:'Anonymize or pseudonymize all PII in training data. Verify that model parameters do not memorize individual records.',sev:'medium'},
+        {name:'Aggregate-Only Reporting',desc:'Provide model performance metrics only in aggregate. Prevent per-sample residual analysis that could reveal training data.',sev:'medium'},
+        {name:'Differential Privacy Budget Tracking',desc:'If using DP-SGD, track cumulative privacy budget (epsilon) across training runs to prevent privacy degradation over time.',sev:'low'}
+      ],
+      accessControl: [
+        {name:'Endpoint Authentication',desc:'Require authentication for all regression API endpoints. Implement API key rotation policies.',sev:'critical'},
+        {name:'Model Versioning and Integrity',desc:'Cryptographically sign model artifacts. Verify signatures before deployment to prevent unauthorized model swaps.',sev:'high'},
+        {name:'Prediction Audit Trail',desc:'Log all predictions with inputs, outputs, model version, and timestamps for forensic analysis and compliance.',sev:'high'},
+        {name:'Access Tiering',desc:'Implement different precision levels for different user tiers. Internal users get full precision, external users get rounded outputs.',sev:'medium'},
+        {name:'Model Deployment Controls',desc:'Restrict who can deploy or update models in production. Require approval workflows for model changes.',sev:'medium'},
+        {name:'Automated Drift Detection',desc:'Monitor prediction distribution over time. Alert on data drift or concept drift that may indicate tampering or degradation.',sev:'medium'}
+      ]
+    },
+    nlp: {
+      dataPoisoning: [
+        {name:'Training Corpus Integrity',desc:'Verify training text data has not been poisoned with adversarial examples, backdoor triggers, or biased content injections.',sev:'critical'},
+        {name:'Prompt Injection Detection in Training Data',desc:'Scan training data for embedded prompt injections that could create backdoor behaviors in fine-tuned models.',sev:'critical'},
+        {name:'Vocabulary Distribution Monitoring',desc:'Track token and vocabulary distributions in training data. Detect anomalous text patterns that indicate manipulation.',sev:'high'},
+        {name:'Source Reputation Tracking',desc:'Maintain reputation scores for training data sources. Down-weight or exclude data from low-reputation or new sources.',sev:'high'},
+        {name:'Character-Level Perturbation Detection',desc:'Detect Unicode homoglyph substitutions, invisible characters, and encoding attacks in training text.',sev:'medium'},
+        {name:'Semantic Consistency Validation',desc:'Check that training examples are semantically consistent with their labels using cross-validation and agreement metrics.',sev:'medium'}
+      ],
+      modelExtraction: [
+        {name:'Token-Level Rate Limiting',desc:'Rate limit by total tokens processed, not just requests. Prevents extraction via long-context queries that map more of the model.',sev:'critical'},
+        {name:'Output Logit Masking',desc:'Do not expose raw logits or full token probabilities. Return only top-k tokens or final text to prevent distillation attacks.',sev:'high'},
+        {name:'Embedding Endpoint Protection',desc:'If exposing embedding endpoints, apply rate limits and monitor for systematic embedding harvesting patterns.',sev:'high'},
+        {name:'System Prompt Protection',desc:'Prevent extraction of system prompts through prompt injection or context manipulation attacks.',sev:'high'},
+        {name:'Model Architecture Concealment',desc:'Do not disclose model architecture, parameter count, or training details that help attackers plan extraction strategies.',sev:'medium'}
+      ],
+      adversarialRobustness: [
+        {name:'Prompt Injection Defenses',desc:'Implement input sanitization, system prompt isolation, instruction hierarchy, and output validation against prompt injection.',sev:'critical'},
+        {name:'Jailbreak Detection and Prevention',desc:'Deploy classifiers or rule-based systems to detect and block jailbreak attempts before they reach the model.',sev:'critical'},
+        {name:'Input Length and Complexity Limits',desc:'Enforce maximum input token limits and reject inputs with adversarial formatting (excessive repetition, encoding tricks).',sev:'high'},
+        {name:'Output Filtering and Safety Layers',desc:'Apply output classifiers to detect and filter harmful, biased, or manipulated model responses before delivery.',sev:'high'},
+        {name:'Adversarial Text Detection',desc:'Detect text-level adversarial attacks (character swaps, homoglyphs, word substitutions) at the input preprocessing stage.',sev:'medium'},
+        {name:'Multi-Turn Context Security',desc:'Validate conversation context integrity in multi-turn interactions. Prevent context poisoning across conversation turns.',sev:'medium'}
+      ],
+      privacy: [
+        {name:'Training Data Memorization Testing',desc:'Test whether the model can regurgitate verbatim training data. Use extraction attacks to verify PII is not memorized.',sev:'critical'},
+        {name:'PII Detection in Outputs',desc:'Scan model outputs for personal information (names, emails, phone numbers, addresses) before returning responses.',sev:'critical'},
+        {name:'Differential Privacy for Fine-Tuning',desc:'Apply DP-SGD when fine-tuning on sensitive data to mathematically bound information leakage from training examples.',sev:'high'},
+        {name:'Conversation Data Handling',desc:'Define retention policies for user conversation data. Implement encryption at rest and clear deletion procedures.',sev:'high'},
+        {name:'Attribution and Sourcing',desc:'Track when model outputs closely match training data to avoid copyright issues and enable data removal if required.',sev:'medium'}
+      ],
+      accessControl: [
+        {name:'User Authentication and Session Management',desc:'Require authentication for all NLP endpoints. Implement secure session handling for multi-turn conversations.',sev:'critical'},
+        {name:'Tool and Function Call Authorization',desc:'If the NLP model can call tools or functions, enforce strict authorization. Follow principle of least privilege.',sev:'critical'},
+        {name:'Content Safety Monitoring',desc:'Log and monitor model outputs for policy violations, harmful content, and unexpected behaviors.',sev:'high'},
+        {name:'Model Version Pinning',desc:'Pin specific model versions for production. Prevent silent model updates that could introduce behavioral regressions.',sev:'medium'},
+        {name:'Usage Quota Management',desc:'Implement per-user quotas to prevent abuse and control costs. Tiered access for different use cases.',sev:'medium'},
+        {name:'Incident Response for LLM Failures',desc:'Define procedures for handling model hallucinations, harmful outputs, and prompt injection incidents in production.',sev:'medium'}
+      ]
+    },
+    vision: {
+      dataPoisoning: [
+        {name:'Image Integrity Verification',desc:'Verify training images have not been altered with steganographic backdoor triggers, adversarial patches, or hidden patterns.',sev:'critical'},
+        {name:'Label Accuracy Auditing',desc:'Cross-validate image labels using multiple annotators or automated verification. Detect systematic labeling errors or manipulation.',sev:'critical'},
+        {name:'Metadata Stripping and Validation',desc:'Strip EXIF and other metadata from training images. Validate image formats and reject corrupted or unusual files.',sev:'high'},
+        {name:'Pixel Distribution Monitoring',desc:'Monitor pixel value distributions and image statistics across training batches. Detect injected adversarial patterns.',sev:'high'},
+        {name:'Augmentation Pipeline Integrity',desc:'Verify that data augmentation pipelines do not introduce artifacts that could serve as unintentional backdoor triggers.',sev:'medium'},
+        {name:'Transfer Learning Source Validation',desc:'When using pre-trained models, verify the source model has not been poisoned. Use trusted model registries only.',sev:'medium'}
+      ],
+      modelExtraction: [
+        {name:'Inference API Rate Limiting',desc:'Enforce strict rate limits per user. Vision models are expensive to query and attackers need many queries for extraction.',sev:'critical'},
+        {name:'Bounding Box and Score Perturbation',desc:'Add noise to detection confidence scores and slightly perturb bounding box coordinates to resist extraction.',sev:'high'},
+        {name:'Feature Map Protection',desc:'Do not expose intermediate feature maps or activation values. Return only final predictions, not internal representations.',sev:'high'},
+        {name:'Adversarial Query Detection',desc:'Detect systematic querying with perturbed versions of the same image designed to map decision boundaries.',sev:'medium'},
+        {name:'Prediction Caching Controls',desc:'Prevent attackers from building response caches by varying response format or adding request-specific metadata.',sev:'low'}
+      ],
+      adversarialRobustness: [
+        {name:'Adversarial Patch Detection',desc:'Deploy detectors for physical adversarial patches (printed stickers, modified signs) that cause misclassification in the real world.',sev:'critical'},
+        {name:'Input Preprocessing Pipeline',desc:'Apply JPEG compression, spatial smoothing, bit-depth reduction, or randomized resizing to neutralize pixel-level perturbations.',sev:'critical'},
+        {name:'Adversarial Training with PGD',desc:'Include PGD-generated adversarial examples in training. Use the strongest feasible perturbation budget for your domain.',sev:'high'},
+        {name:'Multi-Scale Inference',desc:'Run inference at multiple image scales and aggregate predictions. Scale-specific adversarial examples often fail across scales.',sev:'high'},
+        {name:'Physical Domain Robustness Testing',desc:'Test model robustness against real-world perturbations: lighting changes, camera angles, weather conditions, motion blur.',sev:'medium'},
+        {name:'Certified Robustness via Randomized Smoothing',desc:'Apply randomized smoothing to provide provable robustness certificates within defined L2 perturbation bounds.',sev:'low'}
+      ],
+      privacy: [
+        {name:'Face and PII Detection in Training Data',desc:'Scan training images for faces, license plates, and other PII. Blur or remove before training unless explicitly needed.',sev:'critical'},
+        {name:'Model Inversion Resistance',desc:'Test whether model gradients or outputs can be used to reconstruct training images. Apply output perturbation defenses.',sev:'high'},
+        {name:'Attribute Inference Protection',desc:'Verify the model does not inadvertently learn and reveal sensitive attributes (race, age, gender) from image features.',sev:'high'},
+        {name:'Synthetic Data for Privacy',desc:'Where possible, augment or replace sensitive training data with synthetic images to reduce privacy exposure.',sev:'medium'},
+        {name:'Federated Learning Consideration',desc:'For privacy-critical vision tasks, evaluate federated learning to keep raw images on-device during training.',sev:'low'}
+      ],
+      accessControl: [
+        {name:'Image Upload Security',desc:'Validate uploaded images for format, size, and content. Prevent polyglot files and malicious payloads embedded in images.',sev:'critical'},
+        {name:'Inference Endpoint Authentication',desc:'Require authentication for all vision API endpoints. Implement per-user rate limits and usage tracking.',sev:'critical'},
+        {name:'Model Artifact Storage Security',desc:'Encrypt model weights at rest. Store in access-controlled registries with audit logging for all access.',sev:'high'},
+        {name:'GPU Resource Isolation',desc:'Ensure multi-tenant GPU sharing does not leak data between inference requests through shared memory or caches.',sev:'medium'},
+        {name:'Output Content Filtering',desc:'For generative vision models, filter outputs for harmful, illegal, or policy-violating content before delivery.',sev:'medium'},
+        {name:'Deployment Pipeline Controls',desc:'Require signed model artifacts and automated security scans before production deployment of vision models.',sev:'medium'}
+      ]
+    },
+    recommender: {
+      dataPoisoning: [
+        {name:'Rating Manipulation Detection',desc:'Detect fake ratings, shill accounts, and coordinated rating campaigns designed to boost or suppress specific items.',sev:'critical'},
+        {name:'Click Fraud Detection',desc:'Identify automated or incentivized clicks that distort engagement signals used for recommendation ranking.',sev:'critical'},
+        {name:'User Behavior Anomaly Detection',desc:'Profile normal user interaction patterns. Flag accounts with abnormal activity patterns for manual review.',sev:'high'},
+        {name:'Item Metadata Integrity',desc:'Verify item metadata (descriptions, categories, tags) has not been manipulated to game content-based filtering.',sev:'high'},
+        {name:'Temporal Pattern Analysis',desc:'Monitor for sudden spikes in ratings or interactions that may indicate coordinated manipulation campaigns.',sev:'medium'},
+        {name:'New Account Throttling',desc:'Limit the influence of new accounts on recommendations until they establish a credible interaction history.',sev:'medium'}
+      ],
+      modelExtraction: [
+        {name:'Recommendation API Rate Limiting',desc:'Enforce rate limits on recommendation queries. Recommendation logic represents significant business intellectual property.',sev:'critical'},
+        {name:'Recommendation Randomization',desc:'Inject controlled randomness into recommendation order. Prevents exact reproduction of ranking algorithms.',sev:'high'},
+        {name:'User-Item Matrix Protection',desc:'Never expose raw user-item interaction matrices or similarity scores through APIs or data exports.',sev:'high'},
+        {name:'Collaborative Signal Masking',desc:'Limit visibility into why items are recommended. Do not expose "users who bought X also bought Y" relationships.',sev:'medium'},
+        {name:'Embedding Space Protection',desc:'Do not expose user or item embeddings. These vectors encode the learned recommendation strategy.',sev:'medium'}
+      ],
+      adversarialRobustness: [
+        {name:'Profile Pollution Detection',desc:'Detect when adversarial users deliberately interact with specific items to manipulate what gets recommended to others.',sev:'critical'},
+        {name:'Diversity and Fairness Constraints',desc:'Enforce recommendation diversity to prevent adversarial actors from dominating recommendation slots for specific categories.',sev:'high'},
+        {name:'Cold-Start Exploitation Prevention',desc:'Prevent manipulation of cold-start recommendations where limited data makes the system more vulnerable to poisoning.',sev:'high'},
+        {name:'Feedback Loop Monitoring',desc:'Monitor for self-reinforcing recommendation loops where initial manipulations compound through user engagement feedback.',sev:'medium'},
+        {name:'A/B Test Integrity',desc:'Protect recommendation A/B tests from manipulation by adversaries who detect and game experiment assignment.',sev:'medium'},
+        {name:'Content Quality Gates',desc:'Require items to pass quality checks before they become eligible for recommendation, preventing spam promotion.',sev:'medium'}
+      ],
+      privacy: [
+        {name:'User Preference Privacy',desc:'Protect individual user preference profiles from exposure through recommendations shown to other users or data exports.',sev:'critical'},
+        {name:'Cross-User Information Leakage',desc:'Ensure collaborative filtering does not reveal specific user behaviors to other users through recommendation explanations.',sev:'high'},
+        {name:'Anonymized Interaction Logging',desc:'Log user interactions with anonymized identifiers. Implement data retention policies and right-to-deletion support.',sev:'high'},
+        {name:'Differential Privacy for Recommendations',desc:'Apply differential privacy when computing aggregate statistics used for recommendations to protect individual contributions.',sev:'medium'},
+        {name:'Third-Party Data Sharing Controls',desc:'Control what recommendation data is shared with partners. Prevent user re-identification through recommendation patterns.',sev:'medium'}
+      ],
+      accessControl: [
+        {name:'API Authentication and Authorization',desc:'Require authentication for recommendation endpoints. Users should only receive their own recommendations.',sev:'critical'},
+        {name:'Admin Interface Security',desc:'Secure recommendation system admin interfaces (model retraining, feature flags, item boosting) with strong access controls.',sev:'critical'},
+        {name:'Manual Boost/Suppress Controls',desc:'Log and audit all manual recommendation overrides. Require approval workflows for boosting or suppressing items.',sev:'high'},
+        {name:'Real-Time Monitoring Dashboard',desc:'Monitor recommendation quality metrics, click-through rates, and conversion in real-time. Alert on anomalous drops.',sev:'medium'},
+        {name:'Model Retraining Controls',desc:'Restrict who can trigger model retraining. Validate training data integrity before each retraining cycle.',sev:'medium'},
+        {name:'Feature Store Access Controls',desc:'Secure the feature store with role-based access. Log all feature reads and writes for audit purposes.',sev:'medium'}
+      ]
+    }
+  };
+
+  var CATEGORY_META = {
+    dataPoisoning: {icon:'&#9888;', name:'Data Poisoning'},
+    modelExtraction: {icon:'&#128270;', name:'Model Extraction'},
+    adversarialRobustness: {icon:'&#128737;', name:'Adversarial Robustness'},
+    privacy: {icon:'&#128274;', name:'Privacy & Compliance'},
+    accessControl: {icon:'&#128273;', name:'Access Control & Infrastructure'}
+  };
+
+  var MODEL_LABELS = {classification:'Classification',regression:'Regression',nlp:'NLP',vision:'Computer Vision',recommender:'Recommender'};
+
+  document.getElementById('modelSelector').addEventListener('click', function(e) {
+    var btn = e.target.closest('.model-btn');
+    if (!btn) return;
+    document.querySelectorAll('.model-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    selectedModel = btn.dataset.model;
+  });
+
+  function sevClass(sev) { return 'sev-' + sev; }
+  function sevWeight(sev) { return sev === 'critical' ? 4 : sev === 'high' ? 2 : sev === 'medium' ? 1 : 0.5; }
+
+  function updateScore() {
+    var total = 0, completed = 0;
+    Object.keys(checklistData).forEach(function(cat) {
+      checklistData[cat].forEach(function(item) {
+        var w = sevWeight(item.sev);
+        total += w;
+        if (item.checked) completed += w;
+      });
+    });
+    var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    document.getElementById('scoreValue').textContent = pct + '%';
+    var fill = document.getElementById('scoreBarFill');
+    fill.style.width = pct + '%';
+    fill.style.background = pct >= 80 ? '#22c55e' : pct >= 50 ? '#eab308' : '#ef4444';
+  }
+
+  window.generateAudit = function() {
+    if (!selectedModel) return;
+    var checklist = CHECKLISTS[selectedModel];
+    if (!checklist) return;
+    checklistData = {};
+    var sectionsEl = document.getElementById('checklistSections');
+    sectionsEl.innerHTML = '';
+
+    var catKeys = Object.keys(CATEGORY_META);
+    catKeys.forEach(function(catKey) {
+      var items = checklist[catKey];
+      if (!items) return;
+      checklistData[catKey] = items.map(function(item) { return {name:item.name,desc:item.desc,sev:item.sev,checked:false}; });
+
+      var section = document.createElement('div');
+      section.className = 'checklist-section';
+      var header = document.createElement('div');
+      header.className = 'section-header';
+      header.innerHTML = '<span class="s-icon">' + CATEGORY_META[catKey].icon + '</span>' +
+        '<span class="s-name">' + CATEGORY_META[catKey].name + '</span>' +
+        '<span class="s-count">' + items.length + ' items</span>';
+
+      var itemsEl = document.createElement('div');
+      itemsEl.className = 'section-items';
+
+      items.forEach(function(item, idx) {
+        var itemEl = document.createElement('div');
+        itemEl.className = 'audit-item';
+        itemEl.innerHTML = '<input type="checkbox" data-cat="' + catKey + '" data-idx="' + idx + '">' +
+          '<div class="item-content"><div class="item-name">' + item.name +
+          ' <span class="severity-badge ' + sevClass(item.sev) + '">' + item.sev + '</span></div>' +
+          '<div class="item-desc">' + item.desc + '</div></div>';
+        itemsEl.appendChild(itemEl);
+      });
+
+      section.appendChild(header);
+      section.appendChild(itemsEl);
+      sectionsEl.appendChild(section);
+    });
+
+    sectionsEl.addEventListener('change', function(e) {
+      if (e.target.type === 'checkbox') {
+        var cat = e.target.dataset.cat;
+        var idx = parseInt(e.target.dataset.idx);
+        checklistData[cat][idx].checked = e.target.checked;
+        updateScore();
+      }
+    });
+
+    document.getElementById('auditResults').style.display = 'block';
+    updateScore();
+    document.getElementById('auditResults').scrollIntoView({behavior:'smooth'});
+  };
+
+  window.exportMarkdown = function() {
+    var lines = ['# ML Model Security Audit Report','','**Model Type:** ' + MODEL_LABELS[selectedModel],
+      '**Generated:** ' + new Date().toISOString().split('T')[0],
+      '**Tool:** [LockML Model Security Audit](https://lockml.com/tools/model-audit-tool.html)',''];
+    var total = 0, completed = 0;
+    Object.keys(checklistData).forEach(function(catKey) {
+      lines.push('## ' + CATEGORY_META[catKey].name);
+      lines.push('');
+      checklistData[catKey].forEach(function(item) {
+        var check = item.checked ? 'x' : ' ';
+        lines.push('- [' + check + '] **[' + item.sev.toUpperCase() + ']** ' + item.name);
+        lines.push('  ' + item.desc);
+        var w = sevWeight(item.sev);
+        total += w;
+        if (item.checked) completed += w;
+      });
+      lines.push('');
+    });
+    var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    lines.push('---');
+    lines.push('**Security Score:** ' + pct + '%');
+    lines.push('');
+    lines.push('*Generated by [LockML](https://lockml.com) | Part of [Zovo Tools](https://zovo.one/tools)*');
+
+    document.getElementById('exportTitle').textContent = 'Markdown Export';
+    document.getElementById('exportOutput').textContent = lines.join('\n');
+    document.getElementById('exportModal').classList.add('active');
+  };
+
+  window.exportPDF = function() {
+    var title = 'ML Model Security Audit — ' + MODEL_LABELS[selectedModel];
+    var total = 0, completed = 0;
+    var bodyContent = '';
+    Object.keys(checklistData).forEach(function(catKey) {
+      bodyContent += '<h2 style="color:#10B981;margin-top:24px">' + CATEGORY_META[catKey].name + '</h2>';
+      checklistData[catKey].forEach(function(item) {
+        var check = item.checked ? '&#10003;' : '&#9744;';
+        var color = item.sev === 'critical' ? '#ef4444' : item.sev === 'high' ? '#f97316' : item.sev === 'medium' ? '#eab308' : '#22c55e';
+        bodyContent += '<div style="margin:8px 0;padding:8px;border-left:3px solid ' + color + '">' +
+          '<span style="font-size:16px">' + check + '</span> ' +
+          '<strong>' + item.name + '</strong> ' +
+          '<span style="background:' + color + '22;color:' + color + ';padding:1px 6px;border-radius:3px;font-size:11px;text-transform:uppercase">' + item.sev + '</span>' +
+          '<div style="color:#666;font-size:13px;margin-top:4px">' + item.desc + '</div></div>';
+        var w = sevWeight(item.sev);
+        total += w;
+        if (item.checked) completed += w;
+      });
+    });
+    var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    var html = '<!DOCTYPE html><html><head><title>' + title + '</title>' +
+      '<style>body{font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:40px;color:#1a1a1a}h1{font-size:22px}h2{font-size:16px;border-bottom:1px solid #ddd;padding-bottom:4px}</style></head><body>' +
+      '<h1>' + title + '</h1>' +
+      '<p><strong>Date:</strong> ' + new Date().toISOString().split('T')[0] + ' | <strong>Score:</strong> ' + pct + '%</p>' +
+      bodyContent +
+      '<hr><p style="color:#888;font-size:12px">Generated by LockML (lockml.com) | Part of Zovo Tools (zovo.one/tools)</p>' +
+      '</body></html>';
+    var w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(function() { w.print(); }, 500);
+  };
+
+  window.resetAudit = function() {
+    selectedModel = null;
+    checklistData = {};
+    document.querySelectorAll('.model-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('auditResults').style.display = 'none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  window.copyExport = function() {
+    navigator.clipboard.writeText(document.getElementById('exportOutput').textContent).then(function() {
+      var btn = document.querySelector('.btn-copy');
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
+    });
+  };
+
+  window.closeExport = function() {
+    document.getElementById('exportModal').classList.remove('active');
+  };
+
+  document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExport();
+  });
+})();
+</script>
+</body>
+</html>

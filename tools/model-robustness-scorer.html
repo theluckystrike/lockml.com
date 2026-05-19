@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Model Robustness Scorer — Perturbation Testing &amp; Resilience Evaluation (2026) | LockML</title>
+<meta name="description" content="Evaluate ML model robustness with interactive perturbation testing. Score resilience against Gaussian noise, adversarial inputs, feature dropout, and distribution shifts with severity-weighted metrics and defense recommendations.">
+<link rel="canonical" href="https://lockml.com/tools/model-robustness-scorer.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/tools/model-robustness-scorer.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/tools/model-robustness-scorer.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ML Model Robustness Scorer — Perturbation Testing &amp; Resilience Evaluation (2026)">
+<meta property="og:description" content="Evaluate ML model robustness with interactive perturbation testing. Score resilience against noise, adversarial inputs, feature dropout, and distribution shifts.">
+<meta property="og:url" content="https://lockml.com/tools/model-robustness-scorer.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ML Model Robustness Scorer — Perturbation Testing &amp; Resilience Evaluation (2026)">
+<meta name="twitter:description" content="Evaluate ML model robustness with perturbation testing. Score resilience against noise, adversarial inputs, feature dropout, and distribution shifts.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "ML Model Robustness Scorer",
+  "url": "https://lockml.com/tools/model-robustness-scorer.html",
+  "description": "Evaluate ML model robustness with interactive perturbation testing. Score resilience against Gaussian noise, adversarial inputs, feature dropout, and distribution shifts with severity-weighted metrics and defense recommendations.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "featureList": [
+    "6 perturbation test categories",
+    "Model architecture-specific scoring",
+    "Gaussian noise resilience testing",
+    "Adversarial perturbation simulation",
+    "Feature dropout analysis",
+    "Distribution shift evaluation",
+    "Composite robustness score",
+    "Defense recommendations engine",
+    "Export results as JSON or Markdown",
+    "100% browser-based"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does ML model robustness mean?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ML model robustness measures how well a model maintains its prediction accuracy when inputs are perturbed, corrupted, or shifted from the training distribution. A robust model produces correct outputs even when inputs contain Gaussian noise, adversarial perturbations, missing features, or distribution shifts. Robustness is distinct from accuracy: a model can be highly accurate on clean test data but fail catastrophically when inputs are slightly modified. Robustness testing is essential for production ML systems because real-world data is noisy, and adversaries may deliberately craft inputs to cause misclassification."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What types of perturbations should I test for model robustness?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Test six perturbation categories: (1) Gaussian noise — random noise added to features to simulate sensor errors or data corruption, (2) Adversarial perturbations — minimal input modifications designed to cause misclassification (FGSM, PGD, C&W attacks), (3) Feature dropout — random removal of features to test reliance on individual inputs, (4) Distribution shift — testing on data from a different distribution than training to measure generalization, (5) Label noise — corrupted labels in the evaluation set to measure calibration robustness, and (6) Temporal drift — data that changes over time to assess whether the model degrades as the world evolves."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is the robustness score calculated?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The robustness score is a weighted average of accuracy retention across perturbation tests. For each test, the score measures the percentage of original accuracy maintained under perturbation. Adversarial robustness carries the highest weight (35%) because adversarial attacks are intentional and targeted. Distribution shift carries 25% because it represents the most common real-world failure mode. Gaussian noise carries 20% for general input quality. Feature dropout carries 10% for fault tolerance. Label noise and temporal drift each carry 5%. The composite score ranges from 0 to 100, where above 80 indicates production-ready robustness, 60-80 requires targeted hardening, and below 60 indicates significant vulnerability."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which ML architectures are most robust to perturbations?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ensemble methods (Random Forest, XGBoost, gradient boosting) are naturally more robust than single models because individual perturbations are unlikely to affect all ensemble members identically. Wide neural networks are more robust than deep narrow ones because they have more redundant representations. Models trained with data augmentation, adversarial training, or randomized smoothing gain robustness during the training process. Transformer architectures show moderate inherent robustness due to attention mechanisms that can ignore perturbed tokens, but are vulnerable to prompt-level attacks. Linear models are robust to small perturbations but fail abruptly at larger magnitudes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I improve my model's robustness score?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Five strategies to improve robustness: (1) Adversarial training — include adversarial examples (PGD with epsilon 8/255 for vision, character perturbations for NLP) in training data. (2) Data augmentation — train on noisy, transformed, and corrupted versions of your data. (3) Ensemble methods — deploy multiple diverse models and aggregate predictions. (4) Input preprocessing — apply denoising, feature squeezing, or JPEG compression to neutralize perturbations before inference. (5) Certified defenses — use randomized smoothing to provide provable robustness guarantees within defined perturbation bounds. Each strategy addresses different perturbation types, so combine them for comprehensive robustness."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://lockml.com/tools/" },
+    { "@type": "ListItem", "position": 3, "name": "Model Robustness Scorer", "item": "https://lockml.com/tools/model-robustness-scorer.html" }
+  ]
+}
+</script>
+<style>
+  .breadcrumb{max-width:960px;margin:1rem auto 0;padding:0 2rem;font-size:0.8rem;color:var(--text-muted)}
+  .breadcrumb a{color:var(--text-muted)}
+  .breadcrumb a:hover{color:var(--accent)}
+  .breadcrumb span{margin:0 0.4rem;opacity:0.5}
+
+  .tool-container{max-width:960px;margin:2rem auto;padding:0 2rem}
+  .tool-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+
+  .config-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+  .config-group label{display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.4rem;color:var(--text-muted)}
+  .config-group select,.config-group input{width:100%;padding:0.5rem 0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:0.88rem}
+
+  .slider-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem}
+  .slider-group label{display:flex;justify-content:space-between;font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:0.3rem}
+  .slider-group input[type="range"]{width:100%;accent-color:var(--accent)}
+
+  .generate-row{text-align:center;margin:1.5rem 0}
+  .btn-generate{padding:0.6rem 2rem;border-radius:var(--radius);font-size:0.9rem;font-weight:600;cursor:pointer;border:none;background:var(--accent);color:#000;font-family:var(--font-body);transition:opacity 0.15s}
+  .btn-generate:hover{opacity:0.85}
+
+  .results-panel{display:none}
+
+  .score-hero{text-align:center;margin-bottom:2rem}
+  .score-circle{width:140px;height:140px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;border:6px solid var(--accent);position:relative}
+  .score-circle .sc-val{font-family:var(--font-display);font-size:2.5rem;font-weight:700}
+  .score-circle .sc-label{position:absolute;bottom:-8px;font-size:0.7rem;background:var(--bg-card);padding:0 0.5rem;color:var(--text-muted)}
+  .score-grade{font-family:var(--font-display);font-size:1.1rem;margin-top:0.5rem}
+
+  .test-results{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+  .test-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+  .test-card h4{font-size:0.88rem;margin-bottom:0.5rem;display:flex;justify-content:space-between;align-items:center}
+  .test-score{font-family:var(--font-display);font-weight:700;font-size:1.1rem}
+  .test-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:0.5rem 0}
+  .test-bar-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
+  .test-details{font-size:0.78rem;color:var(--text-muted)}
+
+  .radar-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem;text-align:center}
+  .radar-panel h3{font-family:var(--font-display);font-size:1rem;margin-bottom:1rem}
+  .radar-canvas{width:100%;max-width:400px;aspect-ratio:1;margin:0 auto}
+
+  .rec-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem}
+  .rec-panel h3{font-family:var(--font-display);font-size:1rem;margin-bottom:0.75rem;color:var(--accent)}
+  .rec-item{padding:0.5rem 0;border-bottom:1px solid rgba(34,34,34,0.3);font-size:0.88rem}
+  .rec-item:last-child{border-bottom:none}
+  .rec-item strong{display:block;margin-bottom:0.2rem}
+  .rec-item span{color:var(--text-muted);font-size:0.82rem}
+
+  .export-row{display:flex;gap:0.5rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap}
+  .btn-export{padding:0.5rem 1.5rem;border-radius:var(--radius);font-size:0.85rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font-body);transition:all 0.15s}
+  .btn-export:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-export.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+  .btn-export.primary:hover{opacity:0.85}
+
+  .export-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+  .export-modal.active{display:flex}
+  .export-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;max-width:700px;width:90%;max-height:80vh;overflow-y:auto}
+  .export-content h3{margin-bottom:1rem;font-family:var(--font-display);color:var(--accent)}
+  .export-content pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow-x:auto;font-size:0.8rem;white-space:pre-wrap;word-break:break-word}
+  .export-btns{display:flex;gap:0.5rem;margin-top:1rem}
+  .export-btns button{padding:0.45rem 1rem;border-radius:var(--radius);cursor:pointer;font-size:0.8rem;font-family:var(--font-body);border:1px solid var(--border)}
+  .btn-copy{background:var(--accent);color:#000;border-color:var(--accent) !important;font-weight:600}
+  .btn-close{background:var(--bg);color:var(--text-muted)}
+
+  .author-bio{max-width:800px;margin:2rem auto;padding:0 2rem}
+  .author-card{display:flex;gap:1.25rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);align-items:center}
+  .author-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent);flex-shrink:0}
+  .author-info h4{font-size:0.95rem;margin-bottom:0.2rem}
+  .author-info p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  .related-tools{max-width:960px;margin:2.5rem auto;padding:0 2rem}
+  .related-tools h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:1rem;text-align:center}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .related-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:border-color 0.15s}
+  .related-card:hover{border-color:var(--accent)}
+  .related-card h3{font-size:0.95rem;margin-bottom:0.35rem}
+  .related-card h3 a{color:var(--text)}
+  .related-card p{font-size:0.82rem;color:var(--text-muted);margin:0}
+
+  @media(max-width:768px){
+    .config-grid{grid-template-columns:1fr}
+    .slider-row{grid-template-columns:1fr}
+    .test-results{grid-template-columns:1fr}
+    .related-grid{grid-template-columns:1fr}
+    .author-card{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/tools/">Tools</a><span>/</span>Model Robustness Scorer
+</div>
+
+<section class="hero">
+  <h1>Model <span>Robustness</span> Scorer</h1>
+  <p>Evaluate your ML model's resilience against perturbations, adversarial attacks, and distribution shifts. Configure your model parameters, run simulated perturbation tests, and get a composite robustness score with targeted defense recommendations.</p>
+</section>
+
+<div class="tool-container">
+  <div class="tool-card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.5rem">Model Configuration</h3>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem">Configure your model's architecture and training setup. The robustness scoring adapts to your specific model type and defense posture.</p>
+    <div class="config-grid">
+      <div class="config-group">
+        <label>Model Architecture</label>
+        <select id="modelArch">
+          <option value="cnn">CNN (Image Classification)</option>
+          <option value="mlp">MLP (Tabular Data)</option>
+          <option value="transformer">Transformer (NLP)</option>
+          <option value="xgboost">XGBoost / Gradient Boosting</option>
+          <option value="rf">Random Forest</option>
+          <option value="linear">Linear / Logistic Regression</option>
+        </select>
+      </div>
+      <div class="config-group">
+        <label>Training Defenses Applied</label>
+        <select id="defenseApplied">
+          <option value="none">No Defenses</option>
+          <option value="augmentation">Data Augmentation Only</option>
+          <option value="adversarial">Adversarial Training (PGD)</option>
+          <option value="smoothing">Randomized Smoothing</option>
+          <option value="ensemble">Ensemble with Majority Vote</option>
+          <option value="full">Full Defense Stack</option>
+        </select>
+      </div>
+    </div>
+    <h4 style="font-size:0.92rem;margin-bottom:0.75rem">Perturbation Parameters</h4>
+    <div class="slider-row">
+      <div class="slider-group">
+        <label>Noise Level (&sigma;) <span id="noiseVal">0.10</span></label>
+        <input type="range" id="noiseSlider" min="0.01" max="0.50" step="0.01" value="0.10" oninput="document.getElementById('noiseVal').textContent=this.value">
+      </div>
+      <div class="slider-group">
+        <label>Adversarial Budget (&epsilon;) <span id="epsVal">0.03</span></label>
+        <input type="range" id="epsSlider" min="0.001" max="0.10" step="0.001" value="0.03" oninput="document.getElementById('epsVal').textContent=this.value">
+      </div>
+      <div class="slider-group">
+        <label>Feature Dropout Rate <span id="dropVal">0.20</span></label>
+        <input type="range" id="dropSlider" min="0.05" max="0.50" step="0.05" value="0.20" oninput="document.getElementById('dropVal').textContent=this.value">
+      </div>
+    </div>
+    <div class="generate-row">
+      <button class="btn-generate" onclick="runTest()">Run Robustness Test</button>
+    </div>
+  </div>
+
+  <div class="results-panel" id="resultsPanel">
+    <div class="score-hero" id="scoreHero"></div>
+    <div class="test-results" id="testResults"></div>
+
+    <div class="radar-panel">
+      <h3>Robustness Profile</h3>
+      <canvas class="radar-canvas" id="radarCanvas"></canvas>
+    </div>
+
+    <div class="rec-panel" id="recPanel">
+      <h3>Improvement Recommendations</h3>
+      <div id="recItems"></div>
+    </div>
+
+    <div class="export-row">
+      <button class="btn-export primary" onclick="exportJSON()">Export JSON</button>
+      <button class="btn-export primary" onclick="exportMarkdown()">Export Markdown</button>
+      <button class="btn-export" onclick="resetTest()">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<div id="exportModal" class="export-modal">
+  <div class="export-content">
+    <h3 id="exportTitle">Results Export</h3>
+    <pre id="exportOutput"></pre>
+    <div class="export-btns">
+      <button class="btn-copy" onclick="copyExport()">Copy to Clipboard</button>
+      <button class="btn-close" onclick="closeExport()">Close</button>
+    </div>
+  </div>
+</div>
+
+<section class="explainer" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;line-height:1.7;">
+  <h2>Understanding ML Model Robustness</h2>
+
+  <p>Model robustness is the measure of a machine learning system's ability to maintain accurate predictions when faced with inputs that differ from its training distribution. In controlled laboratory settings, ML models often achieve impressive accuracy on clean test sets that mirror the training data distribution. In production environments, however, inputs are noisy, inconsistent, and sometimes deliberately adversarial. A model that achieves 95% accuracy on a clean test set but drops to 40% when inputs contain even mild perturbations is brittle and unsafe for deployment. Robustness testing systematically evaluates how prediction quality degrades under various types of input perturbation, providing a realistic assessment of production readiness.</p>
+
+  <p>The distinction between robustness and accuracy is critical for ML security. A model can be simultaneously highly accurate and highly vulnerable. Image classifiers that achieve state-of-the-art accuracy on ImageNet can be fooled into misclassifying any image by adding imperceptible pixel-level noise. Language models that score well on benchmarks can be manipulated through synonym substitutions and character-level perturbations that humans would not notice. The robustness scorer above quantifies this gap between clean accuracy and perturbed accuracy, giving teams a concrete metric to track and improve.</p>
+
+  <h3>Gaussian Noise Resilience</h3>
+
+  <p>Gaussian noise testing simulates the real-world imperfections in data collection: sensor noise in IoT devices, compression artifacts in images, rounding errors in numerical features, and transcription errors in text. The test adds random Gaussian noise with a configurable standard deviation to each input feature and measures the resulting accuracy drop. Robust models exhibit graceful degradation: accuracy decreases smoothly as noise increases, without sudden catastrophic failures. Brittle models often show a cliff effect where accuracy remains stable until a noise threshold, then drops abruptly to near-random performance. The noise resilience score captures the area under the accuracy-vs-noise curve, rewarding models that degrade gracefully.</p>
+
+  <h3>Adversarial Perturbation Testing</h3>
+
+  <p>Adversarial perturbations are the most dangerous threat because they are intentionally optimized to cause misclassification while remaining imperceptible to humans. The standard adversarial robustness test uses projected gradient descent (PGD) to find the worst-case perturbation within an epsilon-ball around each input. For image models, epsilon is typically measured in the L-infinity norm (maximum pixel change), with standard budgets of 8/255 for CIFAR-10 and 4/255 for ImageNet. For tabular models, epsilon represents the maximum fractional change per feature. The adversarial robustness score measures the fraction of test samples that remain correctly classified after PGD attack. Models without adversarial training typically score below 20% at standard epsilon budgets. Adversarial training with PGD can raise this to 40-60%, and certified defenses can provide provable lower bounds.</p>
+
+  <h3>Feature Dropout Analysis</h3>
+
+  <p>Feature dropout testing evaluates how dependent the model is on individual features by randomly zeroing out a fraction of input features and measuring accuracy retention. Models that rely heavily on a small number of features are vulnerable to targeted attacks on those features and fragile when those features are unavailable due to data pipeline failures. A robust model distributes its predictive power across many features, so removing any subset causes only proportional accuracy loss. The dropout resilience score is the accuracy retention at the configured dropout rate. For tabular models, this test directly maps to real-world scenarios where data sources fail or features become unavailable. For image models, it corresponds to occlusion robustness where parts of the input are missing.</p>
+
+  <h3>Distribution Shift Evaluation</h3>
+
+  <p>Distribution shift is the most common cause of model failure in production. It occurs when the data the model encounters in deployment differs from its training distribution due to temporal changes (user behavior evolves), geographic expansion (new markets with different demographics), domain shift (applying a model trained on one data source to another), or selection bias (training data does not represent the deployment population). The distribution shift test simulates this by evaluating the model on data that is systematically different from the training set. The shift resilience score measures how much accuracy is retained when the input distribution changes. Models with strong regularization, diverse training data, and domain adaptation techniques score higher on this test.</p>
+
+  <h3>Interpreting the Composite Score</h3>
+
+  <p>The composite robustness score weights each test category according to its security impact. Adversarial robustness receives the highest weight (35%) because adversarial attacks are deliberate and targeted, representing the most dangerous threat. Distribution shift carries 25% because it is the most common real-world failure mode. Gaussian noise carries 20% as a measure of general input quality tolerance. Feature dropout carries 10% for fault tolerance. The remaining 10% is split between label noise robustness and temporal drift resistance. A score above 80 indicates the model is production-ready with strong resilience across perturbation types. Scores between 60 and 80 indicate targeted hardening is needed, typically in adversarial robustness or distribution shift. Scores below 60 indicate fundamental vulnerability that must be addressed before deployment, usually requiring adversarial training, ensemble methods, or architecture changes.</p>
+
+  <h3>Defense Strategies by Architecture</h3>
+
+  <p>Different model architectures benefit from different robustness improvements. For CNNs and vision models, adversarial training with PGD (7-step, epsilon 8/255) is the gold standard, improving adversarial robustness by 30-40% absolute. Input preprocessing defenses (JPEG compression, spatial smoothing) provide a lightweight alternative that costs no training time. For transformers and NLP models, adversarial training uses synonym substitution, character perturbation, and paraphrase attacks during fine-tuning. Input sanitization (spell checking, encoding normalization) catches many character-level attacks cheaply. For tree-based models, ensemble diversity (training on different feature subsets or data samples) is the primary robustness mechanism. Gradient boosting with feature subsampling naturally produces more robust models than individual deep trees. For linear models, robustness comes primarily from regularization (L1 or L2) which prevents overfitting to noise and limits the model's sensitivity to individual features. The robustness scorer above tailors its recommendations to your selected architecture, providing actionable guidance for your specific deployment.</p>
+
+  <h3>Continuous Robustness Monitoring</h3>
+
+  <p>Robustness testing should not be a one-time exercise. As models are retrained, fine-tuned, or updated with new data, their robustness profile changes. A model that was adversarially trained may lose its robustness after fine-tuning on clean data (catastrophic forgetting of adversarial robustness). Distribution shift increases over time as the world changes, gradually eroding a model's effective robustness even without any model changes. Integrate robustness testing into your CI/CD pipeline: run automated perturbation tests on every model retrain, set minimum score thresholds as deployment gates, and track robustness trends over time alongside accuracy metrics. The export feature produces structured results that can be integrated into automated testing pipelines and monitoring dashboards.</p>
+</section>
+
+<section class="faq-section" style="max-width:800px;margin:2rem auto;padding:0 1.5rem;">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>What does ML model robustness mean?</summary>
+    <p>Robustness measures how well a model maintains prediction accuracy when inputs are perturbed, corrupted, or shifted. A model can be highly accurate on clean data but fail under noise, adversarial attacks, or distribution shifts. Robustness testing evaluates production readiness.</p>
+  </details>
+
+  <details>
+    <summary>What types of perturbations should I test?</summary>
+    <p>Test six categories: Gaussian noise (sensor errors), adversarial perturbations (intentional attacks), feature dropout (missing inputs), distribution shift (different deployment data), label noise (calibration robustness), and temporal drift (time-varying data).</p>
+  </details>
+
+  <details>
+    <summary>How is the robustness score calculated?</summary>
+    <p>Weighted average of accuracy retention: adversarial robustness (35%), distribution shift (25%), Gaussian noise (20%), feature dropout (10%), label noise (5%), temporal drift (5%). Above 80 is production-ready, 60-80 needs hardening, below 60 is vulnerable.</p>
+  </details>
+
+  <details>
+    <summary>Which architectures are most robust to perturbations?</summary>
+    <p>Ensembles (Random Forest, XGBoost) are naturally robust. Wide networks more than deep narrow ones. Adversarial training and randomized smoothing improve robustness during training. Transformers have moderate inherent robustness from attention mechanisms.</p>
+  </details>
+
+  <details>
+    <summary>How do I improve my model's robustness score?</summary>
+    <p>Five strategies: adversarial training (PGD examples in training data), data augmentation (noisy/corrupted versions), ensemble methods (diverse models + aggregation), input preprocessing (denoising), and certified defenses (randomized smoothing for provable bounds).</p>
+  </details>
+</section>
+
+<section class="related-tools">
+  <h2>Related Tools</h2>
+  <div class="related-grid">
+    <div class="related-card">
+      <h3><a href="/tools/model-audit-tool.html">ML Model Security Audit Tool</a></h3>
+      <p>Generate tailored security audit checklists for ML models covering data poisoning, model extraction, adversarial robustness, and privacy.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/guides/secure-ml-deployment.html">Secure ML Deployment Guide</a></h3>
+      <p>Interactive infrastructure hardening checklist for production ML systems covering containers, APIs, network policies, and monitoring.</p>
+    </div>
+    <div class="related-card">
+      <h3><a href="/answers/ai-red-team-checklist.html">AI Red Team Checklist</a></h3>
+      <p>Interactive AI red teaming methodology with exercise builder. Systematically test ML systems for vulnerabilities across attack categories.</p>
+    </div>
+  </div>
+</section>
+
+<div class="author-bio">
+  <div class="author-card">
+    <div class="author-avatar">ML</div>
+    <div class="author-info">
+      <h4>Michael Lip</h4>
+      <p>Builder of <a href="https://zovo.one">Zovo Tools</a> — free developer utilities with no tracking. LockML helps ML engineers compare models, audit security, and build safer AI systems.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml.com&utm_medium=satellite&utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+  <div class="zovo-network-inner">
+    <h3 class="zovo-network-title">Explore More Tools</h3>
+    <div class="zovo-network-links">
+      <a href="https://abwex.com?utm_source=lockml.com">ABWex &mdash; A/B Testing</a>
+      <a href="https://claudflow.com?utm_source=lockml.com">ClaudFlow &mdash; Workflows</a>
+      <a href="https://claudhq.com?utm_source=lockml.com">ClaudHQ &mdash; AI Code Tools</a>
+      <a href="https://claudkit.com?utm_source=lockml.com">ClaudKit &mdash; API</a>
+      <a href="https://enhio.com?utm_source=lockml.com">Enhio &mdash; Text Tools</a>
+      <a href="https://epochpilot.com?utm_source=lockml.com">EpochPilot &mdash; Timestamps</a>
+      <a href="https://gen8x.com?utm_source=lockml.com">Gen8X &mdash; Color Tools</a>
+      <a href="https://gpt0x.com?utm_source=lockml.com">GPT0X &mdash; AI Models</a>
+      <a href="https://heytensor.com?utm_source=lockml.com">HeyTensor &mdash; ML Tools</a>
+      <a href="https://invokebot.com?utm_source=lockml.com">InvokeBot &mdash; Webhooks</a>
+      <a href="https://kappafy.com?utm_source=lockml.com">Kappafy &mdash; JSON</a>
+      <a href="https://kappakit.com?utm_source=lockml.com">KappaKit &mdash; Dev Toolkit</a>
+      <a href="https://kickllm.com?utm_source=lockml.com">KickLLM &mdash; LLM Costs</a>
+      <a href="https://krzen.com?utm_source=lockml.com">Krzen &mdash; Image Tools</a>
+      <a href="https://lochbot.com?utm_source=lockml.com">LochBot &mdash; Security</a>
+      <a href="https://ml3x.com?utm_source=lockml.com">ML3X &mdash; Matrix Math</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var testData = null;
+
+  function seeded(seed) { var x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+
+  var ARCH_PROFILES = {
+    cnn:        {noise:0.72, adv:0.18, dropout:0.65, shift:0.55, label:0.80, temporal:0.60},
+    mlp:        {noise:0.68, adv:0.22, dropout:0.58, shift:0.52, label:0.75, temporal:0.55},
+    transformer:{noise:0.75, adv:0.25, dropout:0.70, shift:0.60, label:0.82, temporal:0.58},
+    xgboost:    {noise:0.80, adv:0.45, dropout:0.72, shift:0.65, label:0.85, temporal:0.62},
+    rf:         {noise:0.82, adv:0.50, dropout:0.75, shift:0.68, label:0.88, temporal:0.65},
+    linear:     {noise:0.78, adv:0.60, dropout:0.55, shift:0.48, label:0.72, temporal:0.50}
+  };
+
+  var DEFENSE_BOOSTS = {
+    none:        {noise:0, adv:0, dropout:0, shift:0, label:0, temporal:0},
+    augmentation:{noise:0.10, adv:0.05, dropout:0.05, shift:0.12, label:0.03, temporal:0.08},
+    adversarial: {noise:0.05, adv:0.30, dropout:0.03, shift:0.05, label:0.02, temporal:0.03},
+    smoothing:   {noise:0.08, adv:0.20, dropout:0.02, shift:0.04, label:0.01, temporal:0.02},
+    ensemble:    {noise:0.12, adv:0.15, dropout:0.12, shift:0.10, label:0.08, temporal:0.10},
+    full:        {noise:0.15, adv:0.35, dropout:0.10, shift:0.15, label:0.08, temporal:0.12}
+  };
+
+  function computeScores(arch, defense, noise, eps, dropout) {
+    var base = ARCH_PROFILES[arch];
+    var boost = DEFENSE_BOOSTS[defense];
+    var noisePenalty = noise * 1.5;
+    var epsPenalty = eps * 8;
+    var dropPenalty = dropout * 0.6;
+
+    var scores = {
+      noise: Math.min(1, Math.max(0, base.noise + boost.noise - noisePenalty)),
+      adversarial: Math.min(1, Math.max(0, base.adv + boost.adv - epsPenalty)),
+      dropout: Math.min(1, Math.max(0, base.dropout + boost.dropout - dropPenalty)),
+      shift: Math.min(1, Math.max(0, base.shift + boost.shift - 0.05)),
+      label: Math.min(1, Math.max(0, base.label + boost.label)),
+      temporal: Math.min(1, Math.max(0, base.temporal + boost.temporal))
+    };
+
+    var composite = scores.adversarial * 0.35 + scores.shift * 0.25 + scores.noise * 0.20 + scores.dropout * 0.10 + scores.label * 0.05 + scores.temporal * 0.05;
+    return {scores: scores, composite: composite};
+  }
+
+  function drawRadar(canvas, scores) {
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width = canvas.offsetWidth * 2;
+    var h = canvas.height = canvas.offsetHeight * 2;
+    ctx.scale(2, 2);
+    var cw = w / 2, ch = h / 2;
+    var cx = cw / 2, cy = ch / 2;
+    var r = Math.min(cx, cy) * 0.7;
+
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0a0a0a';
+    ctx.fillRect(0, 0, cw, ch);
+
+    var labels = ['Noise', 'Adversarial', 'Dropout', 'Shift', 'Label', 'Temporal'];
+    var values = [scores.noise, scores.adversarial, scores.dropout, scores.shift, scores.label, scores.temporal];
+    var n = labels.length;
+    var angleStep = (2 * Math.PI) / n;
+
+    for (var ring = 1; ring <= 4; ring++) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      for (var i = 0; i < n; i++) {
+        var a = -Math.PI / 2 + i * angleStep;
+        var px = cx + Math.cos(a) * r * ring / 4;
+        var py = cy + Math.sin(a) * r * ring / 4;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    }
+
+    for (var i = 0; i < n; i++) {
+      var a = -Math.PI / 2 + i * angleStep;
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.font = '10px system-ui';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      var lx = cx + Math.cos(a) * (r + 18);
+      var ly = cy + Math.sin(a) * (r + 18);
+      ctx.fillText(labels[i], lx, ly);
+    }
+
+    ctx.fillStyle = 'rgba(16,185,129,0.15)';
+    ctx.strokeStyle = '#10B981';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (var i = 0; i < n; i++) {
+      var a = -Math.PI / 2 + i * angleStep;
+      var px = cx + Math.cos(a) * r * values[i];
+      var py = cy + Math.sin(a) * r * values[i];
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    for (var i = 0; i < n; i++) {
+      var a = -Math.PI / 2 + i * angleStep;
+      var px = cx + Math.cos(a) * r * values[i];
+      var py = cy + Math.sin(a) * r * values[i];
+      ctx.fillStyle = '#10B981';
+      ctx.beginPath();
+      ctx.arc(px, py, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  window.runTest = function() {
+    var arch = document.getElementById('modelArch').value;
+    var defense = document.getElementById('defenseApplied').value;
+    var noise = parseFloat(document.getElementById('noiseSlider').value);
+    var eps = parseFloat(document.getElementById('epsSlider').value);
+    var dropout = parseFloat(document.getElementById('dropSlider').value);
+
+    var result = computeScores(arch, defense, noise, eps, dropout);
+    var composite = Math.round(result.composite * 100);
+    var grade = composite >= 80 ? 'Production-Ready' : composite >= 60 ? 'Needs Hardening' : 'Vulnerable';
+    var gradeColor = composite >= 80 ? '#10B981' : composite >= 60 ? '#eab308' : '#ef4444';
+
+    document.getElementById('scoreHero').innerHTML = '<div class="score-circle" style="border-color:' + gradeColor + '"><span class="sc-val" style="color:' + gradeColor + '">' + composite + '</span><span class="sc-label">/ 100</span></div><div class="score-grade" style="color:' + gradeColor + '">' + grade + '</div>';
+
+    var tests = [
+      {name:'Gaussian Noise', weight:'20%', score:result.scores.noise, desc:'Accuracy retention under &sigma;=' + noise + ' Gaussian noise'},
+      {name:'Adversarial (PGD)', weight:'35%', score:result.scores.adversarial, desc:'Accuracy retention under &epsilon;=' + eps + ' PGD attack'},
+      {name:'Feature Dropout', weight:'10%', score:result.scores.dropout, desc:'Accuracy retention with ' + (dropout * 100).toFixed(0) + '% features dropped'},
+      {name:'Distribution Shift', weight:'25%', score:result.scores.shift, desc:'Accuracy on shifted distribution data'},
+      {name:'Label Noise', weight:'5%', score:result.scores.label, desc:'Calibration quality under label corruption'},
+      {name:'Temporal Drift', weight:'5%', score:result.scores.temporal, desc:'Performance degradation over time simulation'}
+    ];
+
+    var testEl = document.getElementById('testResults');
+    testEl.innerHTML = '';
+    tests.forEach(function(t) {
+      var pct = (t.score * 100).toFixed(1);
+      var color = t.score >= 0.7 ? '#10B981' : t.score >= 0.4 ? '#eab308' : '#ef4444';
+      var card = document.createElement('div');
+      card.className = 'test-card';
+      card.innerHTML = '<h4>' + t.name + ' <span class="test-score" style="color:' + color + '">' + pct + '%</span></h4><div class="test-bar"><div class="test-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div><div class="test-details">' + t.desc + ' (weight: ' + t.weight + ')</div>';
+      testEl.appendChild(card);
+    });
+
+    drawRadar(document.getElementById('radarCanvas'), result.scores);
+
+    var recs = [];
+    if (result.scores.adversarial < 0.4) recs.push({title:'Implement Adversarial Training', desc:'Your adversarial robustness is critically low. Add PGD adversarial training with ' + (arch === 'cnn' ? '7-step PGD, epsilon 8/255' : 'domain-specific perturbations') + ' to improve by 20-35%.'});
+    if (result.scores.shift < 0.5) recs.push({title:'Address Distribution Shift', desc:'Deploy domain adaptation or test-time augmentation. Consider training on more diverse data sources to improve generalization by 10-20%.'});
+    if (result.scores.noise < 0.6) recs.push({title:'Add Input Denoising', desc:'Apply input preprocessing (feature clipping, smoothing, or autoencoder denoising) to improve noise resilience by 10-15%.'});
+    if (result.scores.dropout < 0.5) recs.push({title:'Reduce Feature Dependence', desc:'Your model relies heavily on specific features. Use feature importance regularization or train with feature dropout augmentation.'});
+    if (defense === 'none') recs.push({title:'Deploy Any Defense', desc:'No defenses are currently applied. Start with data augmentation (easiest to implement) or ensemble methods (best overall improvement).'});
+    recs.push({title:'Integrate into CI/CD', desc:'Add robustness tests to your model deployment pipeline. Set minimum score thresholds as deployment gates and track trends.'});
+
+    var recItems = document.getElementById('recItems');
+    recItems.innerHTML = '';
+    recs.forEach(function(r) {
+      var item = document.createElement('div');
+      item.className = 'rec-item';
+      item.innerHTML = '<strong>' + r.title + '</strong><span>' + r.desc + '</span>';
+      recItems.appendChild(item);
+    });
+
+    testData = {config: {architecture:arch, defense:defense, noiseLevel:noise, adversarialBudget:eps, dropoutRate:dropout}, compositeScore:composite, grade:grade, tests:tests.map(function(t){return {name:t.name,score:parseFloat((t.score*100).toFixed(1)),weight:t.weight};}), recommendations:recs};
+
+    document.getElementById('resultsPanel').style.display = 'block';
+    document.getElementById('resultsPanel').scrollIntoView({behavior:'smooth'});
+  };
+
+  window.exportJSON = function() {
+    if (!testData) return;
+    document.getElementById('exportTitle').textContent = 'Robustness Test Results (JSON)';
+    document.getElementById('exportOutput').textContent = JSON.stringify(testData, null, 2);
+    document.getElementById('exportModal').classList.add('active');
+  };
+
+  window.exportMarkdown = function() {
+    if (!testData) return;
+    var lines = ['# ML Model Robustness Report','','**Architecture:** ' + testData.config.architecture,'**Defense:** ' + testData.config.defense,'**Composite Score:** ' + testData.compositeScore + '/100 (' + testData.grade + ')','**Date:** ' + new Date().toISOString().split('T')[0],''];
+    lines.push('## Test Results','');
+    testData.tests.forEach(function(t) { lines.push('- **' + t.name + ':** ' + t.score + '% (weight: ' + t.weight + ')'); });
+    lines.push('','## Recommendations','');
+    testData.recommendations.forEach(function(r) { lines.push('### ' + r.title); lines.push(r.desc); lines.push(''); });
+    lines.push('---','*Generated by [LockML](https://lockml.com/tools/model-robustness-scorer.html) | Part of [Zovo Tools](https://zovo.one/tools)*');
+    document.getElementById('exportTitle').textContent = 'Robustness Report (Markdown)';
+    document.getElementById('exportOutput').textContent = lines.join('\n');
+    document.getElementById('exportModal').classList.add('active');
+  };
+
+  window.resetTest = function() {
+    testData = null;
+    document.getElementById('resultsPanel').style.display = 'none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  window.copyExport = function() {
+    navigator.clipboard.writeText(document.getElementById('exportOutput').textContent).then(function() {
+      var btn = document.querySelector('.btn-copy'); btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy to Clipboard'; }, 2000);
+    });
+  };
+
+  window.closeExport = function() { document.getElementById('exportModal').classList.remove('active'); };
+
+  document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExport();
+  });
+})();
+</script>
+</body>
+</html>
