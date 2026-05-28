@@ -161,4 +161,18 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <!-- Sprint 8 Auto-Added -->
+  <url>
+    <loc>https://lockml.com/guides/prompt-injection-defense.html</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Sprint 8 Auto-Added -->
+  <url>
+    <loc>https://lockml.com/research/llm-red-teaming-checklist.html</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
