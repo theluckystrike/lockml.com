@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>Data Anonymization Tool — K-Anonymity & L-Diversity</title>
+  <meta name="description" content="Interactive K-anonymity and L-diversity checker. Paste CSV, mark columns, set k/l values, get violation count, anonymization score, re-identification...">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://lockml.com/tools/data-anonymization-tool">
+  <!-- JSON-LD FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is k-anonymity?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "K-anonymity ensures each record is indistinguishable from at least k-1 other records regarding quasi-identifiers."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is l-diversity?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "L-diversity requires each equivalence class to contain at least l distinct sensitive values, preventing attribute disclosure."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is re-identification risk calculated?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Risk is estimated as (violating records / total records) × 100, based on k-anonymity violations."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      padding: 1.5rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 1200px;
+      width: 100%;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #f1f5f9;
+      border-bottom: 2px solid #38bdf8;
+      display: inline-block;
+      padding-bottom: 0.3rem;
+    }
+    .subhead {
+      color: #94a3b8;
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      border: 1px solid #334155;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      margin-bottom: 0.3rem;
+    }
+    textarea, select, input {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 0.7rem 1rem;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      width: 100%;
+      transition: 0.2s;
+    }
+    textarea:focus, select:focus, input:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+    textarea {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      resize: vertical;
+      min-height: 120px;
+    }
+    .btn {
+      background: #38bdf8;
+      color: #0f172a;
+      font-weight: 600;
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 40px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn:hover {
+      background: #7dd3fc;
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    }
+    .btn-secondary {
+      background: #334155;
+      color: #e2e8f0;
+    }
+    .btn-secondary:hover {
+      background: #475569;
+    }
+    .column-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0.8rem 0;
+    }
+    .tag {
+      background: #0f172a;
+      border: 1px solid #38bdf8;
+      border-radius: 30px;
+      padding: 0.25rem 0.9rem;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .tag select {
+      background: transparent;
+      border: none;
+      color: #e2e8f0;
+      font-size: 0.7rem;
+      padding: 0;
+      width: auto;
+      display: inline-block;
+      margin-left: 0.2rem;
+    }
+    .tag select option { background: #1e293b; }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .stat-card {
+      background: #0f172a;
+      border-radius: 16px;
+      padding: 1rem;
+      text-align: center;
+      border: 1px solid #2d3a4e;
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+    }
+    .violation-list {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 1rem;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 0.85rem;
+      margin-top: 0.8rem;
+    }
+    .violation-item {
+      border-bottom: 1px solid #1e293b;
+      padding: 0.3rem 0;
+    }
+    .badge {
+      background: #334155;
+      border-radius: 30px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+    .badge.qi { background: #3b82f6; color: white; }
+    .badge.sensitive { background: #f43f5e; color: white; }
+    .badge.insensitive { background: #64748b; color: white; }
+    .ref-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .ref-item {
+      background: #0f172a;
+      border-radius: 16px;
+      padding: 1rem;
+      border-left: 4px solid #38bdf8;
+    }
+    .ref-item h4 { color: #38bdf8; margin-bottom: 0.3rem; }
+    .footer {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.85rem;
+      padding: 2rem 0 0.5rem;
+      border-top: 1px solid #1e293b;
+      margin-top: 2rem;
+    }
+    @media (max-width: 700px) {
+      .grid-2, .grid-3, .ref-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 1.6rem; }
+    }
+    .inline-hint { font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+  </style>
+
+    <meta property="og:title" content="Data Anonymization Tool — K-Anonymity & L-Diversity">
+    <meta property="og:description" content="Interactive K-anonymity and L-diversity checker. Paste CSV, mark columns, set k/l values, get violation count, anonymization score, re-identification...">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/data-anonymization-tool">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🔐 Anonymization Checker</h1>
+    <div class="subhead">K‑Anonymity & L‑Diversity · real analysis · no placeholders</div>
+  </header>
+
+  <!-- Input area -->
+  <div class="card">
+    <div class="grid-2">
+      <div>
+        <label for="csvInput">📋 Paste CSV or enter sample records (up to 20 rows)</label>
+        <textarea id="csvInput" rows="6" placeholder="name,age,zip,diagnosis&#10;Alice,32,90210,flu&#10;Bob,32,90210,diabetes&#10;Carol,32,90210,flu&#10;Dave,45,10001,heart disease&#10;Eve,45,10001,flu">name,age,zip,diagnosis
+Alice,32,90210,flu
+Bob,32,90210,diabetes
+Carol,32,90210,flu
+Dave,45,10001,heart disease
+Eve,45,10001,flu</textarea>
+        <div class="inline-hint">First row = column headers. Max 20 data rows.</div>
+      </div>
+      <div>
+        <label>⚙️ Parameters</label>
+        <div class="grid-2" style="margin-top: 0.3rem;">
+          <div><label>K (2–100)</label><input type="number" id="kValue" min="2" max="100" value="3"></div>
+          <div><label>L (2–10)</label><input type="number" id="lValue" min="2" max="10" value="2"></div>
+        </div>
+        <div style="margin-top: 0.8rem;">
+          <label>Column classification</label>
+          <div id="columnTags" class="column-tags">—</div>
+          <div class="inline-hint">Select type per column: quasi‑identifier (QI), sensitive (S), insensitive (I).</div>
+        </div>
+      </div>
+    </div>
+    <div class="flex-between" style="margin-top: 1rem;">
+      <button class="btn" id="analyzeBtn">▶ Analyze anonymization</button>
+      <button class="btn btn-secondary" id="resetBtn">↺ Reset sample</button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="card" id="resultsPanel">
+    <div class="flex-between"><h3 style="color:#f1f5f9;">📊 Anonymization report</h3><span id="reportTimestamp" style="font-size:0.75rem; color:#64748b;">—</span></div>
+    <div class="stat-grid" id="statsGrid">
+      <div class="stat-card"><div class="stat-number" id="violationCount">0</div><div class="stat-label">⚠️ Violations</div></div>
+      <div class="stat-card"><div class="stat-number" id="anonymizationScore">0%</div><div class="stat-label">✅ Anonymization score</div></div>
+      <div class="stat-card"><div class="stat-number" id="riskPercent">0%</div><div class="stat-label">🔓 Re-identification risk</div></div>
+      <div class="stat-card"><div class="stat-number" id="eqClasses">0</div><div class="stat-label">📦 Equivalence classes</div></div>
+    </div>
+    <div><strong style="color:#38bdf8;">🧩 Violating groups (k‑anonymity / l‑diversity)</strong></div>
+    <div id="violationGroups" class="violation-list">No violations detected.</div>
+    <div style="margin-top: 1rem;"><strong style="color:#38bdf8;">💡 Suggested generalizations</strong></div>
+    <div id="suggestionsBox" style="background:#0f172a; border-radius:14px; padding:0.8rem; font-size:0.9rem; margin-top:0.3rem;">Age ranges (e.g., 30-39), zip truncation (first 3 digits).</div>
+  </div>
+
+  <!-- Techniques reference -->
+  <div class="card">
+    <h3 style="color:#f1f5f9; margin-bottom:0.5rem;">📚 Techniques reference</h3>
+    <div class="ref-grid">
+      <div class="ref-item"><h4>Generalization</h4><span style="font-size:0.8rem;">Replace precise values with broader ranges (age groups, zip prefix). Reduces granularity.</span></div>
+      <div class="ref-item"><h4>Suppression</h4><span style="font-size:0.8rem;">Remove or mask outlier records or values to achieve k‑anonymity.</span></div>
+      <div class="ref-item"><h4>Perturbation</h4><span style="font-size:0.8rem;">Add noise or swap values (e.g., differential privacy) to protect sensitive data.</span></div>
+    </div>
+  </div>
+
+  <footer class="footer">© 2025 lockml.com</footer>
+</div>
+
+<script>
+  (function() {
+    // DOM refs
+    const csvTextarea = document.getElementById('csvInput');
+    const kInput = document.getElementById('kValue');
+    const lInput = document.getElementById('lValue');
+    const columnTagsDiv = document.getElementById('columnTags');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const violationCountSpan = document.getElementById('violationCount');
+    const anonymizationScoreSpan = document.getElementById('anonymizationScore');
+    const riskPercentSpan = document.getElementById('riskPercent');
+    const eqClassesSpan = document.getElementById('eqClasses');
+    const violationGroupsDiv = document.getElementById('violationGroups');
+    const suggestionsBox = document.getElementById('suggestionsBox');
+    const reportTimestamp = document.getElementById('reportTimestamp');
+
+    // internal state
+    let columnTypes = {}; // {colName: 'qi'|'sensitive'|'insensitive'}
+    let headers = [];
+    let dataRows = [];
+
+    // ---------- helpers ----------
+    function parseCSV(text) {
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+      if (lines.length === 0) return { headers: [], rows: [] };
+      const h = lines[0].split(',').map(s => s.trim());
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const vals = lines[i].split(',').map(s => s.trim());
+        if (vals.length === h.length) rows.push(vals);
+        if (rows.length >= 20) break; // max 20 rows
+      }
+      return { headers: h, rows };
+    }
+
+    function renderColumnTags(headersArr) {
+      if (!headersArr.length) { columnTagsDiv.innerHTML = '<span style="color:#64748b;">—</span>'; return; }
+      let html = '';
+      headersArr.forEach((h, idx) => {
+        const currentType = columnTypes[h] || 'qi';
+        html += `<span class="tag"><span style="font-weight:500;">${h}</span> 
+          <select data-colindex="${idx}" data-colname="${h}" class="col-type-select">
+            <option value="qi" ${currentType==='qi'?'selected':''}>QI</option>
+            <option value="sensitive" ${currentType==='sensitive'?'selected':''}>Sensitive</option>
+            <option value="insensitive" ${currentType==='insensitive'?'selected':''}>Insensitive</option>
+          </select>
+        </span>`;
+      });
+      columnTagsDiv.innerHTML = html;
+      // attach listeners
+      document.querySelectorAll('.col-type-select').forEach(sel => {
+        sel.addEventListener('change', function(e) {
+          const colName = this.dataset.colname;
+          columnTypes[colName] = this.value;
+        });
+      });
+    }
+
+    // reset to sample
+    function resetToSample() {
+      csvTextarea.value = `name,age,zip,diagnosis
+Alice,32,90210,flu
+Bob,32,90210,diabetes
+Carol,32,90210,flu
+Dave,45,10001,heart disease
+Eve,45,10001,flu`;
+      kInput.value = 3;
+      lInput.value = 2;
+      const parsed = parseCSV(csvTextarea.value);
+      headers = parsed.headers;
+      dataRows = parsed.rows;
+      // default types: age,zip -> qi; diagnosis -> sensitive; name -> insensitive
+      columnTypes = {};
+      headers.forEach(h => {
+        const lower = h.toLowerCase();
+        if (lower === 'age' || lower === 'zip' || lower === 'zipcode') columnTypes[h] = 'qi';
+        else if (lower === 'diagnosis' || lower === 'disease' || lower === 'condition') columnTypes[h] = 'sensitive';
+        else columnTypes[h] = 'insensitive';
+      });
+      renderColumnTags(headers);
+      // run analysis automatically after reset? we'll just clear report
+      clearReport();
+    }
+
+    function clearReport() {
+      violationCountSpan.textContent = '0';
+      anonymizationScoreSpan.textContent = '0%';
+      riskPercentSpan.textContent = '0%';
+      eqClassesSpan.textContent = '0';
+      violationGroupsDiv.innerHTML = 'No violations detected.';
+      suggestionsBox.innerHTML = 'Age ranges (e.g., 30-39), zip truncation (first 3 digits).';
+      reportTimestamp.textContent = '—';
+    }
+
+    // ---------- analysis core ----------
+    function runAnalysis() {
+      const raw = csvTextarea.value;
+      const parsed = parseCSV(raw);
+      headers = parsed.headers;
+      dataRows = parsed.rows;
+      if (headers.length === 0) { clearReport(); return; }
+
+      // ensure columnTypes for any new column
+      headers.forEach(h => { if (!columnTypes[h]) columnTypes[h] = 'qi'; });
+      renderColumnTags(headers);
+
+      const k = parseInt(kInput.value, 10) || 3;
+      const l = parseInt(lInput.value, 10) || 2;
+      if (k < 2) { kInput.value = 2; }
+      if (l < 2) { lInput.value = 2; }
+      const K = Math.min(100, Math.max(2, k));
+      const L = Math.min(10, Math.max(2, l));
+
+      // identify quasi identifiers and sensitive
+      const qiCols = headers.filter(h => columnTypes[h] === 'qi');
+      const sensCols = headers.filter(h => columnTypes[h] === 'sensitive');
+
+      if (qiCols.length === 0) {
+        violationGroupsDiv.innerHTML = '<span style="color:#fbbf24;">⚠️ Mark at least one column as quasi‑identifier.</span>';
+        return;
+      }
+      if (sensCols.length === 0) {
+        violationGroupsDiv.innerHTML = '<span style="color:#fbbf24;">⚠️ Mark at least one column as sensitive for l‑diversity.</span>';
+        // still compute k-anonymity
+      }
+
+      // Build equivalence classes based on QI
+      const eqMap = new Map();
+      dataRows.forEach((row, idx) => {
+        const key = qiCols.map(col => {
+          const colIdx = headers.indexOf(col);
+          return colIdx >= 0 ? row[colIdx] : '';
+        }).join('|||');
+        if (!eqMap.has(key)) eqMap.set(key, []);
+        eqMap.get(key).push({ row, idx });
+      });
+
+      const eqClasses = Array.from(eqMap.values());
+      const totalRecords = dataRows.length;
+
+      // K-anonymity violations: groups with size < K
+      const violatingK = eqClasses.filter(g => g.length < K);
+      const violatingKCount = violatingK.reduce((sum, g) => sum + g.length, 0);
+
+      // L-diversity: for each group, check distinct sensitive values
+      let violatingLCount = 0;
+      const violatingLDetails = [];
+      if (sensCols.length > 0) {
+        eqClasses.forEach(group => {
+          const sensValues = group.map(item => {
+            const sensCol = sensCols[0]; // use first sensitive column for check
+            const colIdx = headers.indexOf(sensCol);
+            return colIdx >= 0 ? item.row[colIdx] : '';
+          });
+          const distinct = new Set(sensValues).size;
+          if (distinct < L) {
+            violatingLCount += group.length;
+            const sampleKey = group.map(item => item.row.join(',')).join('; ');
+            violatingLDetails.push(`Group size ${group.length}, distinct sensitive=${distinct} (need ≥${L})`);
+          }
+        });
+      }
+
+      // combined violations (k or l)
+      const totalViolations = violatingKCount + violatingLCount;
+      const anonymizationScore = totalRecords > 0 ? Math.round((1 - totalViolations / totalRecords) * 100) : 100;
+      const riskPercent = totalRecords > 0 ? Math.round((violatingKCount / totalRecords) * 100) : 0;
+
+      // Update UI
+      violationCountSpan.textContent = totalViolations;
+      anonymizationScoreSpan.textContent = anonymizationScore + '%';
+      riskPercentSpan.textContent = riskPercent + '%';
+      eqClassesSpan.textContent = eqClasses.length;
+
+      // Violation groups display
+      let violationHtml = '';
+      if (violatingK.length === 0 && violatingLDetails.length === 0) {
+        violationHtml = '<span style="color:#4ade80;">✅ No k‑anonymity or l‑diversity violations.</span>';
+      } else {
+        if (violatingK.length > 0) {
+          violationHtml += `<div style="color:#fbbf24; font-weight:500;">🔸 K‑anonymity violations (size < ${K}):</div>`;
+          violatingK.slice(0, 5).forEach(g => {
+            const sample = g.map(item => item.row.join(', ')).join(' | ');
+            violationHtml += `<div class="violation-item">⚠️ group size ${g.length}: ${sample.substring(0,80)}</div>`;
+          });
+          if (violatingK.length > 5) violationHtml += `<div class="violation-item">... and ${violatingK.length-5} more groups</div>`;
+        }
+        if (violatingLDetails.length > 0) {
+          violationHtml += `<div style="color:#f43f5e; font-weight:500; margin-top:0.5rem;">🔸 L‑diversity violations (distinct < ${L}):</div>`;
+          violatingLDetails.slice(0, 5).forEach(d => {
+            violationHtml += `<div class="violation-item">${d}</div>`;
+          });
+          if (violatingLDetails.length > 5) violationHtml += `<div class="violation-item">... and ${violatingLDetails.length-5} more</div>`;
+        }
+      }
+      violationGroupsDiv.innerHTML = violationHtml || 'No violations.';
+
+      // Suggestions
+      let suggestionText = '💡 Generalization suggestions: ';
+      const ageCol = headers.find(h => h.toLowerCase().includes('age'));
+      const zipCol = headers.find(h => h.toLowerCase().includes('zip'));
+      if (ageCol) suggestionText += `Replace ${ageCol} with ranges (e.g., 30-39). `;
+      if (zipCol) suggestionText += `Truncate ${zipCol} to first 3 digits. `;
+      if (!ageCol && !zipCol) suggestionText += 'Apply generalization on quasi-identifiers (e.g., binning, top-coding).';
+      suggestionsBox.innerHTML = suggestionText;
+
+      const now = new Date();
+      reportTimestamp.textContent = `⏱️ ${now.toLocaleTimeString()}`;
+    }
+
+    // ---------- event binding ----------
+    analyzeBtn.addEventListener('click', runAnalysis);
+
+    resetBtn.addEventListener('click', function() {
+      resetToSample();
+      // after reset, run analysis automatically
+      setTimeout(() => runAnalysis(), 20);
+    });
+
+    // initial load: parse and set tags, run analysis
+    (function init() {
+      resetToSample();
+      // ensure column types from sample
+      const parsed = parseCSV(csvTextarea.value);
+      headers = parsed.headers;
+      dataRows = parsed.rows;
+      headers.forEach(h => {
+        const lower = h.toLowerCase();
+        if (lower === 'age' || lower === 'zip') columnTypes[h] = 'qi';
+        else if (lower === 'diagnosis') columnTypes[h] = 'sensitive';
+        else columnTypes[h] = 'insensitive';
+      });
+      renderColumnTags(headers);
+      runAnalysis();
+    })();
+
+    // also re-run if user changes CSV? we let button drive.
+    // but we can add a small helper: if user types, we don't auto-run.
+    // keep manual.
+
+  })();
+</script>
+</body>
+</html>

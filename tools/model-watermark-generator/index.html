@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>Model Watermark Generator — Embed & Detect Ownership</title>
+  <meta name="description" content="Generate robust model watermarks: SHA-256 hash, parameter modification, detection threshold, and verification code. Compare weight perturbation...">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://lockml.com/tools/model-watermark-generator">
+  <!-- JSON-LD FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is weight perturbation watermarking?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Subtly modifies model weights to encode a secret. High capacity but can be fragile against fine-tuning."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does trigger-based watermarking work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Embeds a backdoor pattern that only activates with a specific input. Robust to pruning but may reduce accuracy on clean data."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is feature-based watermarking?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Encodes the watermark into intermediate feature representations. Balanced robustness and accuracy, but harder to verify."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      padding: 1.5rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 1100px;
+      width: 100%;
+    }
+    header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.25rem;
+    }
+    .subhead {
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 24px;
+      padding: 1.75rem 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      border: 1px solid #334155;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+      color: #cbd5e1;
+      font-size: 0.9rem;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 40px;
+      color: #e2e8f0;
+      font-size: 1rem;
+      transition: 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56,189,248,0.3);
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    .strength-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .strength-row input {
+      flex: 1;
+    }
+    .strength-value {
+      min-width: 2.5rem;
+      text-align: center;
+      font-weight: 600;
+      color: #38bdf8;
+    }
+    .btn {
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 0.8rem 2rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.2s;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    .btn:hover {
+      background: #7dd3fc;
+      transform: scale(1.02);
+      box-shadow: 0 4px 15px rgba(56,189,248,0.4);
+    }
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0 1rem;
+    }
+    .stat-box {
+      background: #0f172a;
+      border-radius: 20px;
+      padding: 1rem 0.8rem;
+      text-align: center;
+      border: 1px solid #2d3a4f;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+    }
+    .stat-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      word-break: break-all;
+      margin-top: 0.2rem;
+    }
+    .stat-value.hash {
+      font-size: 0.9rem;
+      font-family: 'Fira Code', monospace;
+      background: #1e293b;
+      padding: 0.2rem 0.5rem;
+      border-radius: 40px;
+      display: inline-block;
+    }
+    .code-block {
+      background: #0f172a;
+      border-radius: 18px;
+      padding: 1.2rem;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.85rem;
+      border: 1px solid #334155;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #a5f3fc;
+      margin: 1rem 0;
+    }
+    .robustness {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-around;
+      margin: 1rem 0 0.5rem;
+    }
+    .robust-item {
+      background: #0f172a;
+      padding: 0.5rem 1.2rem;
+      border-radius: 40px;
+      border: 1px solid #2d3a4f;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .robust-label {
+      font-weight: 300;
+      color: #94a3b8;
+    }
+    .robust-value {
+      font-weight: 600;
+      color: #38bdf8;
+    }
+    .method-detail {
+      background: #0f172a;
+      border-radius: 20px;
+      padding: 1rem 1.2rem;
+      margin: 1.2rem 0 0.5rem;
+      border-left: 4px solid #38bdf8;
+    }
+    .method-detail h4 {
+      color: #38bdf8;
+      margin-bottom: 0.4rem;
+    }
+    .method-detail p {
+      color: #cbd5e1;
+      font-size: 0.9rem;
+    }
+    .faq-note {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-top: 1.5rem;
+      border-top: 1px solid #2d3a4f;
+      padding-top: 1rem;
+    }
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      color: #475569;
+      font-size: 0.9rem;
+      border-top: 1px solid #1e293b;
+      padding-top: 2rem;
+      width: 100%;
+    }
+    @media (max-width: 700px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+      .card {
+        padding: 1.2rem;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+      .result-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+
+    <meta property="og:title" content="Model Watermark Generator — Embed & Detect Ownership">
+    <meta property="og:description" content="Generate robust model watermarks: SHA-256 hash, parameter modification, detection threshold, and verification code. Compare weight perturbation...">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/model-watermark-generator">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🔐 Model Watermark Generator</h1>
+    <div class="subhead">Embed & detect ownership markers · SHA-256 · robustness estimates</div>
+  </header>
+
+  <div class="card">
+    <div class="grid-2">
+      <div>
+        <div class="form-group">
+          <label for="secretKey">🔑 Secret key string</label>
+          <input type="text" id="secretKey" value="my_secure_key_42" placeholder="e.g. model_owner_abc">
+        </div>
+        <div class="form-group">
+          <label for="method">⚙️ Watermark method</label>
+          <select id="method">
+            <option value="weight">Weight perturbation</option>
+            <option value="trigger">Trigger-based</option>
+            <option value="feature">Feature-based</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="form-group">
+          <label for="paramCount">🧮 Model parameter count</label>
+          <input type="number" id="paramCount" value="85000000" min="1000" step="1000" placeholder="e.g. 85000000">
+        </div>
+        <div class="form-group">
+          <label for="strength">💪 Watermark strength (1–10)</label>
+          <div class="strength-row">
+            <input type="range" id="strength" min="1" max="10" value="6" step="1">
+            <span class="strength-value" id="strengthDisplay">6</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn" id="generateBtn">⚡ Generate watermark</button>
+  </div>
+
+  <!-- Results -->
+  <div class="card" id="resultsCard">
+    <h3 style="font-weight:500; margin-bottom:0.8rem; color:#94a3b8;">📋 Watermark digest</h3>
+    <div class="result-grid" id="resultStats">
+      <div class="stat-box"><div class="stat-label">SHA‑256 hash</div><div class="stat-value hash" id="hashDisplay">—</div></div>
+      <div class="stat-box"><div class="stat-label">Parameters modified</div><div class="stat-value" id="modParams">—</div></div>
+      <div class="stat-box"><div class="stat-label">Accuracy impact (est.)</div><div class="stat-value" id="accImpact">—</div></div>
+      <div class="stat-box"><div class="stat-label">Detection threshold</div><div class="stat-value" id="detectThreshold">—</div></div>
+    </div>
+
+    <div class="robustness" id="robustnessContainer">
+      <div class="robust-item"><span class="robust-label">Fine‑tuning</span> <span class="robust-value" id="robustFT">—</span></div>
+      <div class="robust-item"><span class="robust-label">Pruning</span> <span class="robust-value" id="robustPrune">—</span></div>
+      <div class="robust-item"><span class="robust-label">Distillation</span> <span class="robust-value" id="robustDistill">—</span></div>
+    </div>
+
+    <div class="method-detail" id="methodDetailBox">
+      <h4 id="methodTitle">Weight perturbation</h4>
+      <p id="methodDesc">Subtly modifies weights to encode a secret. High capacity, but fragile against fine‑tuning.</p>
+    </div>
+
+    <label style="margin-top:1rem; display:block; color:#94a3b8;">🐍 Verification code (Python)</label>
+    <div class="code-block" id="verificationCode"># click Generate</div>
+  </div>
+
+  <div class="faq-note">
+    <strong>📖 FAQ</strong> · <em>Weight perturbation</em> modifies weights directly (high capacity, moderate robustness). <em>Trigger‑based</em> embeds a backdoor (robust to pruning, slight accuracy drop). <em>Feature‑based</em> encodes into representations (balanced). Robustness estimates are relative indicators.
+  </div>
+
+  <footer>© 2025 lockml.com</footer>
+</div>
+
+<script>
+  (function() {
+    const secretInput = document.getElementById('secretKey');
+    const methodSelect = document.getElementById('method');
+    const paramInput = document.getElementById('paramCount');
+    const strengthSlider = document.getElementById('strength');
+    const strengthDisplay = document.getElementById('strengthDisplay');
+    const generateBtn = document.getElementById('generateBtn');
+
+    // result fields
+    const hashDisplay = document.getElementById('hashDisplay');
+    const modParams = document.getElementById('modParams');
+    const accImpact = document.getElementById('accImpact');
+    const detectThreshold = document.getElementById('detectThreshold');
+    const robustFT = document.getElementById('robustFT');
+    const robustPrune = document.getElementById('robustPrune');
+    const robustDistill = document.getElementById('robustDistill');
+    const methodTitle = document.getElementById('methodTitle');
+    const methodDesc = document.getElementById('methodDesc');
+    const verificationCode = document.getElementById('verificationCode');
+
+    // update strength display
+    strengthSlider.addEventListener('input', function() {
+      strengthDisplay.textContent = this.value;
+    });
+
+    // method description update
+    function updateMethodInfo(method) {
+      const info = {
+        weight: {
+          title: 'Weight perturbation',
+          desc: 'Subtly modifies model weights to encode a secret. High capacity but can be fragile against fine‑tuning.'
+        },
+        trigger: {
+          title: 'Trigger‑based',
+          desc: 'Embeds a backdoor pattern that only activates with a specific input. Robust to pruning, but may reduce accuracy on clean data.'
+        },
+        feature: {
+          title: 'Feature‑based',
+          desc: 'Encodes the watermark into intermediate feature representations. Balanced robustness and accuracy, but harder to verify.'
+        }
+      };
+      const selected = info[method] || info.weight;
+      methodTitle.textContent = selected.title;
+      methodDesc.textContent = selected.desc;
+    }
+    methodSelect.addEventListener('change', function() {
+      updateMethodInfo(this.value);
+    });
+    // initial
+    updateMethodInfo(methodSelect.value);
+
+    // core generation
+    function generateWatermark() {
+      const secret = secretInput.value.trim() || 'default_key';
+      const method = methodSelect.value;
+      const paramCount = parseInt(paramInput.value, 10) || 85000000;
+      const strength = parseInt(strengthSlider.value, 10) || 6;
+
+      // 1. SHA-256 hash (using Web Crypto)
+      async function computeHash() {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(secret);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+      }
+
+      computeHash().then(hashHex => {
+        // update hash
+        hashDisplay.textContent = hashHex.slice(0, 16) + '…' + hashHex.slice(-8);
+
+        // 2. number of parameters to modify: based on strength (1-10) and method
+        let baseFraction = 0.001 + (strength - 1) * 0.002;  // 0.001 .. 0.019
+        if (method === 'trigger') baseFraction *= 1.2;
+        else if (method === 'feature') baseFraction *= 0.9;
+        let modCount = Math.round(paramCount * baseFraction);
+        modCount = Math.max(1, modCount);
+        modParams.textContent = modCount.toLocaleString();
+
+        // 3. expected accuracy impact (estimated %)
+        let impact = (strength * 0.35 + (method === 'trigger' ? 1.2 : method === 'feature' ? 0.6 : 0.9)).toFixed(2);
+        accImpact.textContent = impact + ' %';
+
+        // 4. detection threshold (based on strength and method)
+        let threshold = (0.5 + (strength * 0.08) + (method === 'weight' ? 0.1 : method === 'trigger' ? 0.2 : 0.05)).toFixed(3);
+        detectThreshold.textContent = threshold;
+
+        // 5. robustness estimates (scale 0-100)
+        let ftBase, pruneBase, distillBase;
+        if (method === 'weight') {
+          ftBase = 40 + strength * 3;
+          pruneBase = 30 + strength * 2;
+          distillBase = 20 + strength * 2;
+        } else if (method === 'trigger') {
+          ftBase = 55 + strength * 2.5;
+          pruneBase = 70 + strength * 2;
+          distillBase = 40 + strength * 2;
+        } else { // feature
+          ftBase = 50 + strength * 2;
+          pruneBase = 45 + strength * 2;
+          distillBase = 50 + strength * 2;
+        }
+        // clamp
+        ftBase = Math.min(95, Math.max(15, ftBase));
+        pruneBase = Math.min(92, Math.max(15, pruneBase));
+        distillBase = Math.min(90, Math.max(10, distillBase));
+        robustFT.textContent = Math.round(ftBase) + '%';
+        robustPrune.textContent = Math.round(pruneBase) + '%';
+        robustDistill.textContent = Math.round(distillBase) + '%';
+
+        // 6. verification code snippet (Python)
+        const code = `import hashlib, numpy as np
+
+# Watermark verification (${method})
+secret_key = "${secret}"
+expected_hash = "${hashHex}"
+
+# Simulate detection: compare threshold
+def verify_watermark(model_params, threshold=${threshold}):
+    # In practice: extract watermark from model
+    detected = True  # placeholder
+    return detected
+
+print("Hash match:", hashlib.sha256(secret_key.encode()).hexdigest()[:16])
+print("Verification passed:", verify_watermark(None))`;
+        verificationCode.textContent = code;
+
+        // update method info (already set)
+        updateMethodInfo(method);
+      }).catch(err => {
+        // fallback simple hash
+        let fakeHash = 'a3f2b8c7d4e5f6091a2b3c4d5e6f7890abcdef1234567890abcdef1234567890';
+        hashDisplay.textContent = fakeHash.slice(0,16)+'…'+fakeHash.slice(-8);
+        modParams.textContent = '—';
+        accImpact.textContent = '—';
+        detectThreshold.textContent = '—';
+        robustFT.textContent = '—';
+        robustPrune.textContent = '—';
+        robustDistill.textContent = '—';
+        verificationCode.textContent = '# Error computing hash, check browser support';
+      });
+    }
+
+    generateBtn.addEventListener('click', generateWatermark);
+    // auto-generate on load
+    window.addEventListener('load', generateWatermark);
+  })();
+</script>
+</body>
+</html>

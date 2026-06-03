@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>Adversarial Perturbation Calculator — FGSM & PGD Attack</title>
+  <meta name="description" content="Interactive tool to estimate adversarial perturbation budgets: FGSM, PGD, CW, DeepFool. Compute L2/Linf bounds, visibility, and modified parameters...">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://lockml.com/tools/adversarial-perturbation-calculator">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Adversarial Perturbation Calculator",
+    "description": "Estimate perturbation budgets for FGSM, PGD, CW, DeepFool attacks. Visualize pixel changes and get defense recommendations.",
+    "url": "https://lockml.com/tools/adversarial-perturbation-calculator",
+    "applicationCategory": "Security Tool",
+    "operatingSystem": "All",
+    "browserRequirements": "JavaScript enabled"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type": "Question","name": "What is epsilon in adversarial attacks?","acceptedAnswer":{"@type":"Answer","text":"Epsilon controls the magnitude of perturbation. Typical values range from 0.001 to 0.5. Higher epsilon increases attack strength but makes perturbation more visible."}},
+      {"@type": "Question","name": "How is perturbation visibility estimated?","acceptedAnswer":{"@type":"Answer","text":"We use the ratio of L2 norm to total pixels. Imperceptible < 0.03, noticeable 0.03–0.1, visible > 0.1. This is a simplified perceptual proxy."}},
+      {"@type": "Question","name": "What defenses work against FGSM?","acceptedAnswer":{"@type":"Answer","text":"Adversarial training, gradient masking, input preprocessing (JPEG compression, bit-depth reduction) and defensive distillation."}}
+    ]
+  }
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      padding: 1.5rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 1100px;
+      width: 100%;
+    }
+    header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.25rem;
+    }
+    .subhead {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 1.25rem;
+      padding: 1.5rem 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      border: 1px solid #334155;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.01em;
+    }
+    select, input {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 0.75rem;
+      color: #f1f5f9;
+      font-size: 0.95rem;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+    }
+    .param-row {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .param-row .form-group {
+      flex: 1;
+      min-width: 80px;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.8rem;
+      margin: 1.2rem 0 0.8rem;
+    }
+    .stat-item {
+      background: #0f172a;
+      border-radius: 0.9rem;
+      padding: 0.8rem 0.6rem;
+      text-align: center;
+      border: 1px solid #2d3a52;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #94a3b8;
+    }
+    .stat-value {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-top: 0.1rem;
+    }
+    .stat-value.accent {
+      color: #38bdf8;
+    }
+    .visibility-badge {
+      display: inline-block;
+      padding: 0.2rem 0.9rem;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 0.8rem;
+      background: #334155;
+    }
+    .badge-green { background: #166534; color: #bbf7d0; }
+    .badge-yellow { background: #854d0e; color: #fef08a; }
+    .badge-red { background: #991b1b; color: #fecaca; }
+    .pixel-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+      margin: 1rem 0 0.5rem;
+      max-width: 280px;
+    }
+    .pixel-cell {
+      aspect-ratio: 1/1;
+      background: #1e293b;
+      border-radius: 4px;
+      border: 1px solid #2d3a52;
+      transition: background 0.15s;
+    }
+    .pixel-cell.perturbed {
+      background: #38bdf8;
+      border-color: #7dd3fc;
+    }
+    .pixel-cell.strong {
+      background: #f472b6;
+      border-color: #f9a8d4;
+    }
+    .defense-box {
+      background: #0f172a;
+      border-radius: 1rem;
+      padding: 1rem 1.2rem;
+      margin-top: 1.2rem;
+      border-left: 4px solid #38bdf8;
+    }
+    .defense-box h4 {
+      color: #38bdf8;
+      font-weight: 500;
+      font-size: 0.9rem;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.02em;
+    }
+    .defense-box p {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+    }
+    .footer {
+      margin-top: 2.5rem;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.85rem;
+      border-top: 1px solid #1e293b;
+      padding-top: 1.5rem;
+    }
+    .inline-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 1rem;
+    }
+    @media (max-width: 680px) {
+      .grid-2 { grid-template-columns: 1fr; gap: 1rem; }
+      h1 { font-size: 1.6rem; }
+      .card { padding: 1.2rem 1rem; }
+    }
+    button.ghost {
+      background: transparent;
+      border: 1px solid #38bdf8;
+      color: #38bdf8;
+      padding: 0.4rem 1rem;
+      border-radius: 2rem;
+      font-weight: 500;
+      cursor: default;
+    }
+  </style>
+
+    <meta property="og:title" content="Adversarial Perturbation Calculator — FGSM & PGD Attack">
+    <meta property="og:description" content="Interactive tool to estimate adversarial perturbation budgets: FGSM, PGD, CW, DeepFool. Compute L2/Linf bounds, visibility, and modified parameters...">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/adversarial-perturbation-calculator">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>⚡ Adversarial Perturbation Calculator</h1>
+    <div class="subhead">FGSM · PGD · CW · DeepFool — budget &amp; visibility estimator</div>
+  </header>
+
+  <div class="card">
+    <div class="grid-2">
+      <div>
+        <div class="form-group">
+          <label for="attackType">Attack type</label>
+          <select id="attackType">
+            <option value="fgsm">FGSM (Fast Gradient Sign Method)</option>
+            <option value="pgd" selected>PGD (Projected Gradient Descent)</option>
+            <option value="cw">CW (Carlini-Wagner)</option>
+            <option value="deepfool">DeepFool</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="epsilon">Epsilon (perturbation budget) <span style="color:#94a3b8;">0.001 – 0.5</span></label>
+          <input type="number" id="epsilon" min="0.001" max="0.5" step="0.001" value="0.03">
+        </div>
+
+        <div class="param-row">
+          <div class="form-group">
+            <label for="width">Width (px)</label>
+            <input type="number" id="width" min="8" max="1024" value="224">
+          </div>
+          <div class="form-group">
+            <label for="height">Height (px)</label>
+            <input type="number" id="height" min="8" max="1024" value="224">
+          </div>
+          <div class="form-group">
+            <label for="channels">Channels</label>
+            <input type="number" id="channels" min="1" max="4" value="3">
+          </div>
+        </div>
+
+        <div id="pgdParams" style="margin-top: 0.5rem;">
+          <div class="param-row">
+            <div class="form-group">
+              <label for="pgdSteps">PGD steps</label>
+              <input type="number" id="pgdSteps" min="1" max="100" value="7">
+            </div>
+            <div class="form-group">
+              <label for="stepSize">Step size (α)</label>
+              <input type="number" id="stepSize" min="0.001" max="0.5" step="0.001" value="0.01">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="stat-grid">
+          <div class="stat-item"><span class="stat-label">Max pixel change</span><div class="stat-value accent" id="maxPixelChange">0.030</div></div>
+          <div class="stat-item"><span class="stat-label">L₂ norm bound</span><div class="stat-value" id="l2Norm">0.030</div></div>
+          <div class="stat-item"><span class="stat-label">L∞ norm bound</span><div class="stat-value" id="linfNorm">0.030</div></div>
+          <div class="stat-item"><span class="stat-label">Modified params</span><div class="stat-value" id="modifiedParams">150,528</div></div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin: 0.8rem 0 0.2rem;">
+          <span style="font-size:0.9rem;">Perturbation visibility:</span>
+          <span id="visibilityBadge" class="visibility-badge badge-green">imperceptible</span>
+        </div>
+
+        <div style="margin-top: 0.5rem;">
+          <label style="font-size:0.8rem; color:#94a3b8;">Simulated perturbation pattern (8×8 sample)</label>
+          <div class="pixel-grid" id="pixelGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="defense-box" id="defenseRecommendation">
+      <h4>🛡️ Defense recommendation (PGD)</h4>
+      <p>Adversarial training with PGD attacks (Madry et al., 2018). Use random start and multi-step training. Input gradient regularization also helps.</p>
+    </div>
+  </div>
+
+  <div class="footer">© 2025 lockml.com</div>
+</div>
+
+<script>
+  (function() {
+    // DOM refs
+    const attackType = document.getElementById('attackType');
+    const epsilonInp = document.getElementById('epsilon');
+    const widthInp = document.getElementById('width');
+    const heightInp = document.getElementById('height');
+    const channelsInp = document.getElementById('channels');
+    const pgdStepsInp = document.getElementById('pgdSteps');
+    const stepSizeInp = document.getElementById('stepSize');
+    const pgdParamsDiv = document.getElementById('pgdParams');
+
+    const maxPixelChangeEl = document.getElementById('maxPixelChange');
+    const l2NormEl = document.getElementById('l2Norm');
+    const linfNormEl = document.getElementById('linfNorm');
+    const modifiedParamsEl = document.getElementById('modifiedParams');
+    const visibilityBadge = document.getElementById('visibilityBadge');
+    const defenseBox = document.getElementById('defenseRecommendation');
+    const pixelGrid = document.getElementById('pixelGrid');
+
+    // helpers
+    function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+
+    function updateAll() {
+      const attack = attackType.value;
+      // show/hide pgd params
+      pgdParamsDiv.style.display = (attack === 'pgd') ? 'block' : 'none';
+
+      let eps = parseFloat(epsilonInp.value);
+      if (isNaN(eps) || eps < 0.001) eps = 0.001;
+      if (eps > 0.5) eps = 0.5;
+      epsilonInp.value = eps.toFixed(3);
+
+      let w = parseInt(widthInp.value, 10);
+      let h = parseInt(heightInp.value, 10);
+      let c = parseInt(channelsInp.value, 10);
+      if (isNaN(w) || w < 8) w = 8;
+      if (isNaN(h) || h < 8) h = 8;
+      if (isNaN(c) || c < 1) c = 1; else if (c > 4) c = 4;
+      widthInp.value = w;
+      heightInp.value = h;
+      channelsInp.value = c;
+
+      let pgdSteps = parseInt(pgdStepsInp.value, 10);
+      let stepSize = parseFloat(stepSizeInp.value);
+      if (isNaN(pgdSteps) || pgdSteps < 1) pgdSteps = 1;
+      if (pgdSteps > 100) pgdSteps = 100;
+      pgdStepsInp.value = pgdSteps;
+      if (isNaN(stepSize) || stepSize < 0.001) stepSize = 0.001;
+      if (stepSize > 0.5) stepSize = 0.5;
+      stepSizeInp.value = stepSize.toFixed(3);
+
+      const totalPixels = w * h * c;
+      let maxChange = eps; // base for FGSM, CW, DeepFool
+      let l2 = eps * Math.sqrt(totalPixels);
+      let linf = eps;
+
+      // PGD adjustments: effective perturbation depends on steps & step size, but bounded by eps
+      if (attack === 'pgd') {
+        // effective max change = min(eps, stepSize * steps) but typical PGD projects to eps ball.
+        const effective = Math.min(eps, stepSize * pgdSteps);
+        maxChange = effective;
+        l2 = effective * Math.sqrt(totalPixels);
+        linf = effective;
+      } else if (attack === 'cw') {
+        // CW often uses L2 norm; we keep epsilon as L2 bound, max pixel change ~ eps/sqrt(n) roughly, but we show epsilon as L2 bound
+        // For CW we interpret epsilon as L2 bound; max pixel change is less trivial, but we approximate
+        maxChange = eps / Math.sqrt(totalPixels) * 2;  // heuristic
+        if (maxChange > 0.5) maxChange = 0.5;
+        l2 = eps;
+        linf = maxChange;
+      } else if (attack === 'deepfool') {
+        // DeepFool minimal perturbation; we treat epsilon as approximate L2
+        maxChange = eps * 0.8;
+        l2 = eps;
+        linf = maxChange;
+      }
+
+      // ensure numeric stability
+      maxChange = clamp(maxChange, 0, 0.5);
+      l2 = clamp(l2, 0, 1e6);
+      linf = clamp(linf, 0, 0.5);
+
+      // visibility index: use average L2 per pixel (normalized)
+      const avgL2 = totalPixels > 0 ? l2 / totalPixels : 0;
+      let visibilityLabel, badgeClass;
+      if (avgL2 < 0.03) {
+        visibilityLabel = 'imperceptible';
+        badgeClass = 'badge-green';
+      } else if (avgL2 < 0.1) {
+        visibilityLabel = 'noticeable';
+        badgeClass = 'badge-yellow';
+      } else {
+        visibilityLabel = 'visible';
+        badgeClass = 'badge-red';
+      }
+
+      // modified parameters: all pixels are modified (except maybe sparse? we set all)
+      const modified = totalPixels;
+
+      // update DOM
+      maxPixelChangeEl.textContent = maxChange.toFixed(4);
+      l2NormEl.textContent = l2.toFixed(4);
+      linfNormEl.textContent = linf.toFixed(4);
+      modifiedParamsEl.textContent = modified.toLocaleString();
+
+      visibilityBadge.textContent = visibilityLabel;
+      visibilityBadge.className = 'visibility-badge ' + badgeClass;
+
+      // defense recommendations
+      const defenses = {
+        fgsm: 'Adversarial training (Goodfellow et al., 2015). Use FGSM augmentation, JPEG compression, and defensive distillation.',
+        pgd: 'Adversarial training with PGD (Madry et al., 2018). Multi-step training with random restarts. Gradient masking not recommended.',
+        cw: 'Defensive distillation, input binarization, and gradient regularization. CW is strong against distillation, so combine with adversarial training.',
+        deepfool: 'Adversarial training with DeepFool-like perturbations. Input preprocessing (bit-depth reduction) and ensemble methods.'
+      };
+      const defText = defenses[attack] || 'Adversarial training and input preprocessing.';
+      defenseBox.innerHTML = `<h4>🛡️ Defense recommendation (${attack.toUpperCase()})</h4><p>${defText}</p>`;
+
+      // redraw pixel grid
+      drawPixelGrid(maxChange, eps, attack);
+    }
+
+    function drawPixelGrid(maxChange, eps, attack) {
+      const size = 8;
+      let html = '';
+      // base intensity from epsilon
+      const threshold = 0.02; 
+      const strongThreshold = 0.08;
+      for (let i = 0; i < size * size; i++) {
+        // pseudo-random but deterministic based on i
+        const val = Math.abs(Math.sin(i * 1.7 + 0.3)) * eps * 2.5; 
+        let cls = '';
+        if (val > strongThreshold) cls = 'pixel-cell strong';
+        else if (val > threshold) cls = 'pixel-cell perturbed';
+        else cls = 'pixel-cell';
+        html += `<div class="${cls}"></div>`;
+      }
+      pixelGrid.innerHTML = html;
+    }
+
+    // event listeners
+    [attackType, epsilonInp, widthInp, heightInp, channelsInp, pgdStepsInp, stepSizeInp].forEach(el => {
+      el.addEventListener('input', updateAll);
+      el.addEventListener('change', updateAll);
+    });
+
+    // initial render
+    updateAll();
+  })();
+</script>
+</body>
+</html>

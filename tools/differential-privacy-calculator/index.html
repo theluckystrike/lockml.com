@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>Differential Privacy Budget Calculator — Epsilon & Delta</title>
+  <meta name="description" content="Plan your differential privacy budget: compute per-query epsilon, total privacy cost, tradeoff score, and recommended noise scale. Interactive...">
+  <meta name="keywords" content "differential privacy, epsilon, delta, composition, Rényi, noise scale, Laplace, Gaussian, privacy budget">
+  <link rel="canonical" href="https://lockml.com/tools/differential-privacy-calculator">
+  <!-- JSON-LD FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What does epsilon mean intuitively?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Epsilon (ε) bounds the influence of any single individual on the output. Lower ε means stronger privacy (less leakage). For example, ε=0.1 means very little information is revealed; ε=10 means much weaker privacy."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is delta in differential privacy?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Delta (δ) is the probability that the privacy guarantee fails. Typically set very small (e.g., 1e-6). It accounts for rare events where pure ε-DP is broken."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which composition theorem should I use?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Basic composition (ε total = k·ε) is simple but pessimistic. Advanced composition gives tighter bounds for many queries. Rényi composition uses Rényi divergence for the tightest accounting, especially for Gaussian noise."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      padding: 1.5rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 1200px;
+      width: 100%;
+    }
+    header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #e2e8f0 0%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    .subhead {
+      color: #94a3b8;
+      font-size: 1rem;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 1rem;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 24px;
+      padding: 1.8rem 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      border: 1px solid #334155;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    @media (max-width: 700px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      h1 { font-size: 1.8rem; }
+    }
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      margin-bottom: 0.4rem;
+    }
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    input, select {
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      padding: 0.6rem 0.8rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      width: 100%;
+      max-width: 200px;
+      transition: border 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56,189,248,0.3);
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    .range-value {
+      background: #0f172a;
+      padding: 0.2rem 0.8rem;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      border: 1px solid #334155;
+      min-width: 60px;
+      text-align: center;
+    }
+    .results-panel {
+      background: #0f172a;
+      border-radius: 20px;
+      padding: 1.5rem;
+      border: 1px solid #2d3a4f;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.2rem 0;
+    }
+    .stat-item {
+      background: #1e293b;
+      padding: 0.8rem 1rem;
+      border-radius: 16px;
+      border-left: 4px solid #38bdf8;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #94a3b8;
+    }
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-top: 0.2rem;
+    }
+    .stat-number small {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #94a3b8;
+    }
+    .explain-box {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 1.2rem;
+      margin: 1rem 0;
+      border-left: 4px solid #38bdf8;
+    }
+    .explain-box p {
+      margin: 0.3rem 0;
+      line-height: 1.5;
+    }
+    canvas {
+      width: 100% !important;
+      height: auto !important;
+      max-height: 200px;
+      background: #0f172a;
+      border-radius: 16px;
+      margin: 1rem 0;
+      border: 1px solid #2a374c;
+    }
+    .flex-charts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .flex-charts > div {
+      flex: 1 1 250px;
+      min-width: 200px;
+    }
+    .btn {
+      background: #38bdf8;
+      border: none;
+      color: #0f172a;
+      font-weight: 600;
+      padding: 0.6rem 1.4rem;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.9rem;
+      margin-right: 0.5rem;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #38bdf8;
+      color: #38bdf8;
+    }
+    .btn-outline:hover {
+      background: #38bdf8;
+      color: #0f172a;
+    }
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.9rem;
+      border-top: 1px solid #1e293b;
+      padding-top: 2rem;
+    }
+    .inline-code {
+      background: #1e293b;
+      padding: 0.1rem 0.4rem;
+      border-radius: 8px;
+      font-family: monospace;
+      color: #38bdf8;
+    }
+    .note {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      margin-top: 0.3rem;
+    }
+  </style>
+
+    <meta property="og:title" content="Differential Privacy Budget Calculator — Epsilon & Delta">
+    <meta property="og:description" content="Plan your differential privacy budget: compute per-query epsilon, total privacy cost, tradeoff score, and recommended noise scale. Interactive...">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/differential-privacy-calculator">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🔒 Differential Privacy Budget Calculator</h1>
+    <div class="subhead">Epsilon & Delta Planner · Composition theorems & noise scaling</div>
+  </header>
+
+  <div class="card">
+    <div class="grid-2">
+      <!-- Inputs -->
+      <div>
+        <div class="input-group">
+          <label for="epsilon">🔷 Epsilon (ε) — privacy budget <span class="note">(0.01 – 10)</span></label>
+          <div class="input-row">
+            <input type="range" id="epsilon" min="0.01" max="10" step="0.01" value="1.0">
+            <span class="range-value" id="epsilonDisplay">1.00</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="delta">🔶 Delta (δ) — failure probability <span class="note">(1e-10 – 1e-3)</span></label>
+          <div class="input-row">
+            <input type="range" id="delta" min="-10" max="-3" step="0.1" value="-6">
+            <span class="range-value" id="deltaDisplay">1.0e-6</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="queries">📊 Number of queries / compositions</label>
+          <div class="input-row">
+            <input type="number" id="queries" min="1" max="5000" value="100" step="1">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="theorem">⚙️ Composition theorem</label>
+          <select id="theorem">
+            <option value="basic">Basic (linear)</option>
+            <option value="advanced" selected>Advanced (tight)</option>
+            <option value="renyi">Rényi (Gaussian)</option>
+          </select>
+        </div>
+
+        <div style="margin-top: 1rem;">
+          <button class="btn" id="updateBtn">⟳ Update calculations</button>
+          <button class="btn btn-outline" id="resetBtn">Reset defaults</button>
+        </div>
+        <div class="explain-box" style="margin-top: 1.5rem;">
+          <p><strong style="color:#38bdf8;">🧠 What is epsilon?</strong> Epsilon bounds how much a single person's data can change the output. <span class="inline-code">ε = 0.1</span> → very private; <span class="inline-code">ε = 10</span> → weak privacy. Think of it as "max information leakage" per query.</p>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="results-panel">
+        <h3 style="font-weight:500; margin-bottom:0.5rem;">📈 Privacy Budget Breakdown</h3>
+        <div class="stat-grid">
+          <div class="stat-item"><div class="stat-label">Per-query ε</div><div class="stat-number" id="perQueryEpsilon">0.010</div></div>
+          <div class="stat-item"><div class="stat-label">Total privacy cost (ε_total)</div><div class="stat-number" id="totalEpsilon">1.00</div></div>
+          <div class="stat-item"><div class="stat-label">Privacy-utility tradeoff</div><div class="stat-number" id="tradeoffScore">0.50</div></div>
+          <div class="stat-item"><div class="stat-label">Recommended noise scale</div><div class="stat-number" id="noiseScale">1.00</div></div>
+        </div>
+        <div style="font-size:0.9rem; color:#94a3b8; margin: 0.5rem 0 0.2rem;">
+          <span>🔹 Laplace mechanism: scale = <span id="laplaceScale">1.00</span> &nbsp;|&nbsp; Gaussian (δ): σ = <span id="gaussianScale">1.00</span></span>
+        </div>
+        <div class="flex-charts">
+          <div><canvas id="budgetChart" width="300" height="150"></canvas><p style="text-align:center; font-size:0.7rem; color:#94a3b8;">Privacy budget depletion</p></div>
+          <div><canvas id="noiseChart" width="300" height="150"></canvas><p style="text-align:center; font-size:0.7rem; color:#94a3b8;">Noise distribution (ε=0.5,1,2)</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>© 2025 lockml.com</footer>
+</div>
+
+<script>
+  (function() {
+    // DOM refs
+    const epsilonSlider = document.getElementById('epsilon');
+    const epsilonDisplay = document.getElementById('epsilonDisplay');
+    const deltaSlider = document.getElementById('delta');
+    const deltaDisplay = document.getElementById('deltaDisplay');
+    const queriesInput = document.getElementById('queries');
+    const theoremSelect = document.getElementById('theorem');
+    const updateBtn = document.getElementById('updateBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    const perQueryEpsilonEl = document.getElementById('perQueryEpsilon');
+    const totalEpsilonEl = document.getElementById('totalEpsilon');
+    const tradeoffScoreEl = document.getElementById('tradeoffScore');
+    const noiseScaleEl = document.getElementById('noiseScale');
+    const laplaceScaleEl = document.getElementById('laplaceScale');
+    const gaussianScaleEl = document.getElementById('gaussianScale');
+
+    const budgetCanvas = document.getElementById('budgetChart');
+    const noiseCanvas = document.getElementById('noiseChart');
+    let budgetCtx = budgetCanvas.getContext('2d');
+    let noiseCtx = noiseCanvas.getContext('2d');
+
+    // helpers
+    function formatNum(v, decimals=3) {
+      if (Math.abs(v) < 0.001 && v !== 0) return v.toExponential(2);
+      return Number(v.toFixed(decimals));
+    }
+
+    function updateSliders() {
+      epsilonDisplay.textContent = parseFloat(epsilonSlider.value).toFixed(2);
+      const deltaVal = Math.pow(10, parseFloat(deltaSlider.value));
+      deltaDisplay.textContent = deltaVal.toExponential(1);
+    }
+
+    // core calculation
+    function computeAll() {
+      const eps = parseFloat(epsilonSlider.value) || 1.0;
+      const deltaExp = parseFloat(deltaSlider.value);
+      const delta = Math.pow(10, deltaExp);
+      const k = parseInt(queriesInput.value, 10) || 1;
+      const theorem = theoremSelect.value;
+
+      let perQueryEps = eps;
+      let totalEps = eps;
+      let noiseScale = 1.0;
+      let tradeoff = 0.5;
+
+      // composition
+      if (theorem === 'basic') {
+        // basic composition: total = k * eps
+        totalEps = k * eps;
+        perQueryEps = eps;
+      } else if (theorem === 'advanced') {
+        // advanced composition (tight): total ≈ 2*eps*sqrt(2*k*log(1/delta)) + k*eps*(e^eps-1)
+        // simplified using common approximation: eps_total = 2*eps*sqrt(2*k*ln(1/delta)) + k*eps*(exp(eps)-1)
+        if (k > 1 && delta > 0) {
+          const logInv = Math.log(1 / delta);
+          const sqrtTerm = Math.sqrt(2 * k * logInv);
+          const expTerm = Math.exp(eps) - 1;
+          totalEps = 2 * eps * sqrtTerm + k * eps * expTerm;
+        } else {
+          totalEps = eps;
+        }
+        perQueryEps = totalEps / k;
+      } else if (theorem === 'renyi') {
+        // Rényi composition (Gaussian) – approximate using RDP accountant
+        // For Gaussian with σ, eps_renyi = α * Δf^2 / (2σ^2) ... we compute per-query as eps / sqrt(k) style
+        // Simplified: per-query epsilon decreases with sqrt(k) for Gaussian
+        const sqrtK = Math.sqrt(k);
+        perQueryEps = eps / (sqrtK > 0 ? sqrtK : 1);
+        totalEps = perQueryEps * k; // linear in RDP but we keep consistent
+        // adjust total using advanced approx for display
+        if (k > 1 && delta > 0) {
+          const logInv = Math.log(1 / delta);
+          const sqrtTerm = Math.sqrt(2 * k * logInv);
+          totalEps = 2 * perQueryEps * sqrtTerm + k * perQueryEps * (Math.exp(perQueryEps)-1);
+        } else {
+          totalEps = perQueryEps * k;
+        }
+      }
+
+      // clamp
+      if (totalEps < 0) totalEps = 0;
+      if (perQueryEps < 0) perQueryEps = 0;
+
+      // Noise scale: Laplace = 1/eps, Gaussian = sqrt(2*ln(1.25/delta)) / eps
+      const epsSafe = Math.max(perQueryEps, 0.001);
+      const laplaceScale = 1 / epsSafe;
+      const gaussLog = Math.log(1.25 / delta);
+      const gaussianScale = (gaussLog > 0 ? Math.sqrt(2 * gaussLog) : 1.0) / epsSafe;
+
+      // recommended noise scale: use Laplace if eps>1 else Gaussian
+      const recommended = eps > 1.0 ? laplaceScale : gaussianScale;
+      noiseScale = recommended;
+
+      // Privacy-utility tradeoff: 1/(1+noiseScale) scaled 0-1, higher is better utility
+      tradeoff = 1 / (1 + noiseScale);
+      if (tradeoff > 1) tradeoff = 1;
+      if (tradeoff < 0) tradeoff = 0;
+
+      // update DOM
+      perQueryEpsilonEl.textContent = formatNum(perQueryEps);
+      totalEpsilonEl.textContent = formatNum(totalEps);
+      tradeoffScoreEl.textContent = formatNum(tradeoff, 3);
+      noiseScaleEl.textContent = formatNum(noiseScale, 3);
+      laplaceScaleEl.textContent = formatNum(laplaceScale, 3);
+      gaussianScaleEl.textContent = formatNum(gaussianScale, 3);
+
+      // draw charts
+      drawBudgetChart(k, totalEps, perQueryEps);
+      drawNoiseChart(eps, delta);
+    }
+
+    // Budget depletion chart (line)
+    function drawBudgetChart(k, totalEps, perQueryEps) {
+      const w = budgetCanvas.width, h = budgetCanvas.height;
+      const ctx = budgetCtx;
+      ctx.clearRect(0, 0, w, h);
+      if (k < 1) return;
+      const steps = Math.min(k, 200);
+      const stepSize = Math.max(1, Math.floor(k / steps));
+      const points = [];
+      let accum = 0;
+      for (let i = 0; i <= steps; i++) {
+        const q = i * stepSize;
+        if (q > k) break;
+        const epsUsed = (q / k) * totalEps;
+        points.push({x: q, y: epsUsed});
+      }
+      // draw
+      const pad = 15;
+      const maxX = k;
+      const maxY = totalEps * 1.15 || 1;
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let i = 0; i < points.length; i++) {
+        const x = pad + (points[i].x / maxX) * (w - 2*pad);
+        const y = h - pad - (points[i].y / maxY) * (h - 2*pad);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      // grid
+      ctx.strokeStyle = '#2a374c';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < 4; i++) {
+        const y = pad + (i/4)*(h-2*pad);
+        ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w-pad, y); ctx.stroke();
+      }
+    }
+
+    // Noise distribution curves for epsilon 0.5, 1, 2
+    function drawNoiseChart(baseEps, delta) {
+      const ctx = noiseCtx;
+      const w = noiseCanvas.width, h = noiseCanvas.height;
+      ctx.clearRect(0, 0, w, h);
+      const epsilons = [0.5, 1.0, 2.0];
+      const colors = ['#f87171', '#38bdf8', '#4ade80'];
+      const pad = 15;
+      const maxX = 4.5;
+      const steps = 80;
+      // Laplace PDF: 0.5*λ*exp(-|x|*λ)  λ = 1/scale
+      for (let idx = 0; idx < epsilons.length; idx++) {
+        const eps = epsilons[idx];
+        const scale = 1 / Math.max(eps, 0.01);
+        const lambda = 1 / scale;
+        ctx.strokeStyle = colors[idx];
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i <= steps; i++) {
+          const x = -maxX + (2*maxX * i / steps);
+          const pdf = 0.5 * lambda * Math.exp(-Math.abs(x) * lambda);
+          const px = pad + (x + maxX) / (2*maxX) * (w - 2*pad);
+          const py = h - pad - (pdf / 1.2) * (h - 2*pad);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+      // legend
+      ctx.font = '8px sans-serif';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('ε=0.5', 10, 20);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillText('ε=1.0', 60, 20);
+      ctx.fillStyle = '#4ade80';
+      ctx.fillText('ε=2.0', 110, 20);
+    }
+
+    // event listeners
+    epsilonSlider.addEventListener('input', function() {
+      epsilonDisplay.textContent = parseFloat(this.value).toFixed(2);
+    });
+    deltaSlider.addEventListener('input', function() {
+      const val = Math.pow(10, parseFloat(this.value));
+      deltaDisplay.textContent = val.toExponential(1);
+    });
+
+    updateBtn.addEventListener('click', function() {
+      updateSliders();
+      computeAll();
+    });
+
+    resetBtn.addEventListener('click', function() {
+      epsilonSlider.value = '1.0';
+      deltaSlider.value = '-6';
+      queriesInput.value = '100';
+      theoremSelect.value = 'advanced';
+      updateSliders();
+      computeAll();
+    });
+
+    // initial
+    updateSliders();
+    computeAll();
+
+    // also recalc on change of inputs
+    queriesInput.addEventListener('change', computeAll);
+    theoremSelect.addEventListener('change', computeAll);
+    epsilonSlider.addEventListener('change', computeAll);
+    deltaSlider.addEventListener('change', computeAll);
+    // but for slider we also call on input? we call on change to avoid too many draws
+    // but we add input for display only
+    epsilonSlider.addEventListener('input', function() {
+      epsilonDisplay.textContent = parseFloat(this.value).toFixed(2);
+    });
+    deltaSlider.addEventListener('input', function() {
+      const val = Math.pow(10, parseFloat(this.value));
+      deltaDisplay.textContent = val.toExponential(1);
+    });
+    // recalc on mouse up / touch end
+    epsilonSlider.addEventListener('change', computeAll);
+    deltaSlider.addEventListener('change', computeAll);
+  })();
+</script>
+</body>
+</html>
