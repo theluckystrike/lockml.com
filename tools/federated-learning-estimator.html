@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>Federated Learning Round Estimator — Plan Distributed Training | lockml.com</title>
+  <meta name="description" content="Interactive calculator for federated learning: estimate training time, communication overhead, bandwidth cost, convergence rounds. Compare FedAvg, FedProx, FedMA.">
+  <meta name="keywords" content="federated learning, round estimator, FedAvg, FedProx, FedMA, distributed training, communication cost, convergence">
+  <link rel="canonical" href="https://lockml.com/tools/federated-learning-estimator">
+  <!-- JSON-LD FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How is total training time calculated?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Total training time = (computation time per round + communication time per round) × total target rounds. Computation per round = local epochs × dataset size / 1000 (simulated throughput). Communication per round = model size / bandwidth × 8 (converted to seconds)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What strategies are compared?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "FedAvg (baseline), FedProx (proximal term, ~10% slower convergence), FedMA (matching & averaging, ~15% faster convergence). Estimates are based on round efficiency."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is communication vs computation ratio?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ratio = communication time per round / computation time per round. Higher ratio indicates communication bottleneck."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 1.5rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 1200px;
+      width: 100%;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #38bdf8, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.25rem;
+    }
+    .subhead {
+      color: #94a3b8;
+      font-size: 1rem;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 0.75rem;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 1.25rem;
+      padding: 1.5rem 1.8rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      border: 1px solid #334155;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.8rem;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1.2rem;
+    }
+    .input-group label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      letter-spacing: 0.02em;
+    }
+    .input-group input {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 0.75rem;
+      padding: 0.7rem 1rem;
+      color: #f1f5f9;
+      font-size: 1rem;
+      transition: 0.2s;
+      width: 100%;
+    }
+    .input-group input:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+    }
+    .input-group input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    .input-group input::-webkit-outer-spin-button,
+    .input-group input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+    .btn {
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      font-weight: 600;
+      padding: 0.9rem 1.8rem;
+      border-radius: 2rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      width: fit-content;
+      margin-top: 0.5rem;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    }
+    .btn:hover {
+      background: #7dd3fc;
+      transform: scale(1.02);
+      box-shadow: 0 6px 16px rgba(56, 189, 248, 0.5);
+    }
+    .btn-block {
+      width: 100%;
+      text-align: center;
+    }
+    .results-panel {
+      margin-top: 1.5rem;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 1rem;
+      margin: 1.2rem 0;
+    }
+    .stat-card {
+      background: #0f172a;
+      border-radius: 1rem;
+      padding: 1rem 0.8rem;
+      border-left: 4px solid #38bdf8;
+    }
+    .stat-card .label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #94a3b8;
+    }
+    .stat-card .value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-top: 0.2rem;
+      word-break: break-word;
+    }
+    .stat-card .value small {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #94a3b8;
+    }
+    .strategy-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.2rem 0;
+    }
+    .strategy-table th {
+      text-align: left;
+      padding: 0.6rem 0.2rem;
+      color: #94a3b8;
+      font-weight: 500;
+      font-size: 0.8rem;
+      border-bottom: 1px solid #334155;
+    }
+    .strategy-table td {
+      padding: 0.7rem 0.2rem;
+      border-bottom: 1px solid #1e293b;
+    }
+    .strategy-table tr:last-child td {
+      border-bottom: none;
+    }
+    .badge {
+      background: #334155;
+      padding: 0.2rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #b9d1f0;
+    }
+    .timeline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem 0.2rem;
+      margin: 1.5rem 0 0.5rem;
+    }
+    .round-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #334155;
+      transition: 0.2s;
+    }
+    .round-dot.completed {
+      background: #38bdf8;
+      box-shadow: 0 0 6px #38bdf8;
+    }
+    .round-dot.prox {
+      background: #a78bfa;
+    }
+    .round-dot.ma {
+      background: #34d399;
+    }
+    .timeline-label {
+      font-size: 0.7rem;
+      color: #94a3b8;
+      width: 100%;
+      margin-top: 0.3rem;
+    }
+    footer {
+      margin-top: 2.5rem;
+      text-align: center;
+      color: #475569;
+      font-size: 0.9rem;
+      border-top: 1px solid #1e293b;
+      padding-top: 1.5rem;
+    }
+    @media (max-width: 700px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+      .card {
+        padding: 1.2rem;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+      .stat-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 480px) {
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .inline-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+    }
+    .note {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 0.2rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>⚡ Federated Learning Round Estimator</h1>
+    <div class="subhead">Plan distributed training · Compare FedAvg · FedProx · FedMA</div>
+  </header>
+
+  <div class="card">
+    <div class="grid-2">
+      <div>
+        <div class="input-group">
+          <label for="clients">Number of clients (2–10,000)</label>
+          <input type="number" id="clients" min="2" max="10000" value="50" step="1">
+        </div>
+        <div class="input-group">
+          <label for="localData">Local dataset size per client (samples)</label>
+          <input type="number" id="localData" min="1" value="600" step="10">
+        </div>
+        <div class="input-group">
+          <label for="localEpochs">Local epochs per round</label>
+          <input type="number" id="localEpochs" min="1" max="100" value="5" step="1">
+        </div>
+        <div class="input-group">
+          <label for="targetRounds">Total target rounds</label>
+          <input type="number" id="targetRounds" min="1" max="10000" value="200" step="1">
+        </div>
+      </div>
+      <div>
+        <div class="input-group">
+          <label for="bandwidth">Communication bandwidth (Mbps)</label>
+          <input type="number" id="bandwidth" min="0.1" max="100000" value="100" step="0.5">
+        </div>
+        <div class="input-group">
+          <label for="modelSize">Model size (MB)</label>
+          <input type="number" id="modelSize" min="0.01" max="10000" value="25" step="0.5">
+        </div>
+        <div class="input-group" style="margin-top: 1.8rem;">
+          <button class="btn btn-block" id="calculateBtn">⟳ Calculate Estimates</button>
+        </div>
+        <div class="note">* Computation throughput simulated: 1000 samples/epoch per unit time. Convergence estimates relative to FedAvg baseline.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="card" id="resultsPanel">
+    <h2 style="font-size: 1.4rem; font-weight: 500; margin-bottom: 0.5rem;">📊 Training Overview</h2>
+    <div class="stat-grid" id="mainStats">
+      <div class="stat-card"><div class="label">Total training time</div><div class="value" id="totalTime">—</div></div>
+      <div class="stat-card"><div class="label">Comm. overhead / round</div><div class="value" id="commOverhead">—</div></div>
+      <div class="stat-card"><div class="label">Bandwidth cost (GB)</div><div class="value" id="bandwidthCost">—</div></div>
+      <div class="stat-card"><div class="label">Computation vs comm. ratio</div><div class="value" id="compCommRatio">—</div></div>
+    </div>
+
+    <h3 style="font-size: 1.1rem; font-weight: 500; margin: 1.5rem 0 0.5rem;">🧠 Strategy comparison · Convergence rounds to target accuracy</h3>
+    <table class="strategy-table" id="strategyTable">
+      <thead><tr><th>Strategy</th><th>Rounds to converge</th><th>Total time (est.)</th><th>Speed vs FedAvg</th></tr></thead>
+      <tbody id="strategyBody">
+        <tr><td><span class="badge" style="background:#1e3a5f;">FedAvg</span></td><td id="fedAvgRounds">—</td><td id="fedAvgTime">—</td><td>baseline</td></tr>
+        <tr><td><span class="badge" style="background:#3b1f6e;">FedProx</span></td><td id="fedProxRounds">—</td><td id="fedProxTime">—</td><td id="fedProxSpeed">—</td></tr>
+        <tr><td><span class="badge" style="background:#1e5a3a;">FedMA</span></td><td id="fedMARounds">—</td><td id="fedMATime">—</td><td id="fedMASpeed">—</td></tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 1.8rem;">
+      <h4 style="font-weight: 400; font-size: 1rem; color:#94a3b8;">⏱️ Federated rounds timeline (first 40 rounds · FedAvg · FedProx · FedMA)</h4>
+      <div class="timeline" id="timelineContainer">
+        <!-- dots generated by JS -->
+      </div>
+      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 0.5rem; font-size:0.75rem; color:#94a3b8;">
+        <span><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#38bdf8; margin-right:6px;"></span> FedAvg</span>
+        <span><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#a78bfa; margin-right:6px;"></span> FedProx</span>
+        <span><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#34d399; margin-right:6px;"></span> FedMA</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>© 2025 lockml.com</footer>
+</div>
+
+<script>
+  (function() {
+    const clientsInput = document.getElementById('clients');
+    const localDataInput = document.getElementById('localData');
+    const localEpochsInput = document.getElementById('localEpochs');
+    const targetRoundsInput = document.getElementById('targetRounds');
+    const bandwidthInput = document.getElementById('bandwidth');
+    const modelSizeInput = document.getElementById('modelSize');
+    const calculateBtn = document.getElementById('calculateBtn');
+
+    // result fields
+    const totalTimeEl = document.getElementById('totalTime');
+    const commOverheadEl = document.getElementById('commOverhead');
+    const bandwidthCostEl = document.getElementById('bandwidthCost');
+    const compCommRatioEl = document.getElementById('compCommRatio');
+    const fedAvgRounds = document.getElementById('fedAvgRounds');
+    const fedAvgTime = document.getElementById('fedAvgTime');
+    const fedProxRounds = document.getElementById('fedProxRounds');
+    const fedProxTime = document.getElementById('fedProxTime');
+    const fedProxSpeed = document.getElementById('fedProxSpeed');
+    const fedMARounds = document.getElementById('fedMARounds');
+    const fedMATime = document.getElementById('fedMATime');
+    const fedMASpeed = document.getElementById('fedMASpeed');
+    const timelineContainer = document.getElementById('timelineContainer');
+
+    function compute() {
+      // read with fallback
+      let clients = parseFloat(clientsInput.value) || 50;
+      if (clients < 2) clients = 2;
+      if (clients > 10000) clients = 10000;
+      let localData = parseFloat(localDataInput.value) || 600;
+      if (localData < 1) localData = 1;
+      let localEpochs = parseFloat(localEpochsInput.value) || 5;
+      if (localEpochs < 1) localEpochs = 1;
+      let targetRounds = parseFloat(targetRoundsInput.value) || 200;
+      if (targetRounds < 1) targetRounds = 1;
+      let bandwidth = parseFloat(bandwidthInput.value) || 100;
+      if (bandwidth < 0.1) bandwidth = 0.1;
+      let modelSize = parseFloat(modelSizeInput.value) || 25;
+      if (modelSize < 0.01) modelSize = 0.01;
+
+      // --- core calculations ---
+      // computation time per round: (localEpochs * localData) / 1000  (simulated throughput)
+      const compTimePerRound = (localEpochs * localData) / 1000; // in seconds (abstract)
+      // communication time per round: modelSize (MB) * 8 / bandwidth (Mbps) => seconds
+      const commTimePerRound = (modelSize * 8) / bandwidth; // seconds
+      // total training time (per round sum * target rounds)
+      const totalTimePerRound = compTimePerRound + commTimePerRound;
+      const totalTrainingTime = totalTimePerRound * targetRounds;
+
+      // communication overhead per round (seconds)
+      const commOverhead = commTimePerRound;
+
+      // bandwidth cost: total data transferred = modelSize (MB) * 2 * clients * targetRounds (upload+download)
+      const totalDataMB = modelSize * 2 * clients * targetRounds;
+      const totalDataGB = totalDataMB / 1024; // GB
+
+      // comp vs comm ratio
+      const ratio = commTimePerRound / (compTimePerRound || 0.001);
+
+      // --- convergence estimates (rounds to target accuracy) ---
+      // baseline FedAvg rounds = targetRounds (as reference)
+      const fedAvgConv = Math.round(targetRounds);
+      // FedProx ~10% slower => more rounds
+      const fedProxConv = Math.round(targetRounds * 1.10);
+      // FedMA ~15% faster => fewer rounds
+      const fedMAConv = Math.round(targetRounds * 0.85);
+
+      // total time per strategy
+      const fedAvgTotal = totalTrainingTime;
+      const fedProxTotal = totalTimePerRound * fedProxConv;
+      const fedMATotal = totalTimePerRound * fedMAConv;
+
+      // speed vs FedAvg (percentage)
+      const proxSpeed = ((fedAvgTotal / fedProxTotal) * 100).toFixed(1) + '%';
+      const maSpeed = ((fedAvgTotal / fedMATotal) * 100).toFixed(1) + '%';
+
+      // --- update DOM ---
+      totalTimeEl.innerHTML = `${totalTrainingTime.toFixed(2)} <small>s</small>`;
+      commOverheadEl.innerHTML = `${commOverhead.toFixed(3)} <small>s</small>`;
+      bandwidthCostEl.innerHTML = `${totalDataGB.toFixed(3)} <small>GB</small>`;
+      compCommRatioEl.innerHTML = ratio.toFixed(2);
+
+      fedAvgRounds.textContent = fedAvgConv;
+      fedAvgTime.textContent = fedAvgTotal.toFixed(1) + 's';
+      fedProxRounds.textContent = fedProxConv;
+      fedProxTime.textContent = fedProxTotal.toFixed(1) + 's';
+      fedProxSpeed.textContent = proxSpeed;
+      fedMARounds.textContent = fedMAConv;
+      fedMATime.textContent = fedMATotal.toFixed(1) + 's';
+      fedMASpeed.textContent = maSpeed;
+
+      // --- timeline dots (first 40 rounds) ---
+      const maxDots = 40;
+      const roundsToShow = Math.min(targetRounds, maxDots);
+      let html = '';
+      for (let i = 0; i < roundsToShow; i++) {
+        const roundNum = i + 1;
+        let classNames = 'round-dot';
+        // simulate convergence: FedAvg baseline, prox slower, MA faster
+        // show colors based on convergence thresholds
+        if (roundNum <= fedMAConv) {
+          classNames += ' ma'; // green for fedMA (if within its convergence)
+        }
+        if (roundNum <= fedProxConv) {
+          classNames += ' prox'; // purple for fedprox
+        }
+        if (roundNum <= fedAvgConv) {
+          classNames += ' completed'; // blue for fedavg
+        }
+        // if round beyond all? keep default
+        html += `<span class="${classNames}" title="Round ${roundNum}"></span>`;
+      }
+      if (targetRounds > maxDots) {
+        html += `<span style="font-size:0.7rem;color:#64748b;margin-left:6px;">+${targetRounds - maxDots} more</span>`;
+      }
+      timelineContainer.innerHTML = html;
+    }
+
+    // initial calculation
+    compute();
+
+    // event listener
+    calculateBtn.addEventListener('click', compute);
+    // also compute on enter key (optional)
+    const inputs = [clientsInput, localDataInput, localEpochsInput, targetRoundsInput, bandwidthInput, modelSizeInput];
+    inputs.forEach(inp => inp.addEventListener('change', compute));
+    // add blur for better UX
+    inputs.forEach(inp => inp.addEventListener('blur', compute));
+  })();
+</script>
+</body>
+</html>
