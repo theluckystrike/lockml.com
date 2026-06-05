@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Poisoning Impact Estimator | lockml.com</title>
+    <meta name="description" content="Estimate how poisoned data affects model accuracy. Calculate degradation curves, attack thresholds & defense recommendations.">
+    <meta name="keywords" content="data poisoning, backdoor attack, model robustness, adversarial ML, poison attack">
+    <link rel="canonical" href="https://lockml.com/tools/data-poisoning-estimator">
+
+    <meta property="og:title" content="Data Poisoning Impact Estimator | lockml.com">
+    <meta property="og:description" content="Estimate how poisoned data affects model accuracy. Calculate degradation curves, attack thresholds & defense recommendations.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/data-poisoning-estimator">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Data Poisoning Impact Estimator",
+        "description": "Estimate impact of poisoned data on model accuracy",
+        "url": "https://lockml.com/tools/data-poisoning-estimator",
+        "applicationCategory": "SecurityApplication",
+        "provider": {
+            "@type": "Organization",
+            "name": "lockml.com"
+        }
+    }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ff4444;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #cccccc;
+        }
+
+        .tool-section {
+            background-color: #111111;
+            border: 1px solid #222222;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="number"],
+        select {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #ff4444;
+        }
+
+        button {
+            background-color: #ff4444;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #ff6666;
+        }
+
+        button:active {
+            background-color: #dd2222;
+        }
+
+        .results-section {
+            margin-top: 40px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 15px;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: #888888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff4444;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            font-size: 0.8rem;
+            color: #666666;
+        }
+
+        .chart-container {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            height: 400px;
+        }
+
+        .defense-checklist {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .defense-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #222222;
+        }
+
+        .defense-item:last-child {
+            border-bottom: none;
+        }
+
+        .defense-check {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 2px solid #ff4444;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .defense-check.active {
+            background-color: #ff4444;
+            color: #000000;
+        }
+
+        .defense-content {
+            flex: 1;
+        }
+
+        .defense-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .defense-desc {
+            font-size: 0.85rem;
+            color: #888888;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .explanation h2 {
+            color: #ff4444;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            color: #cccccc;
+            line-height: 1.8;
+        }
+
+        .explanation ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+            color: #cccccc;
+        }
+
+        .explanation li {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666666;
+            border-top: 1px solid #222222;
+            margin-top: 60px;
+        }
+
+        .error {
+            background-color: #2a1a1a;
+            border: 1px solid #664444;
+            border-radius: 4px;
+            padding: 15px;
+            color: #ff6666;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Data Poisoning Impact Estimator</h1>
+            <p class="subtitle">Assess how poisoned data affects model accuracy</p>
+        </header>
+
+        <div class="tool-section">
+            <div class="input-grid">
+                <div class="form-group">
+                    <label for="datasetSize">Total Training Dataset Size</label>
+                    <input type="number" id="datasetSize" min="100" value="10000" step="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="poisonedSamples">Poisoned Samples</label>
+                    <input type="number" id="poisonedSamples" min="0" value="100" step="10">
+                </div>
+
+                <div class="form-group">
+                    <label for="modelType">Model Type</label>
+                    <select id="modelType">
+                        <option value="linear">Linear</option>
+                        <option value="cnn" selected>CNN</option>
+                        <option value="transformer">Transformer</option>
+                        <option value="rf">Random Forest</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="numClasses">Number of Classes</label>
+                    <input type="number" id="numClasses" min="2" value="10" step="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="baseAccuracy">Base Accuracy Without Poisoning (%)</label>
+                    <input type="number" id="baseAccuracy" min="0" max="100" value="95" step="0.1">
+                </div>
+            </div>
+
+            <button onclick="estimatePoisoning()">Estimate Impact</button>
+
+            <div class="error" id="error"></div>
+        </div>
+
+        <div class="results-section" id="results" style="display: none;">
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-label">Poisoning Ratio</div>
+                    <div class="result-value" id="poisonRatio">-</div>
+                    <div class="result-unit">%</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Accuracy Degradation</div>
+                    <div class="result-value" id="degradation">-</div>
+                    <div class="result-unit">%</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Effective Accuracy</div>
+                    <div class="result-value" id="effectiveAcc">-</div>
+                    <div class="result-unit">%</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Targeted Attack Cost</div>
+                    <div class="result-value" id="targetedCost">-</div>
+                    <div class="result-unit">samples</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Untargeted Attack Cost</div>
+                    <div class="result-value" id="untargetedCost">-</div>
+                    <div class="result-unit">samples</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Detection Difficulty</div>
+                    <div class="result-value" id="detectDifficulty">-</div>
+                    <div class="result-unit">/10</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2 style="color: #ff4444; margin-bottom: 15px;">Accuracy vs Poisoning Ratio</h2>
+                <canvas id="poisoningChart"></canvas>
+            </div>
+
+            <div class="defense-checklist">
+                <h2 style="color: #ff4444; margin-bottom: 15px; font-size: 1.2rem;">Recommended Defenses</h2>
+                <div id="defenseItems"></div>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h2>Data Poisoning Attacks</h2>
+            <p>Data poisoning is an attack where an adversary manipulates training data to degrade model performance or inject backdoors. The attacker either has direct access to training data or can influence it through data collection processes.</p>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Attack Types:</h3>
+            <ul>
+                <li><strong>Untargeted/Availability Attack:</strong> Degrade overall model accuracy for all inputs</li>
+                <li><strong>Targeted/Backdoor Attack:</strong> Misclassify specific trigger-labeled samples while maintaining accuracy on clean data</li>
+                <li><strong>Clean-Label Attack:</strong> Poison data with correct labels but adversarial features (harder to detect)</li>
+                <li><strong>Dirty-Label Attack:</strong> Mislabel poisoned samples (easier to execute but easier to detect)</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Key Factors:</h3>
+            <ul>
+                <li><strong>Model Complexity:</strong> More complex models (Transformers, CNNs) are generally more vulnerable to poisoning</li>
+                <li><strong>Poisoning Ratio:</strong> Higher percentage of poisoned data = greater impact (usually sublinear)</li>
+                <li><strong>Attack Gradient:</strong> Knowledge of model architecture enables more efficient attacks</li>
+                <li><strong>Model Capacity:</strong> Smaller models may degrade faster; very large models may be more robust</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Defense Strategies:</h3>
+            <ul>
+                <li><strong>Data Validation:</strong> Inspect training data for anomalies using statistical tests</li>
+                <li><strong>Robust Training:</strong> Use adversarial training or certified defenses</li>
+                <li><strong>Outlier Detection:</strong> Remove statistically unusual samples from training set</li>
+                <li><strong>Model Ensemble:</strong> Combine multiple independently trained models</li>
+                <li><strong>Differential Privacy:</strong> Add noise to gradient updates during training</li>
+                <li><strong>Trigger Detection:</strong> Test model for backdoor patterns using reverse-engineering techniques</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 lockml.com
+    </footer>
+
+    <script>
+        function estimatePoisoning() {
+            const errorDiv = document.getElementById('error');
+            errorDiv.classList.remove('show');
+
+            try {
+                const datasetSize = parseInt(document.getElementById('datasetSize').value);
+                const poisonedSamples = parseInt(document.getElementById('poisonedSamples').value);
+                const modelType = document.getElementById('modelType').value;
+                const numClasses = parseInt(document.getElementById('numClasses').value);
+                const baseAccuracy = parseFloat(document.getElementById('baseAccuracy').value);
+
+                if (poisonedSamples > datasetSize) {
+                    throw new Error('Poisoned samples cannot exceed dataset size');
+                }
+
+                const poisonRatio = (poisonedSamples / datasetSize) * 100;
+
+                // Model-specific degradation curves
+                const degradationMap = {
+                    'linear': 0.3,
+                    'cnn': 0.8,
+                    'transformer': 1.0,
+                    'rf': 0.5
+                };
+
+                const degradationFactor = degradationMap[modelType];
+                const maxDegradation = degradationFactor * (100 - baseAccuracy) * 0.5;
+                const degradation = poisonRatio * (maxDegradation / 100) * Math.sqrt(poisonRatio / 5);
+                const effectiveAccuracy = Math.max(baseAccuracy - degradation, 10);
+
+                // Attack costs (samples needed for successful attack)
+                const targetedCost = Math.ceil(datasetSize * 0.05 * degradationFactor);
+                const untargetedCost = Math.ceil(datasetSize * 0.15 * degradationFactor);
+
+                // Detection difficulty (higher = harder to detect)
+                const detectionDifficulty = Math.min(10, 3 + poisonRatio / 2 + (modelType === 'transformer' ? 2 : 0));
+
+                // Update results
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('poisonRatio').textContent = poisonRatio.toFixed(2);
+                document.getElementById('degradation').textContent = degradation.toFixed(2);
+                document.getElementById('effectiveAcc').textContent = effectiveAccuracy.toFixed(2);
+                document.getElementById('targetedCost').textContent = targetedCost;
+                document.getElementById('untargetedCost').textContent = untargetedCost;
+                document.getElementById('detectDifficulty').textContent = detectionDifficulty.toFixed(1);
+
+                drawPoisoningCurve(datasetSize, baseAccuracy, degradationFactor);
+                populateDefenses(poisonRatio, modelType);
+
+            } catch (e) {
+                errorDiv.textContent = 'Error: ' + e.message;
+                errorDiv.classList.add('show');
+                document.getElementById('results').style.display = 'none';
+            }
+        }
+
+        function drawPoisoningCurve(datasetSize, baseAccuracy, degradationFactor) {
+            const canvas = document.getElementById('poisoningChart');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+
+            const padding = 60;
+            const width = rect.width - 2 * padding;
+            const height = rect.height - 2 * padding;
+
+            // Clear background
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, rect.width, rect.height);
+
+            // Draw axes
+            ctx.strokeStyle = '#333333';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, padding + height);
+            ctx.lineTo(padding + width, padding + height);
+            ctx.stroke();
+
+            // Draw grid
+            ctx.strokeStyle = '#222222';
+            for (let i = 1; i < 5; i++) {
+                const x = padding + (width / 4) * i;
+                const y = padding + (height / 4) * i;
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, padding + height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(padding + width, y);
+                ctx.stroke();
+            }
+
+            // Plot curve
+            ctx.strokeStyle = '#ff4444';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            for (let i = 0; i <= 100; i += 1) {
+                const poisonRatio = i;
+                const maxDegradation = degradationFactor * (100 - baseAccuracy) * 0.5;
+                const degradation = poisonRatio * (maxDegradation / 100) * Math.sqrt(poisonRatio / 5);
+                const accuracy = Math.max(baseAccuracy - degradation, 10);
+
+                const x = padding + (poisonRatio / 100) * width;
+                const y = padding + height - ((accuracy / 100) * height);
+
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#888888';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Poisoning Ratio (%)', padding + width / 2, padding + height + 35);
+
+            ctx.save();
+            ctx.translate(15, padding + height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Model Accuracy (%)', 0, 0);
+            ctx.restore();
+
+            // Axis labels
+            ctx.fillStyle = '#666666';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 4; i++) {
+                const value = baseAccuracy - (baseAccuracy * i / 4);
+                const y = padding + (height / 4) * i;
+                ctx.fillText(value.toFixed(0), padding - 10, y + 4);
+            }
+
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 4; i++) {
+                const value = i * 25;
+                const x = padding + (width / 4) * i;
+                ctx.fillText(value, x, padding + height + 15);
+            }
+        }
+
+        function populateDefenses(poisonRatio, modelType) {
+            const defenses = [
+                {
+                    name: 'Data Validation & Profiling',
+                    desc: 'Statistical anomaly detection on training data',
+                    recommended: poisonRatio > 1
+                },
+                {
+                    name: 'Outlier Detection (Isolation Forest)',
+                    desc: 'Remove statistical outliers before training',
+                    recommended: poisonRatio > 0.5
+                },
+                {
+                    name: 'Adversarial Training',
+                    desc: 'Train with worst-case poisoned samples',
+                    recommended: poisonRatio > 2
+                },
+                {
+                    name: 'Model Ensemble',
+                    desc: 'Combine 5+ independently trained models',
+                    recommended: poisonRatio > 3
+                },
+                {
+                    name: 'Differential Privacy',
+                    desc: 'Add noise to gradients; harder to craft targeted attacks',
+                    recommended: poisonRatio > 1
+                },
+                {
+                    name: 'Trigger Pattern Detection',
+                    desc: 'Reverse-engineer backdoor patterns (for backdoor attacks)',
+                    recommended: modelType === 'transformer'
+                }
+            ];
+
+            const container = document.getElementById('defenseItems');
+            container.innerHTML = '';
+
+            for (const defense of defenses) {
+                const div = document.createElement('div');
+                div.className = 'defense-item';
+                div.innerHTML = `
+                    <div class="defense-check ${defense.recommended ? 'active' : ''}">
+                        ${defense.recommended ? '✓' : ''}
+                    </div>
+                    <div class="defense-content">
+                        <div class="defense-name">${defense.name}</div>
+                        <div class="defense-desc">${defense.desc}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        // Calculate on load
+        estimatePoisoning();
+    </script>
+</body>
+</html>

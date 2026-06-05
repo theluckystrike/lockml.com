@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Aggregation Calculator | lockml.com</title>
+    <meta name="description" content="Calculate privacy-preserving federated ML overhead. Compute communication, bandwidth & masking costs for SecAgg protocols.">
+    <meta name="keywords" content="secure aggregation, federated learning, privacy-preserving, SecAgg, communication overhead">
+    <link rel="canonical" href="https://lockml.com/tools/secure-aggregation-calculator">
+
+    <meta property="og:title" content="Secure Aggregation Calculator | lockml.com">
+    <meta property="og:description" content="Calculate privacy-preserving federated ML overhead. Compute communication, bandwidth & masking costs for SecAgg protocols.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/secure-aggregation-calculator">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Secure Aggregation Calculator",
+        "description": "Calculate privacy-preserving federated learning overhead",
+        "url": "https://lockml.com/tools/secure-aggregation-calculator",
+        "applicationCategory": "SecurityApplication",
+        "provider": {
+            "@type": "Organization",
+            "name": "lockml.com"
+        }
+    }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ff4444;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #cccccc;
+        }
+
+        .tool-section {
+            background-color: #111111;
+            border: 1px solid #222222;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="number"],
+        select {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #ff4444;
+        }
+
+        button {
+            background-color: #ff4444;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #ff6666;
+        }
+
+        button:active {
+            background-color: #dd2222;
+        }
+
+        .results-section {
+            margin-top: 40px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .comparison-table th {
+            background-color: #222222;
+            color: #ff4444;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid #333333;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid #222222;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:hover {
+            background-color: #1f1f1f;
+        }
+
+        .metric-label {
+            color: #cccccc;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #ff4444;
+            font-weight: 600;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .comparison-label {
+            color: #888888;
+            font-size: 0.85rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 15px;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: #888888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff4444;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            font-size: 0.8rem;
+            color: #666666;
+        }
+
+        .chart-container {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            height: 400px;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .explanation h2 {
+            color: #ff4444;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            color: #cccccc;
+            line-height: 1.8;
+        }
+
+        .explanation ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+            color: #cccccc;
+        }
+
+        .explanation li {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666666;
+            border-top: 1px solid #222222;
+            margin-top: 60px;
+        }
+
+        .error {
+            background-color: #2a1a1a;
+            border: 1px solid #664444;
+            border-radius: 4px;
+            padding: 15px;
+            color: #ff6666;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Secure Aggregation Calculator</h1>
+            <p class="subtitle">Privacy-preserving federated learning overhead estimator</p>
+        </header>
+
+        <div class="tool-section">
+            <div class="input-grid">
+                <div class="form-group">
+                    <label for="numClients">Number of Clients</label>
+                    <input type="number" id="numClients" min="2" max="1000" value="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="paramCount">Model Parameters</label>
+                    <input type="number" id="paramCount" min="1000" value="1000000" step="1000">
+                </div>
+
+                <div class="form-group">
+                    <label for="bitPrecision">Bit Precision</label>
+                    <select id="bitPrecision">
+                        <option value="16">16-bit (FP16)</option>
+                        <option value="32" selected>32-bit (FP32)</option>
+                        <option value="64">64-bit (FP64)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dropoutTolerance">Dropout Tolerance (%)</label>
+                    <input type="number" id="dropoutTolerance" min="0" max="50" value="10">
+                </div>
+
+                <div class="form-group">
+                    <label for="threshold">Secret Sharing Threshold (t)</label>
+                    <input type="number" id="threshold" min="2" max="100" value="50">
+                </div>
+            </div>
+
+            <button onclick="calculateSecAgg()">Calculate SecAgg Overhead</button>
+
+            <div class="error" id="error"></div>
+        </div>
+
+        <div class="results-section" id="results" style="display: none;">
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-label">Communication per Round</div>
+                    <div class="result-value" id="commOverhead">-</div>
+                    <div class="result-unit">MB</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Total Bandwidth</div>
+                    <div class="result-value" id="totalBandwidth">-</div>
+                    <div class="result-unit">MB</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Masking Overhead</div>
+                    <div class="result-value" id="maskingOverhead">-</div>
+                    <div class="result-unit">x multiplier</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Compute Cost per Client</div>
+                    <div class="result-value" id="computeCost">-</div>
+                    <div class="result-unit">operations</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Min Surviving Clients</div>
+                    <div class="result-value" id="minClients">-</div>
+                    <div class="result-unit">required</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Shamir Shares per Client</div>
+                    <div class="result-value" id="shamirShares">-</div>
+                    <div class="result-unit">total shares</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2 style="color: #ff4444; margin-bottom: 15px;">FedAvg vs SecAgg Overhead</h2>
+                <canvas id="overheadChart"></canvas>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Protocol</th>
+                        <th>Per-Round Cost</th>
+                        <th>Rounds Needed</th>
+                        <th>Total Cost</th>
+                        <th>Privacy Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="metric-label">Plain FedAvg</td>
+                        <td class="metric-value" id="plainCost">-</td>
+                        <td class="metric-value" id="plainRounds">-</td>
+                        <td class="metric-value" id="plainTotal">-</td>
+                        <td><span class="comparison-label">None</span></td>
+                    </tr>
+                    <tr>
+                        <td class="metric-label">Secure Aggregation</td>
+                        <td class="metric-value" id="secaggCost">-</td>
+                        <td class="metric-value" id="secaggRounds">-</td>
+                        <td class="metric-value" id="secaggTotal">-</td>
+                        <td><span class="comparison-label">Cryptographic</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="explanation">
+            <h2>Secure Aggregation Protocol</h2>
+            <p>Secure Aggregation (SecAgg) is a cryptographic protocol that enables federated learning while protecting individual client updates from the server. Only the aggregate model update is revealed, not individual gradients.</p>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">How It Works:</h3>
+            <ul>
+                <li><strong>Masking:</strong> Each client adds a random mask to their gradient before transmission</li>
+                <li><strong>Secret Sharing:</strong> Masks are split using Shamir's secret sharing (t-of-n threshold)</li>
+                <li><strong>Aggregation:</strong> Server aggregates encrypted updates without seeing individual values</li>
+                <li><strong>Unmasking:</strong> After enough clients aggregate, masks cancel out and true sum is revealed</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Key Calculations:</h3>
+            <ul>
+                <li><strong>Communication Overhead:</strong> Includes client updates, masks, and secret shares</li>
+                <li><strong>Masking Overhead:</strong> Ratio of encrypted size to plaintext updates</li>
+                <li><strong>Threshold (t):</strong> Minimum clients needed to recover aggregate (set to n/2 for Byzantine resilience)</li>
+                <li><strong>Dropout Tolerance:</strong> Additional clients needed beyond threshold to handle failures</li>
+                <li><strong>Bit Precision:</strong> 16-bit (FP16) saves bandwidth; 32-bit (FP32) standard; 64-bit (FP64) highest precision</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Privacy Guarantees:</h3>
+            <ul>
+                <li>Server learns only the sum of updates, never individual gradients</li>
+                <li>Collusion of up to (n - t) clients + server cannot recover any individual update</li>
+                <li>Compatible with differential privacy for additional noise-based guarantees</li>
+                <li>Provides information-theoretic privacy (not computational)</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Tradeoffs:</h3>
+            <ul>
+                <li>Higher communication and computation cost than plain FedAvg (typically 5-20x)</li>
+                <li>Synchronization challenges with dropout clients</li>
+                <li>Requires honest-but-curious threat model for server</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 lockml.com
+    </footer>
+
+    <script>
+        function calculateSecAgg() {
+            const errorDiv = document.getElementById('error');
+            errorDiv.classList.remove('show');
+
+            try {
+                const numClients = parseInt(document.getElementById('numClients').value);
+                const paramCount = parseInt(document.getElementById('paramCount').value);
+                const bitPrecision = parseInt(document.getElementById('bitPrecision').value);
+                const dropoutTolerance = parseInt(document.getElementById('dropoutTolerance').value);
+                const threshold = parseInt(document.getElementById('threshold').value);
+
+                if (numClients < 2) throw new Error('Need at least 2 clients');
+                if (threshold > numClients) throw new Error('Threshold cannot exceed number of clients');
+                if (threshold < 2) throw new Error('Threshold must be at least 2');
+
+                // Calculate bytes per parameter
+                const bytesPerParam = bitPrecision / 8;
+                const plainUpdateSize = paramCount * bytesPerParam / (1024 * 1024); // MB
+
+                // Communication overhead for SecAgg
+                // Each client sends: update (1x) + shares for n clients (n-1 shares per client, each share is same size)
+                const sharesPerClient = numClients; // Each client creates n shares
+                const shareSize = paramCount * bytesPerParam / (1024 * 1024); // Same size as update
+                const clientComm = plainUpdateSize + (sharesPerClient - 1) * (plainUpdateSize / numClients);
+                const totalClientComm = numClients * clientComm;
+
+                // Masking overhead
+                const maskingOverhead = (plainUpdateSize + shareSize * sharesPerClient) / plainUpdateSize;
+
+                // Compute cost: polynomial evaluation and interpolation
+                const polyEval = paramCount * numClients * Math.log2(numClients);
+                const polyInterp = paramCount * threshold * Math.log2(threshold);
+                const computeCostPerClient = polyEval / numClients + polyInterp;
+
+                // Minimum surviving clients
+                const minSurvivingClients = threshold;
+                const recommendedClients = threshold + Math.ceil(numClients * dropoutTolerance / 100);
+
+                // Rounds and total bandwidth
+                const rounds = 1;
+                const totalBandwidth = totalClientComm * rounds;
+
+                // Plain FedAvg comparison
+                const plainRoundCost = numClients * plainUpdateSize;
+                const secaggRoundCost = totalClientComm;
+
+                // Update UI
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('commOverhead').textContent = totalClientComm.toFixed(2);
+                document.getElementById('totalBandwidth').textContent = totalBandwidth.toFixed(2);
+                document.getElementById('maskingOverhead').textContent = maskingOverhead.toFixed(2);
+                document.getElementById('computeCost').textContent = (computeCostPerClient / 1000000).toFixed(2) + 'M';
+                document.getElementById('minClients').textContent = minSurvivingClients;
+                document.getElementById('shamirShares').textContent = (sharesPerClient * numClients).toFixed(0);
+
+                document.getElementById('plainCost').textContent = plainRoundCost.toFixed(2) + ' MB';
+                document.getElementById('plainRounds').textContent = rounds;
+                document.getElementById('plainTotal').textContent = (plainRoundCost * rounds).toFixed(2) + ' MB';
+
+                document.getElementById('secaggCost').textContent = secaggRoundCost.toFixed(2) + ' MB';
+                document.getElementById('secaggRounds').textContent = rounds;
+                document.getElementById('secaggTotal').textContent = (secaggRoundCost * rounds).toFixed(2) + ' MB';
+
+                drawOverheadChart(plainRoundCost, secaggRoundCost, maskingOverhead);
+
+            } catch (e) {
+                errorDiv.textContent = 'Error: ' + e.message;
+                errorDiv.classList.add('show');
+                document.getElementById('results').style.display = 'none';
+            }
+        }
+
+        function drawOverheadChart(plainCost, secaggCost, maskingFactor) {
+            const canvas = document.getElementById('overheadChart');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+
+            const padding = 60;
+            const chartWidth = rect.width - 2 * padding;
+            const chartHeight = rect.height - 2 * padding;
+
+            // Clear background
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, rect.width, rect.height);
+
+            // Draw axes
+            ctx.strokeStyle = '#333333';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, padding + chartHeight);
+            ctx.lineTo(padding + chartWidth, padding + chartHeight);
+            ctx.stroke();
+
+            // Draw bars
+            const barWidth = chartWidth / 3 / 2.5;
+            const maxValue = Math.max(plainCost, secaggCost) * 1.2;
+            const scale = chartHeight / maxValue;
+
+            // Plain FedAvg bar
+            const barHeight1 = plainCost * scale;
+            ctx.fillStyle = '#666666';
+            ctx.fillRect(padding + 30, padding + chartHeight - barHeight1, barWidth, barHeight1);
+
+            // SecAgg bar
+            const barHeight2 = secaggCost * scale;
+            ctx.fillStyle = '#ff4444';
+            ctx.fillRect(padding + 30 + barWidth + 20, padding + chartHeight - barHeight2, barWidth, barHeight2);
+
+            // Labels and values
+            ctx.fillStyle = '#888888';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillText('FedAvg', padding + 30 + barWidth / 2, padding + chartHeight + 25);
+            ctx.fillText('SecAgg', padding + 30 + barWidth * 1.5 + 20, padding + chartHeight + 25);
+
+            ctx.fillStyle = '#ff4444';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText(plainCost.toFixed(1) + ' MB', padding + 30 + barWidth / 2, padding + chartHeight - barHeight1 - 10);
+            ctx.fillText(secaggCost.toFixed(1) + ' MB', padding + 30 + barWidth * 1.5 + 20, padding + chartHeight - barHeight2 - 10);
+
+            // Y-axis label
+            ctx.fillStyle = '#888888';
+            ctx.font = '12px sans-serif';
+            ctx.save();
+            ctx.translate(20, padding + chartHeight / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText('Communication (MB)', 0, 0);
+            ctx.restore();
+
+            // Y-axis scale
+            ctx.fillStyle = '#666666';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 4; i++) {
+                const value = (maxValue / 4) * i;
+                const y = padding + chartHeight - (value * scale);
+                ctx.fillText(value.toFixed(0), padding - 10, y + 4);
+            }
+        }
+
+        // Calculate on load
+        calculateSecAgg();
+    </script>
+</body>
+</html>

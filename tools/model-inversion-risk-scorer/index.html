@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Inversion Risk Scorer | lockml.com</title>
+    <meta name="description" content="Assess gradient leakage vulnerability. Score DLG attack probability, recommend DP-SGD and gradient clipping defenses.">
+    <meta name="keywords" content="model inversion, gradient leakage, DLG, deep leakage, privacy attack, differential privacy">
+    <link rel="canonical" href="https://lockml.com/tools/model-inversion-risk-scorer">
+
+    <meta property="og:title" content="Model Inversion Risk Scorer | lockml.com">
+    <meta property="og:description" content="Assess gradient leakage vulnerability. Score DLG attack probability, recommend DP-SGD and gradient clipping defenses.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/model-inversion-risk-scorer">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Model Inversion Risk Scorer",
+        "description": "Assess gradient leakage vulnerability in ML models",
+        "url": "https://lockml.com/tools/model-inversion-risk-scorer",
+        "applicationCategory": "SecurityApplication",
+        "provider": {
+            "@type": "Organization",
+            "name": "lockml.com"
+        }
+    }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ff4444;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #cccccc;
+        }
+
+        .tool-section {
+            background-color: #111111;
+            border: 1px solid #222222;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="number"],
+        select {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #ff4444;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: 1px solid #333333;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn.active {
+            background-color: #ff4444;
+            border-color: #ff4444;
+        }
+
+        button {
+            background-color: #ff4444;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #ff6666;
+        }
+
+        button:active {
+            background-color: #dd2222;
+        }
+
+        .results-section {
+            margin-top: 40px;
+        }
+
+        .risk-gauge {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .gauge-circle {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .gauge-arc {
+            width: 100%;
+            height: 100%;
+        }
+
+        .gauge-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ff4444;
+            margin-top: 10px;
+        }
+
+        .gauge-label {
+            font-size: 0.9rem;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 15px;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: #888888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff4444;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            font-size: 0.8rem;
+            color: #666666;
+        }
+
+        .vulnerability-dims {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dim-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #222222;
+        }
+
+        .dim-row:last-child {
+            border-bottom: none;
+        }
+
+        .dim-label {
+            width: 160px;
+            color: #cccccc;
+            font-weight: 500;
+        }
+
+        .dim-bar {
+            flex: 1;
+            height: 12px;
+            background-color: #222222;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 0 15px;
+        }
+
+        .dim-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444 0%, #ff9999 100%);
+        }
+
+        .dim-value {
+            width: 50px;
+            text-align: right;
+            color: #ff4444;
+            font-weight: 600;
+        }
+
+        .defense-recommendations {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .defense-row {
+            padding: 12px;
+            border-bottom: 1px solid #222222;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .defense-row:last-child {
+            border-bottom: none;
+        }
+
+        .defense-name {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .defense-param {
+            color: #888888;
+            font-size: 0.9rem;
+        }
+
+        .defense-effectiveness {
+            color: #ff4444;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .explanation h2 {
+            color: #ff4444;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            color: #cccccc;
+            line-height: 1.8;
+        }
+
+        .explanation ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+            color: #cccccc;
+        }
+
+        .explanation li {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666666;
+            border-top: 1px solid #222222;
+            margin-top: 60px;
+        }
+
+        .error {
+            background-color: #2a1a1a;
+            border: 1px solid #664444;
+            border-radius: 4px;
+            padding: 15px;
+            color: #ff6666;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Model Inversion Risk Scorer</h1>
+            <p class="subtitle">Assess gradient leakage vulnerability in your ML model</p>
+        </header>
+
+        <div class="tool-section">
+            <div class="input-grid">
+                <div class="form-group">
+                    <label for="modelArch">Model Architecture</label>
+                    <select id="modelArch">
+                        <option value="mlp">MLP (Fully Connected)</option>
+                        <option value="cnn" selected>CNN</option>
+                        <option value="resnet">ResNet</option>
+                        <option value="transformer">Transformer</option>
+                        <option value="gan">GAN</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="numParams">Number of Parameters</label>
+                    <input type="number" id="numParams" min="1000" value="1000000" step="10000">
+                </div>
+
+                <div class="form-group">
+                    <label for="batchSize">Batch Size Used in Training</label>
+                    <input type="number" id="batchSize" min="1" value="32" step="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="gradientsShared">Gradients Shared with Aggregator?</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" onclick="setGradientShared(true)">Yes</button>
+                        <button class="toggle-btn" onclick="setGradientShared(false)">No</button>
+                    </div>
+                    <input type="hidden" id="gradientsShared" value="true">
+                </div>
+
+                <div class="form-group">
+                    <label for="compressionRatio">Gradient Compression Ratio (0-1)</label>
+                    <input type="number" id="compressionRatio" min="0" max="1" step="0.05" value="0.5">
+                </div>
+
+                <div class="form-group">
+                    <label for="iterationsExposed">Training Iterations Exposed</label>
+                    <input type="number" id="iterationsExposed" min="1" value="100" step="10">
+                </div>
+
+                <div class="form-group">
+                    <label for="inputDim">Input Dimensionality</label>
+                    <select id="inputDim">
+                        <option value="784">MNIST (28x28 = 784)</option>
+                        <option value="3072">CIFAR-10 (32x32x3 = 3072)</option>
+                        <option value="150528" selected>ImageNet (224x224x3 = 150528)</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="scoreInversionRisk()">Score Inversion Risk</button>
+
+            <div class="error" id="error"></div>
+        </div>
+
+        <div class="results-section" id="results" style="display: none;">
+            <div class="risk-gauge">
+                <div class="gauge-circle">
+                    <canvas id="riskGaugeCanvas"></canvas>
+                </div>
+                <div class="gauge-value" id="riskScore">-</div>
+                <div class="gauge-label">Inversion Feasibility Score</div>
+                <p style="color: #888888; margin-top: 15px; font-size: 0.9rem;" id="riskDesc"></p>
+            </div>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-label">Gradient-to-Input Ratio</div>
+                    <div class="result-value" id="gradInputRatio">-</div>
+                    <div class="result-unit">bits/element</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Reconstruction Quality (SSIM)</div>
+                    <div class="result-value" id="reconstructionQuality">-</div>
+                    <div class="result-unit">estimated range</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Batch Protection Factor</div>
+                    <div class="result-value" id="batchProtection">-</div>
+                    <div class="result-unit">x reduction</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Compression Effectiveness</div>
+                    <div class="result-value" id="compressionEff">-</div>
+                    <div class="result-unit">% mitigation</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">DLG Attack Probability</div>
+                    <div class="result-value" id="dlgProbability">-</div>
+                    <div class="result-unit">%</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Attack Success Likelihood</div>
+                    <div class="result-value" id="attackSuccess">-</div>
+                    <div class="result-unit">confidence</div>
+                </div>
+            </div>
+
+            <div class="vulnerability-dims">
+                <h2 style="color: #ff4444; margin-bottom: 15px; font-size: 1.1rem;">Vulnerability Dimensions</h2>
+                <div class="dim-row">
+                    <div class="dim-label">Parameter Leakage</div>
+                    <div class="dim-bar"><div class="dim-fill" id="paramLeakBar"></div></div>
+                    <div class="dim-value" id="paramLeakVal">-</div>
+                </div>
+                <div class="dim-row">
+                    <div class="dim-label">Batch Leakage</div>
+                    <div class="dim-bar"><div class="dim-fill" id="batchLeakBar"></div></div>
+                    <div class="dim-value" id="batchLeakVal">-</div>
+                </div>
+                <div class="dim-row">
+                    <div class="dim-label">Architecture Leakage</div>
+                    <div class="dim-bar"><div class="dim-fill" id="archLeakBar"></div></div>
+                    <div class="dim-value" id="archLeakVal">-</div>
+                </div>
+                <div class="dim-row">
+                    <div class="dim-label">Iteration Exposure</div>
+                    <div class="dim-bar"><div class="dim-fill" id="iterLeakBar"></div></div>
+                    <div class="dim-value" id="iterLeakVal">-</div>
+                </div>
+                <div class="dim-row">
+                    <div class="dim-label">Defense Robustness</div>
+                    <div class="dim-bar"><div class="dim-fill" id="defenseBar"></div></div>
+                    <div class="dim-value" id="defenseVal">-</div>
+                </div>
+            </div>
+
+            <div class="defense-recommendations">
+                <h2 style="color: #ff4444; margin-bottom: 15px; font-size: 1.1rem;">Recommended Defenses</h2>
+                <div id="defenseList"></div>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h2>Model Inversion & Gradient Leakage</h2>
+            <p>Model inversion attacks reconstruct training data from shared gradients. The Deep Leakage from Gradients (DLG) attack demonstrates that individual training samples can be recovered from unprotected gradient updates, especially when batches are small and models are complex.</p>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Attack Mechanism (DLG):</h3>
+            <ul>
+                <li>Attacker intercepts gradient g = ∇L(x,y; θ) shared during training</li>
+                <li>Attacker initializes dummy data (x', y') and dummy model parameters</li>
+                <li>Attacker compares dummy gradients to intercepted gradients and optimizes to minimize distance</li>
+                <li>After sufficient optimization iterations, x' converges to original training data x</li>
+                <li>Attack success depends on: batch size, model complexity, gradient resolution, input dimensionality</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Vulnerability Factors:</h3>
+            <ul>
+                <li><strong>Batch Size:</strong> Smaller batches = easier inversion (larger protection factor)</li>
+                <li><strong>Model Complexity:</strong> Deeper/larger models leak more information in gradients</li>
+                <li><strong>Input Dimensionality:</strong> High-dimensional inputs (images) more vulnerable than low-dim (tabular)</li>
+                <li><strong>Gradient History:</strong> Multiple gradient updates amplify leakage</li>
+                <li><strong>Gradient Precision:</strong> Float32 more leaky than quantized/compressed gradients</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Defense Strategies:</h3>
+            <ul>
+                <li><strong>Differential Privacy (DP-SGD):</strong> Add Gaussian noise to gradients. Standard deviation ε controls privacy-utility tradeoff.</li>
+                <li><strong>Gradient Clipping:</strong> Limit gradient norms to reduce information leakage. Clip by global norm or layer-wise norm.</li>
+                <li><strong>Secure Aggregation:</strong> Use cryptographic protocols so server never sees individual gradients.</li>
+                <li><strong>Gradient Compression:</strong> Quantize/prune gradients to reduce information content (but not sufficient alone).</li>
+                <li><strong>Larger Batch Sizes:</strong> Increase batch size to 128+ reduces per-sample gradient information.</li>
+                <li><strong>Gradient Perturbation:</strong> Randomly zero-out some gradient dimensions before sharing.</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Recommended DP-SGD Parameters:</h3>
+            <ul>
+                <li><strong>For Low Risk (ε &gt; 10):</strong> Standard training with minimal privacy loss. Use C=1.0, σ=0.5.</li>
+                <li><strong>For Medium Risk (1 &lt; ε ≤ 10):</strong> Moderate privacy. Use C=0.5, σ=1.0.</li>
+                <li><strong>For High Risk (ε ≤ 1):</strong> Strong privacy guarantees. Use C=0.1, σ=2.0+ (accuracy may suffer).</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 lockml.com
+    </footer>
+
+    <script>
+        let gradientsSharedValue = true;
+
+        function setGradientShared(value) {
+            gradientsSharedValue = value;
+            document.getElementById('gradientsShared').value = value;
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function scoreInversionRisk() {
+            const errorDiv = document.getElementById('error');
+            errorDiv.classList.remove('show');
+
+            try {
+                const modelArch = document.getElementById('modelArch').value;
+                const numParams = parseInt(document.getElementById('numParams').value);
+                const batchSize = parseInt(document.getElementById('batchSize').value);
+                const compressionRatio = parseFloat(document.getElementById('compressionRatio').value);
+                const iterationsExposed = parseInt(document.getElementById('iterationsExposed').value);
+                let inputDim = parseInt(document.getElementById('inputDim').value);
+
+                if (isNaN(inputDim) || inputDim === 0) inputDim = 150528;
+
+                // Architecture vulnerability scores
+                const archScores = {
+                    'mlp': 40,
+                    'cnn': 60,
+                    'resnet': 70,
+                    'transformer': 85,
+                    'gan': 75
+                };
+
+                const archScore = archScores[modelArch];
+
+                // Calculate risk components
+                const parameterLeakage = Math.min(100, (Math.log10(numParams) / 10) * 100);
+                const batchLeakage = Math.max(10, 100 - (batchSize * 2));
+                const gradInputRatio = (32 * numParams) / inputDim;
+                const dlgProbability = Math.min(100, (parameterLeakage + batchLeakage + archScore) / 3);
+
+                // Reconstruction quality SSIM range
+                const baseQuality = 0.3 + (parameterLeakage / 100) * 0.6;
+                const batchQuality = Math.max(0, baseQuality - (batchSize / 64) * 0.4);
+                const compressionBoost = compressionRatio * 0.3;
+                const reconstructionQuality = Math.min(0.95, batchQuality - compressionBoost);
+
+                // Batch protection factor
+                const batchProtection = Math.sqrt(batchSize);
+
+                // Compression effectiveness
+                const compressionEff = compressionRatio * 40;
+
+                // Iteration exposure impact
+                const iterationLeak = Math.min(100, (iterationsExposed / 10) * 10);
+
+                // Overall inversion score
+                let totalScore = (dlgProbability * 0.3) + (parameterLeakage * 0.2) + (iterationLeak * 0.15) + (batchLeakage * 0.2) + (archScore * 0.15);
+                totalScore = Math.max(0, Math.min(100, totalScore - compressionEff - (gradientsSharedValue ? 0 : 30)));
+
+                // Defense values
+                const paramLeakVal = parameterLeakage;
+                const batchLeakVal = batchLeakage;
+                const archLeakVal = archScore;
+                const iterLeakVal = iterationLeak;
+                const defenseVal = 100 - (compressionEff + (gradientsSharedValue ? 0 : 30));
+
+                // Risk description
+                let riskLevel;
+                if (totalScore < 30) riskLevel = 'Low Risk - Inversion unlikely under standard attacks';
+                else if (totalScore < 50) riskLevel = 'Medium Risk - Inversion feasible with optimization';
+                else if (totalScore < 75) riskLevel = 'High Risk - DLG attack likely to succeed';
+                else riskLevel = 'Critical Risk - Gradient reconstruction is highly feasible';
+
+                // Attack success
+                const attackSuccess = totalScore > 60 ? 'Very High' : totalScore > 40 ? 'High' : totalScore > 20 ? 'Medium' : 'Low';
+
+                // Update UI
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('riskScore').textContent = totalScore.toFixed(0);
+                document.getElementById('riskDesc').textContent = riskLevel;
+
+                document.getElementById('gradInputRatio').textContent = gradInputRatio.toFixed(2);
+                document.getElementById('reconstructionQuality').textContent = reconstructionQuality.toFixed(2) + '-0.95 SSIM';
+                document.getElementById('batchProtection').textContent = batchProtection.toFixed(2);
+                document.getElementById('compressionEff').textContent = compressionEff.toFixed(1);
+                document.getElementById('dlgProbability').textContent = dlgProbability.toFixed(1);
+                document.getElementById('attackSuccess').textContent = attackSuccess;
+
+                // Vulnerability dimensions
+                document.getElementById('paramLeakBar').style.width = paramLeakVal + '%';
+                document.getElementById('paramLeakVal').textContent = paramLeakVal.toFixed(0);
+                document.getElementById('batchLeakBar').style.width = batchLeakVal + '%';
+                document.getElementById('batchLeakVal').textContent = batchLeakVal.toFixed(0);
+                document.getElementById('archLeakBar').style.width = archLeakVal + '%';
+                document.getElementById('archLeakVal').textContent = archLeakVal.toFixed(0);
+                document.getElementById('iterLeakBar').style.width = iterLeakVal + '%';
+                document.getElementById('iterLeakVal').textContent = iterLeakVal.toFixed(0);
+                document.getElementById('defenseBar').style.width = defenseVal + '%';
+                document.getElementById('defenseVal').textContent = defenseVal.toFixed(0);
+
+                drawRiskGauge(totalScore);
+                populateDefenseRecommendations(totalScore, modelArch, batchSize);
+
+            } catch (e) {
+                errorDiv.textContent = 'Error: ' + e.message;
+                errorDiv.classList.add('show');
+                document.getElementById('results').style.display = 'none';
+            }
+        }
+
+        function drawRiskGauge(score) {
+            const canvas = document.getElementById('riskGaugeCanvas');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const radius = Math.min(rect.width, rect.height) / 2 - 20;
+
+            // Draw background arc
+            ctx.fillStyle = '#222222';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0.75 * Math.PI, 2.25 * Math.PI);
+            ctx.fill();
+
+            // Draw risk arc
+            const scoreAngle = 0.75 * Math.PI + (score / 100) * 1.5 * Math.PI;
+            ctx.fillStyle = score > 70 ? '#ff4444' : score > 40 ? '#ffaa44' : '#88dd88';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0.75 * Math.PI, scoreAngle);
+            ctx.fill();
+
+            // Draw center circle
+            ctx.fillStyle = '#1a1a1a';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius - 15, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Draw pointer
+            const pointerAngle = 0.75 * Math.PI + (score / 100) * 1.5 * Math.PI;
+            ctx.strokeStyle = '#ff4444';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX + Math.cos(pointerAngle) * (radius - 20), centerY + Math.sin(pointerAngle) * (radius - 20));
+            ctx.stroke();
+        }
+
+        function populateDefenseRecommendations(score, arch, batchSize) {
+            const defenses = [
+                {
+                    name: 'Gradient Clipping',
+                    param: 'C = ' + (score > 70 ? '0.1' : score > 50 ? '0.5' : '1.0'),
+                    effectiveness: score > 70 ? '95%' : score > 50 ? '75%' : '50%',
+                    priority: 'High'
+                },
+                {
+                    name: 'DP-SGD',
+                    param: 'σ = ' + (score > 70 ? '2.0' : score > 50 ? '1.0' : '0.5'),
+                    effectiveness: score > 70 ? '90%' : score > 50 ? '70%' : '40%',
+                    priority: 'High'
+                },
+                {
+                    name: 'Increase Batch Size',
+                    param: batchSize < 64 ? 'Target: 128-256' : 'Target: 512+',
+                    effectiveness: batchSize < 64 ? '40%' : '20%',
+                    priority: score > 50 ? 'Medium' : 'Low'
+                },
+                {
+                    name: 'Secure Aggregation',
+                    param: 'SecAgg protocol required',
+                    effectiveness: '99%',
+                    priority: score > 70 ? 'Critical' : 'High'
+                },
+                {
+                    name: 'Gradient Compression',
+                    param: 'Quantize to int8',
+                    effectiveness: '35%',
+                    priority: 'Medium'
+                },
+                {
+                    name: 'Shuffle Training Data',
+                    param: 'Random ordering per epoch',
+                    effectiveness: '15%',
+                    priority: 'Low'
+                }
+            ];
+
+            const container = document.getElementById('defenseList');
+            container.innerHTML = '';
+
+            for (const defense of defenses) {
+                const div = document.createElement('div');
+                div.className = 'defense-row';
+                div.innerHTML = `
+                    <div>
+                        <div class="defense-name">${defense.name}</div>
+                        <div class="defense-param">${defense.param}</div>
+                    </div>
+                    <div style="color: #888888;">${defense.priority}</div>
+                    <div class="defense-effectiveness">${defense.effectiveness}</div>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        // Calculate on load
+        scoreInversionRisk();
+    </script>
+</body>
+</html>

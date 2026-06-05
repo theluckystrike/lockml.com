@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership Inference Simulator | lockml.com</title>
+    <meta name="description" content="Test if ML models leak training data. Compute attack accuracy, precision, recall, F1-score & AUC with ROC curve analysis.">
+    <meta name="keywords" content="membership inference, privacy attack, ML security, data leakage, ROC curve">
+    <link rel="canonical" href="https://lockml.com/tools/membership-inference-simulator">
+
+    <meta property="og:title" content="Membership Inference Simulator | lockml.com">
+    <meta property="og:description" content="Test if ML models leak training data. Compute attack accuracy, precision, recall, F1-score & AUC with ROC curve analysis.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/membership-inference-simulator">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Membership Inference Simulator",
+        "description": "Test if ML models leak training data with privacy attack metrics",
+        "url": "https://lockml.com/tools/membership-inference-simulator",
+        "applicationCategory": "SecurityApplication",
+        "provider": {
+            "@type": "Organization",
+            "name": "lockml.com"
+        }
+    }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ff4444;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #cccccc;
+        }
+
+        .tool-section {
+            background-color: #111111;
+            border: 1px solid #222222;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        textarea {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #ff4444;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #222222;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff4444;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff4444;
+            cursor: pointer;
+            border: none;
+        }
+
+        .threshold-value {
+            color: #ff4444;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        button {
+            background-color: #ff4444;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #ff6666;
+        }
+
+        button:active {
+            background-color: #dd2222;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .results-section {
+            margin-top: 40px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: #888888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ff4444;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            font-size: 0.8rem;
+            color: #666666;
+        }
+
+        .roc-container {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            height: 400px;
+        }
+
+        .risk-card {
+            background-color: #1a1a1a;
+            border-left: 4px solid #ff4444;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .risk-level {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .risk-low { color: #4db366; }
+        .risk-medium { color: #ffb84d; }
+        .risk-high { color: #ff6666; }
+        .risk-critical { color: #ff0000; }
+
+        .explanation {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .explanation h2 {
+            color: #ff4444;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            color: #cccccc;
+            line-height: 1.8;
+        }
+
+        .explanation ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+            color: #cccccc;
+        }
+
+        .explanation li {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666666;
+            border-top: 1px solid #222222;
+            margin-top: 60px;
+        }
+
+        .error {
+            background-color: #2a1a1a;
+            border: 1px solid #664444;
+            border-radius: 4px;
+            padding: 15px;
+            color: #ff6666;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Membership Inference Simulator</h1>
+            <p class="subtitle">Test if your ML model leaks training data</p>
+        </header>
+
+        <div class="tool-section">
+            <div class="input-grid">
+                <div class="form-group">
+                    <label for="memberScores">Member Confidence Scores (comma-separated 0-1)</label>
+                    <textarea id="memberScores" placeholder="e.g., 0.95, 0.92, 0.88, 0.91, 0.87">0.92, 0.94, 0.89, 0.91, 0.93, 0.88, 0.90, 0.95</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="nonMemberScores">Non-Member Confidence Scores (comma-separated 0-1)</label>
+                    <textarea id="nonMemberScores" placeholder="e.g., 0.45, 0.52, 0.48, 0.41, 0.38">0.52, 0.48, 0.45, 0.41, 0.39, 0.55, 0.43, 0.49</textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="threshold">Attack Threshold: <span class="threshold-value" id="thresholdValue">0.50</span></label>
+                <input type="range" id="threshold" min="0" max="1" step="0.01" value="0.5">
+            </div>
+
+            <div class="button-group">
+                <button onclick="computeAttack()">Compute Attack Metrics</button>
+                <button onclick="generateSampleData()">Generate Sample Data</button>
+            </div>
+
+            <div class="error" id="error"></div>
+        </div>
+
+        <div class="results-section" id="results" style="display: none;">
+            <div class="risk-card">
+                <div class="risk-level" id="riskLevel"></div>
+                <p id="riskDescription"></p>
+            </div>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-label">Attack Accuracy</div>
+                    <div class="result-value" id="accuracy">-</div>
+                    <div class="result-unit">%</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Precision</div>
+                    <div class="result-value" id="precision">-</div>
+                    <div class="result-unit">True Positives / All Positives</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Recall (TPR)</div>
+                    <div class="result-value" id="recall">-</div>
+                    <div class="result-unit">Members Identified</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">False Positive Rate</div>
+                    <div class="result-value" id="fpr">-</div>
+                    <div class="result-unit">Non-Members Misclassified</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">F1 Score</div>
+                    <div class="result-value" id="f1">-</div>
+                    <div class="result-unit">Harmonic Mean</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">AUC Score</div>
+                    <div class="result-value" id="auc">-</div>
+                    <div class="result-unit">Area Under Curve</div>
+                </div>
+            </div>
+
+            <div class="roc-container">
+                <h2 style="color: #ff4444; margin-bottom: 15px;">ROC Curve</h2>
+                <canvas id="rocCanvas"></canvas>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h2>How Membership Inference Works</h2>
+            <p>A membership inference attack tests whether a model leaks information about its training data. An attacker with access to a model's confidence scores can distinguish between data points that were in the training set and those that weren't.</p>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Key Metrics:</h3>
+            <ul>
+                <li><strong>Attack Accuracy:</strong> Overall correctness of the attacker's membership predictions</li>
+                <li><strong>Precision:</strong> Of predicted members, how many were actually in training set</li>
+                <li><strong>Recall (TPR):</strong> Of actual training members, how many the attacker identified</li>
+                <li><strong>False Positive Rate:</strong> Percentage of non-members incorrectly classified as members</li>
+                <li><strong>F1 Score:</strong> Balanced measure of precision and recall</li>
+                <li><strong>AUC Score:</strong> Overall attack effectiveness across all thresholds (0.5 = random, 1.0 = perfect attack)</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Risk Levels:</h3>
+            <ul>
+                <li><strong>Low (AUC &lt; 0.6):</strong> Model does not leak membership information</li>
+                <li><strong>Medium (0.6 ≤ AUC &lt; 0.75):</strong> Some privacy leakage detected, consider mitigation</li>
+                <li><strong>High (0.75 ≤ AUC &lt; 0.9):</strong> Significant privacy risk, implement defenses</li>
+                <li><strong>Critical (AUC ≥ 0.9):</strong> Severe privacy leakage, urgent action required</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Defenses:</h3>
+            <ul>
+                <li>Differential Privacy: Add noise to training process</li>
+                <li>Model Regularization: Use L1/L2 regularization to prevent overfitting</li>
+                <li>Ensemble Methods: Combine multiple models with different random seeds</li>
+                <li>Gradient Clipping: Limit gradient magnitudes during training</li>
+                <li>Label Smoothing: Reduce confidence on training data labels</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 lockml.com
+    </footer>
+
+    <script>
+        const thresholdInput = document.getElementById('threshold');
+        const thresholdValue = document.getElementById('thresholdValue');
+
+        thresholdInput.addEventListener('input', function() {
+            thresholdValue.textContent = parseFloat(this.value).toFixed(2);
+        });
+
+        function parseScores(input) {
+            return input.trim().split(',').map(s => {
+                const val = parseFloat(s.trim());
+                if (isNaN(val) || val < 0 || val > 1) throw new Error('Invalid score');
+                return val;
+            });
+        }
+
+        function computeAttack() {
+            const errorDiv = document.getElementById('error');
+            errorDiv.classList.remove('show');
+
+            try {
+                const memberScores = parseScores(document.getElementById('memberScores').value);
+                const nonMemberScores = parseScores(document.getElementById('nonMemberScores').value);
+                const threshold = parseFloat(document.getElementById('threshold').value);
+
+                if (memberScores.length === 0 || nonMemberScores.length === 0) {
+                    throw new Error('Please provide scores for both members and non-members');
+                }
+
+                const allScores = [...memberScores.map(s => ({score: s, isMember: true})),
+                                  ...nonMemberScores.map(s => ({score: s, isMember: false}))];
+
+                // Calculate metrics at current threshold
+                let tp = 0, fp = 0, tn = 0, fn = 0;
+                for (const item of allScores) {
+                    const predicted = item.score >= threshold;
+                    if (item.isMember && predicted) tp++;
+                    else if (!item.isMember && predicted) fp++;
+                    else if (!item.isMember && !predicted) tn++;
+                    else fn++;
+                }
+
+                const accuracy = ((tp + tn) / allScores.length) * 100;
+                const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
+                const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
+                const fpr = fp + tn > 0 ? fp / (fp + tn) : 0;
+                const f1 = precision + recall > 0 ? 2 * (precision * recall) / (precision + recall) : 0;
+
+                // Calculate ROC curve and AUC
+                const thresholds = [];
+                for (let t = 0; t <= 1; t += 0.05) thresholds.push(t);
+
+                const rocPoints = [];
+                let auc = 0;
+                let prevFpr = 0;
+
+                for (const t of thresholds) {
+                    let tp2 = 0, fp2 = 0, tn2 = 0, fn2 = 0;
+                    for (const item of allScores) {
+                        const predicted = item.score >= t;
+                        if (item.isMember && predicted) tp2++;
+                        else if (!item.isMember && predicted) fp2++;
+                        else if (!item.isMember && !predicted) tn2++;
+                        else fn2++;
+                    }
+
+                    const tpr = tp2 + fn2 > 0 ? tp2 / (tp2 + fn2) : 0;
+                    const fpr2 = fp2 + tn2 > 0 ? fp2 / (fp2 + tn2) : 0;
+                    rocPoints.push({fpr: fpr2, tpr: tpr});
+
+                    if (thresholds.indexOf(t) > 0) {
+                        auc += (fpr2 - prevFpr) * (rocPoints[rocPoints.length - 1].tpr + rocPoints[rocPoints.length - 2].tpr) / 2;
+                    }
+                    prevFpr = fpr2;
+                }
+
+                auc = Math.abs(auc);
+
+                // Determine risk level
+                let riskLevel, riskColor, riskDesc;
+                if (auc < 0.6) {
+                    riskLevel = 'Low Risk';
+                    riskColor = 'risk-low';
+                    riskDesc = 'Model does not significantly leak membership information.';
+                } else if (auc < 0.75) {
+                    riskLevel = 'Medium Risk';
+                    riskColor = 'risk-medium';
+                    riskDesc = 'Some privacy leakage detected. Consider implementing defenses.';
+                } else if (auc < 0.9) {
+                    riskLevel = 'High Risk';
+                    riskColor = 'risk-high';
+                    riskDesc = 'Significant privacy vulnerability. Implement mitigation strategies.';
+                } else {
+                    riskLevel = 'Critical Risk';
+                    riskColor = 'risk-critical';
+                    riskDesc = 'Severe privacy leakage. Urgent action required.';
+                }
+
+                // Update UI
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('riskLevel').textContent = riskLevel;
+                document.getElementById('riskLevel').className = 'risk-level ' + riskColor;
+                document.getElementById('riskDescription').textContent = riskDesc;
+
+                document.getElementById('accuracy').textContent = accuracy.toFixed(1);
+                document.getElementById('precision').textContent = precision.toFixed(3);
+                document.getElementById('recall').textContent = recall.toFixed(3);
+                document.getElementById('fpr').textContent = fpr.toFixed(3);
+                document.getElementById('f1').textContent = f1.toFixed(3);
+                document.getElementById('auc').textContent = auc.toFixed(3);
+
+                drawROCCurve(rocPoints);
+
+            } catch (e) {
+                errorDiv.textContent = 'Error: ' + e.message;
+                errorDiv.classList.add('show');
+                document.getElementById('results').style.display = 'none';
+            }
+        }
+
+        function generateSampleData() {
+            const memberScores = [];
+            const nonMemberScores = [];
+
+            // Generate realistic distributions
+            for (let i = 0; i < 12; i++) {
+                memberScores.push((0.85 + Math.random() * 0.15).toFixed(2));
+            }
+
+            for (let i = 0; i < 12; i++) {
+                nonMemberScores.push((0.35 + Math.random() * 0.2).toFixed(2));
+            }
+
+            document.getElementById('memberScores').value = memberScores.join(', ');
+            document.getElementById('nonMemberScores').value = nonMemberScores.join(', ');
+
+            computeAttack();
+        }
+
+        function drawROCCurve(rocPoints) {
+            const canvas = document.getElementById('rocCanvas');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+
+            const padding = 50;
+            const width = rect.width - 2 * padding;
+            const height = rect.height - 2 * padding;
+
+            // Clear and set background
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, rect.width, rect.height);
+
+            // Draw axes
+            ctx.strokeStyle = '#333333';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, padding + height);
+            ctx.lineTo(padding + width, padding + height);
+            ctx.stroke();
+
+            // Draw grid
+            ctx.strokeStyle = '#222222';
+            for (let i = 1; i < 5; i++) {
+                const x = padding + (width / 4) * i;
+                const y = padding + (height / 4) * i;
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, padding + height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(padding + width, y);
+                ctx.stroke();
+            }
+
+            // Draw diagonal reference line
+            ctx.strokeStyle = '#555555';
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(padding, padding + height);
+            ctx.lineTo(padding + width, padding);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Plot ROC curve
+            ctx.strokeStyle = '#ff4444';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (const point of rocPoints) {
+                const x = padding + point.fpr * width;
+                const y = padding + height - point.tpr * height;
+                if (rocPoints.indexOf(point) === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#888888';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('False Positive Rate', padding + width / 2, padding + height + 35);
+            ctx.save();
+            ctx.translate(15, padding + height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('True Positive Rate', 0, 0);
+            ctx.restore();
+        }
+
+        // Load sample data on page load
+        generateSampleData();
+    </script>
+</body>
+</html>

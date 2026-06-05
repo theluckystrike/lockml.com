@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homomorphic Encryption Overhead Calculator | lockml.com</title>
+    <meta name="description" content="Calculate encrypted ML inference costs. Estimate ciphertext expansion, latency, memory overhead & throughput for BFV/CKKS/TFHE.">
+    <meta name="keywords" content="homomorphic encryption, encrypted inference, HE, BFV, CKKS, TFHE, privacy-preserving ML">
+    <link rel="canonical" href="https://lockml.com/tools/homomorphic-encryption-calculator">
+
+    <meta property="og:title" content="Homomorphic Encryption Overhead Calculator | lockml.com">
+    <meta property="og:description" content="Calculate encrypted ML inference costs. Estimate ciphertext expansion, latency, memory overhead & throughput for BFV/CKKS/TFHE.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/homomorphic-encryption-calculator">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Homomorphic Encryption Overhead Calculator",
+        "description": "Calculate performance cost of encrypted ML inference",
+        "url": "https://lockml.com/tools/homomorphic-encryption-calculator",
+        "applicationCategory": "SecurityApplication",
+        "provider": {
+            "@type": "Organization",
+            "name": "lockml.com"
+        }
+    }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ff4444;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #cccccc;
+        }
+
+        .tool-section {
+            background-color: #111111;
+            border: 1px solid #222222;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="number"],
+        select {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #ff4444;
+        }
+
+        button {
+            background-color: #ff4444;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #ff6666;
+        }
+
+        button:active {
+            background-color: #dd2222;
+        }
+
+        .results-section {
+            margin-top: 40px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 15px;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: #888888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff4444;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            font-size: 0.8rem;
+            color: #666666;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .comparison-table th {
+            background-color: #222222;
+            color: #ff4444;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid #333333;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid #222222;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:hover {
+            background-color: #1f1f1f;
+        }
+
+        .metric-label {
+            color: #cccccc;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #ff4444;
+            font-weight: 600;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .chart-container {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            height: 400px;
+        }
+
+        .noise-gauge {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .gauge-bar {
+            flex: 1;
+            height: 30px;
+            background-color: #222222;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444 0%, #ff9999 100%);
+        }
+
+        .gauge-label {
+            font-weight: 600;
+            color: #ff4444;
+            min-width: 100px;
+            text-align: right;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .explanation h2 {
+            color: #ff4444;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            color: #cccccc;
+            line-height: 1.8;
+        }
+
+        .explanation ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+            color: #cccccc;
+        }
+
+        .explanation li {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666666;
+            border-top: 1px solid #222222;
+            margin-top: 60px;
+        }
+
+        .error {
+            background-color: #2a1a1a;
+            border: 1px solid #664444;
+            border-radius: 4px;
+            padding: 15px;
+            color: #ff6666;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Homomorphic Encryption Calculator</h1>
+            <p class="subtitle">Estimate encrypted ML inference performance overhead</p>
+        </header>
+
+        <div class="tool-section">
+            <div class="input-grid">
+                <div class="form-group">
+                    <label for="heScheme">HE Scheme</label>
+                    <select id="heScheme">
+                        <option value="bfv">BFV (Exact Integer)</option>
+                        <option value="ckks" selected>CKKS (Approximate Float)</option>
+                        <option value="tfhe">TFHE (Fast Bootstrapping)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="securityLevel">Security Level (bits)</label>
+                    <select id="securityLevel">
+                        <option value="128" selected>128-bit</option>
+                        <option value="192">192-bit</option>
+                        <option value="256">256-bit</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="polyDegree">Polynomial Degree</label>
+                    <select id="polyDegree">
+                        <option value="1024">1024</option>
+                        <option value="2048" selected>2048</option>
+                        <option value="4096">4096</option>
+                        <option value="8192">8192</option>
+                        <option value="16384">16384</option>
+                        <option value="32768">32768</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="numOps">Number of Model Operations</label>
+                    <input type="number" id="numOps" min="100" value="10000" step="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="plaintextModulusBits">Plaintext Modulus Bits</label>
+                    <input type="number" id="plaintextModulusBits" min="16" value="32" step="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="multiplicativeDepth">Multiplicative Depth</label>
+                    <input type="number" id="multiplicativeDepth" min="1" value="5" step="1">
+                </div>
+            </div>
+
+            <button onclick="calculateHE()">Calculate HE Overhead</button>
+
+            <div class="error" id="error"></div>
+        </div>
+
+        <div class="results-section" id="results" style="display: none;">
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-label">Ciphertext Expansion</div>
+                    <div class="result-value" id="ciphertextExpansion">-</div>
+                    <div class="result-unit">x multiplier</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Encryption Time</div>
+                    <div class="result-value" id="encryptionTime">-</div>
+                    <div class="result-unit">ms</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Add Latency</div>
+                    <div class="result-value" id="addLatency">-</div>
+                    <div class="result-unit">μs</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Multiply Latency</div>
+                    <div class="result-value" id="mulLatency">-</div>
+                    <div class="result-unit">μs</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Total Inference Time</div>
+                    <div class="result-value" id="totalLatency">-</div>
+                    <div class="result-unit">seconds</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Memory Overhead</div>
+                    <div class="result-value" id="memoryOverhead">-</div>
+                    <div class="result-unit">MB</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Max Depth (No Bootstrapping)</div>
+                    <div class="result-value" id="maxDepth">-</div>
+                    <div class="result-unit">levels</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Plaintext vs Encrypted</div>
+                    <div class="result-value" id="throughputRatio">-</div>
+                    <div class="result-unit">x slower</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2 style="color: #ff4444; margin-bottom: 15px;">Operation Costs Breakdown</h2>
+                <canvas id="costChart"></canvas>
+            </div>
+
+            <div class="noise-gauge">
+                <div class="gauge-label">Noise Budget</div>
+                <div class="gauge-bar">
+                    <div class="gauge-fill" id="noiseBudgetFill"></div>
+                </div>
+                <div class="gauge-label" id="noiseBudgetValue">-</div>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Plaintext</th>
+                        <th>Encrypted (HE)</th>
+                        <th>Overhead</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="metric-label">Inference Time</td>
+                        <td class="metric-value" id="plainTime">-</td>
+                        <td class="metric-value" id="encTime">-</td>
+                        <td class="metric-value" id="timeOverhead">-</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-label">Model Size</td>
+                        <td class="metric-value" id="plainSize">-</td>
+                        <td class="metric-value" id="encSize">-</td>
+                        <td class="metric-value" id="sizeOverhead">-</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-label">Add Operation</td>
+                        <td class="metric-value" id="plainAdd">-</td>
+                        <td class="metric-value" id="encAdd">-</td>
+                        <td class="metric-value" id="addOverhead">-</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-label">Multiply Operation</td>
+                        <td class="metric-value" id="plainMul">-</td>
+                        <td class="metric-value" id="encMul">-</td>
+                        <td class="metric-value" id="mulOverhead">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="explanation">
+            <h2>Homomorphic Encryption for ML</h2>
+            <p>Homomorphic Encryption (HE) enables computation on encrypted data without decryption. This allows cloud providers or untrusted third parties to perform ML inference on encrypted inputs while maintaining privacy. The tradeoff is significant computational and memory overhead.</p>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">HE Schemes:</h3>
+            <ul>
+                <li><strong>BFV (Brakerski-Fan-Vercauteren):</strong> Supports exact integer arithmetic. Good for discrete operations. Slower but precise.</li>
+                <li><strong>CKKS (Cheon-Kim-Kim-Song):</strong> Supports approximate floating-point arithmetic. Better for neural networks. Faster with slight precision loss.</li>
+                <li><strong>TFHE (Torus Full Homomorphic Encryption):</strong> Fast bootstrapping for gate-level operations. Good for small circuits but slower for large ML models.</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Key Parameters:</h3>
+            <ul>
+                <li><strong>Polynomial Degree (N):</strong> Larger N = higher security but slower operations. Typical: 2048-8192.</li>
+                <li><strong>Security Level:</strong> 128-bit is standard, 192/256-bit for long-term security. Larger = bigger ciphertexts.</li>
+                <li><strong>Multiplicative Depth:</strong> Number of sequential multiplications before relinearization. Limits circuit depth.</li>
+                <li><strong>Noise Budget:</strong> Decreases with each operation. Bootstrapping required if noise grows too large.</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Typical Overhead:</h3>
+            <ul>
+                <li><strong>Ciphertext Size:</strong> 10-100x larger than plaintext (depends on N and security level)</li>
+                <li><strong>Addition:</strong> 100-1000x slower than plaintext</li>
+                <li><strong>Multiplication:</strong> 1000-10000x slower than plaintext (with relinearization)</li>
+                <li><strong>Bootstrapping:</strong> 10-100ms per call (reset noise budget)</li>
+            </ul>
+
+            <h3 style="color: #ff9999; margin-top: 20px; margin-bottom: 10px;">Practical Considerations:</h3>
+            <ul>
+                <li>Best for inference, not training (which requires many multiplications)</li>
+                <li>Requires careful circuit design to minimize depth</li>
+                <li>Bootstrapping is expensive; avoid if possible</li>
+                <li>Approximate schemes (CKKS) work well for ML due to natural error tolerance</li>
+                <li>Batch processing multiple inputs can amortize costs</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 lockml.com
+    </footer>
+
+    <script>
+        function calculateHE() {
+            const errorDiv = document.getElementById('error');
+            errorDiv.classList.remove('show');
+
+            try {
+                const scheme = document.getElementById('heScheme').value;
+                const securityLevel = parseInt(document.getElementById('securityLevel').value);
+                const polyDegree = parseInt(document.getElementById('polyDegree').value);
+                const numOps = parseInt(document.getElementById('numOps').value);
+                const plaintextBits = parseInt(document.getElementById('plaintextModulusBits').value);
+                const depth = parseInt(document.getElementById('multiplicativeDepth').value);
+
+                // Scheme-specific parameters
+                const schemeParams = {
+                    bfv: { opFactor: 2000, addFactor: 100, mulFactor: 2000, bootstrap: 50 },
+                    ckks: { opFactor: 1500, addFactor: 100, mulFactor: 1500, bootstrap: 100 },
+                    tfhe: { opFactor: 3000, addFactor: 500, mulFactor: 3000, bootstrap: 10 }
+                };
+
+                const params = schemeParams[scheme];
+
+                // Ciphertext expansion
+                const ciphertextBits = (Math.log2(securityLevel) + Math.log2(polyDegree) + plaintextBits) * 2;
+                const ciphertextExpansion = ciphertextBits / plaintextBits;
+
+                // Encryption time (ms)
+                const encryptionTime = (polyDegree * Math.log2(securityLevel)) / 1000;
+
+                // Operation latencies
+                const addLatency = params.addFactor * Math.log2(polyDegree);
+                const mulLatency = params.mulFactor * Math.log2(polyDegree) * depth;
+
+                // Total inference (assuming 50% adds, 50% multiplies)
+                const numAdds = numOps / 2;
+                const numMuls = numOps / 2;
+                const totalLatency = (numAdds * addLatency + numMuls * mulLatency) / 1000000 + encryptionTime / 1000;
+
+                // Memory overhead (MB, assuming 8 bytes per element)
+                const plainModelSize = (numOps * 8) / (1024 * 1024);
+                const encryptedModelSize = plainModelSize * ciphertextExpansion;
+                const memoryOverhead = encryptedModelSize - plainModelSize;
+
+                // Max depth before bootstrapping (estimated)
+                const maxDepthNoBootstrap = Math.max(1, Math.floor(Math.log2(polyDegree) - Math.log2(securityLevel)));
+
+                // Throughput ratio
+                const plainLatency = (numAdds * 0.001 + numMuls * 0.01) / 1000;
+                const throughputRatio = totalLatency / Math.max(plainLatency, 0.001);
+
+                // Noise budget consumption
+                const noiseBudgetConsumption = Math.min(95, (depth / maxDepthNoBootstrap) * 100);
+
+                // Update UI
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('ciphertextExpansion').textContent = ciphertextExpansion.toFixed(1);
+                document.getElementById('encryptionTime').textContent = encryptionTime.toFixed(2);
+                document.getElementById('addLatency').textContent = addLatency.toFixed(1);
+                document.getElementById('mulLatency').textContent = mulLatency.toFixed(0);
+                document.getElementById('totalLatency').textContent = totalLatency.toFixed(2);
+                document.getElementById('memoryOverhead').textContent = memoryOverhead.toFixed(1);
+                document.getElementById('maxDepth').textContent = maxDepthNoBootstrap;
+                document.getElementById('throughputRatio').textContent = throughputRatio.toFixed(1);
+
+                // Comparison table
+                document.getElementById('plainTime').textContent = plainLatency.toFixed(4) + ' s';
+                document.getElementById('encTime').textContent = totalLatency.toFixed(2) + ' s';
+                document.getElementById('timeOverhead').textContent = throughputRatio.toFixed(1) + 'x';
+
+                document.getElementById('plainSize').textContent = plainModelSize.toFixed(2) + ' MB';
+                document.getElementById('encSize').textContent = encryptedModelSize.toFixed(2) + ' MB';
+                document.getElementById('sizeOverhead').textContent = ciphertextExpansion.toFixed(1) + 'x';
+
+                document.getElementById('plainAdd').textContent = '0.001 μs';
+                document.getElementById('encAdd').textContent = addLatency.toFixed(1) + ' μs';
+                document.getElementById('addOverhead').textContent = (addLatency / 0.001).toFixed(0) + 'x';
+
+                document.getElementById('plainMul').textContent = '0.01 μs';
+                document.getElementById('encMul').textContent = mulLatency.toFixed(1) + ' μs';
+                document.getElementById('mulOverhead').textContent = (mulLatency / 0.01).toFixed(0) + 'x';
+
+                // Noise budget
+                document.getElementById('noiseBudgetFill').style.width = noiseBudgetConsumption + '%';
+                document.getElementById('noiseBudgetValue').textContent = noiseBudgetConsumption.toFixed(1) + '%';
+
+                drawCostChart(numAdds, numMuls, addLatency, mulLatency);
+
+            } catch (e) {
+                errorDiv.textContent = 'Error: ' + e.message;
+                errorDiv.classList.add('show');
+                document.getElementById('results').style.display = 'none';
+            }
+        }
+
+        function drawCostChart(numAdds, numMuls, addLatency, mulLatency) {
+            const canvas = document.getElementById('costChart');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+
+            const padding = 60;
+            const chartWidth = rect.width - 2 * padding;
+            const chartHeight = rect.height - 2 * padding;
+
+            // Clear background
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, rect.width, rect.height);
+
+            // Draw axes
+            ctx.strokeStyle = '#333333';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, padding + chartHeight);
+            ctx.lineTo(padding + chartWidth, padding + chartHeight);
+            ctx.stroke();
+
+            // Calculate bar data
+            const addTotal = numAdds * addLatency;
+            const mulTotal = numMuls * mulLatency;
+            const maxValue = Math.max(addTotal, mulTotal) * 1.2;
+            const scale = chartHeight / maxValue;
+
+            // Draw bars
+            const barWidth = chartWidth / 4;
+
+            // Add bar
+            const addHeight = addTotal * scale;
+            ctx.fillStyle = '#88ddff';
+            ctx.fillRect(padding + 20, padding + chartHeight - addHeight, barWidth, addHeight);
+
+            // Multiply bar
+            const mulHeight = mulTotal * scale;
+            ctx.fillStyle = '#ff8888';
+            ctx.fillRect(padding + 20 + barWidth + 40, padding + chartHeight - mulHeight, barWidth, mulHeight);
+
+            // Labels
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Additions', padding + 20 + barWidth / 2, padding + chartHeight + 25);
+            ctx.fillText('Multiplications', padding + 20 + barWidth * 1.5 + 40, padding + chartHeight + 25);
+
+            ctx.fillStyle = '#ff4444';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText((addTotal / 1000).toFixed(1) + 'ms', padding + 20 + barWidth / 2, padding + chartHeight - addHeight - 10);
+            ctx.fillText((mulTotal / 1000).toFixed(1) + 'ms', padding + 20 + barWidth * 1.5 + 40, padding + chartHeight - mulHeight - 10);
+        }
+
+        // Calculate on load
+        calculateHE();
+    </script>
+</body>
+</html>
