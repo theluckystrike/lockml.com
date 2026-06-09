@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Model Extraction Risk Scorer | lockml.com</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Score the risk of model extraction attacks on ML systems. Analyze API exposure, rate limits, and output types.">
+    <meta name="keywords" content="model extraction, ML security, attack risk, API security">
+    <meta name="author" content="lockml.com">
+    <meta property="og:title" content="Model Extraction Risk Scorer">
+    <meta property="og:description" content="Assess your ML model's vulnerability to extraction attacks.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/model-extraction-risk-scorer">
+    <meta property="og:image" content="https://lockml.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Model Extraction Risk Scorer">
+    <meta name="twitter:description" content="Assess your ML model's vulnerability to extraction attacks.">
+    <link rel="canonical" href="https://lockml.com/tools/model-extraction-risk-scorer">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2241192243363112" crossorigin="anonymous"></script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Model Extraction Risk Scorer",
+        "description": "Score the risk of model extraction attacks on ML systems",
+        "url": "https://lockml.com/tools/model-extraction-risk-scorer",
+        "applicationCategory": "SecurityApplication",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e5e5e5;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+        }
+        .tool-card {
+            background: #242424;
+            border: 1px solid #3a3a3a;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        input[type="radio"],
+        input[type="number"],
+        select {
+            cursor: pointer;
+            accent-color: #ef4444;
+        }
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            color: #e5e5e5;
+            font-size: 1rem;
+        }
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .results-section {
+            display: none;
+            margin-top: 40px;
+        }
+        .results-section.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .risk-score {
+            background: #1a1a1a;
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .score-number {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #ef4444;
+            margin-bottom: 10px;
+        }
+        .score-label {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+        }
+        .risk-level {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .risk-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ff6b6b;
+        }
+        .risk-high {
+            background: rgba(249, 115, 22, 0.2);
+            color: #ffa500;
+        }
+        .risk-medium {
+            background: rgba(234, 179, 8, 0.2);
+            color: #ffd700;
+        }
+        .risk-low {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #3a3a3a;
+        }
+        .attack-vectors {
+            background: #1a1a1a;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .vector-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .vector-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .vector-name {
+            font-weight: 600;
+            color: #ef4444;
+            margin-bottom: 4px;
+        }
+        .vector-description {
+            font-size: 0.95rem;
+            color: #a0a0a0;
+        }
+        .recommendations {
+            background: #1a1a1a;
+            border-left: 4px solid #22c55e;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        .recommendation-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .recommendation-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .recommendation-text {
+            color: #e5e5e5;
+            font-size: 0.95rem;
+        }
+        footer {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+            font-size: 0.9rem;
+            border-top: 1px solid #3a3a3a;
+            margin-top: 60px;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .score-number {
+                font-size: 2.5rem;
+            }
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Model Extraction Risk Scorer</h1>
+            <p class="subtitle">Assess vulnerability to model extraction attacks</p>
+        </header>
+
+        <div class="tool-card">
+            <form id="riskForm">
+                <div class="form-group">
+                    <label>API Exposure Level</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="public" name="apiExposure" value="public" required>
+                            <label for="public" style="margin-bottom: 0;">Public (Internet-facing)</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="internal" name="apiExposure" value="internal">
+                            <label for="internal" style="margin-bottom: 0;">Internal (Corporate network)</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="isolated" name="apiExposure" value="isolated">
+                            <label for="isolated" style="margin-bottom: 0;">Isolated (Air-gapped)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rateLimit">Rate Limit (requests per minute)</label>
+                    <input type="number" id="rateLimit" name="rateLimit" min="1" max="10000" value="60" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Output Type</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="logits" name="outputType" value="logits" required>
+                            <label for="logits" style="margin-bottom: 0;">Full Logits</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="probs" name="outputType" value="probs">
+                            <label for="probs" style="margin-bottom: 0;">Probabilities</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="labels" name="outputType" value="labels">
+                            <label for="labels" style="margin-bottom: 0;">Labels Only</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="modelSize">Model Size (parameters in millions)</label>
+                    <input type="number" id="modelSize" name="modelSize" min="1" max="1000000" value="7000" required>
+                </div>
+
+                <button type="submit">Calculate Risk Score</button>
+            </form>
+        </div>
+
+        <div id="resultsSection" class="results-section">
+            <div class="risk-score">
+                <div class="score-number" id="scoreNumber">0</div>
+                <div class="score-label">Risk Score (0-100)</div>
+                <div class="risk-level" id="riskLevel"></div>
+            </div>
+
+            <div class="section-title">Attack Vectors</div>
+            <div class="attack-vectors" id="attackVectors"></div>
+
+            <div class="section-title">Mitigation Recommendations</div>
+            <div class="recommendations" id="recommendations"></div>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 lockml.com — ML Security Tools
+    </footer>
+
+    <script>
+        const form = document.getElementById('riskForm');
+        const resultsSection = document.getElementById('resultsSection');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculateRisk();
+        });
+
+        function calculateRisk() {
+            const apiExposure = document.querySelector('input[name="apiExposure"]:checked').value;
+            const rateLimit = parseInt(document.getElementById('rateLimit').value);
+            const outputType = document.querySelector('input[name="outputType"]:checked').value;
+            const modelSize = parseInt(document.getElementById('modelSize').value);
+
+            // Calculate base score
+            let score = 0;
+
+            // API Exposure factor (0-40)
+            const exposureScores = {
+                'public': 40,
+                'internal': 20,
+                'isolated': 5
+            };
+            score += exposureScores[apiExposure];
+
+            // Rate limit factor (0-20)
+            if (rateLimit > 1000) score += 20;
+            else if (rateLimit > 100) score += 15;
+            else if (rateLimit > 10) score += 8;
+            else score += 3;
+
+            // Output type factor (0-25)
+            const outputScores = {
+                'logits': 25,
+                'probs': 18,
+                'labels': 5
+            };
+            score += outputScores[outputType];
+
+            // Model size factor (0-15)
+            if (modelSize > 100000) score += 15;
+            else if (modelSize > 10000) score += 12;
+            else if (modelSize > 1000) score += 8;
+            else score += 4;
+
+            // Display results
+            displayResults(score, apiExposure, rateLimit, outputType, modelSize);
+        }
+
+        function displayResults(score, apiExposure, rateLimit, outputType, modelSize) {
+            const scoreElement = document.getElementById('scoreNumber');
+            const riskLevelElement = document.getElementById('riskLevel');
+            const attackVectorsElement = document.getElementById('attackVectors');
+            const recommendationsElement = document.getElementById('recommendations');
+
+            scoreElement.textContent = score;
+
+            let riskLabel = '';
+            let riskClass = '';
+            if (score >= 75) {
+                riskLabel = 'CRITICAL';
+                riskClass = 'risk-critical';
+            } else if (score >= 50) {
+                riskLabel = 'HIGH';
+                riskClass = 'risk-high';
+            } else if (score >= 25) {
+                riskLabel = 'MEDIUM';
+                riskClass = 'risk-medium';
+            } else {
+                riskLabel = 'LOW';
+                riskClass = 'risk-low';
+            }
+
+            riskLevelElement.textContent = riskLabel;
+            riskLevelElement.className = `risk-level ${riskClass}`;
+
+            // Attack vectors
+            let vectors = [];
+            if (apiExposure === 'public') {
+                vectors.push({
+                    name: 'Query-based Extraction',
+                    description: 'Attacker queries API to build surrogate model using output information.'
+                });
+            }
+            if (rateLimit > 100) {
+                vectors.push({
+                    name: 'High-volume Probing',
+                    description: 'Permissive rate limits enable large-scale extraction queries.'
+                });
+            }
+            if (outputType === 'logits') {
+                vectors.push({
+                    name: 'High-fidelity Cloning',
+                    description: 'Full logits enable precise model behavior replication.'
+                });
+            }
+            if (modelSize > 10000) {
+                vectors.push({
+                    name: 'Intellectual Property Theft',
+                    description: 'Large model weights represent significant IP value.'
+                });
+            }
+
+            attackVectorsElement.innerHTML = vectors.map(v => `
+                <div class="vector-item">
+                    <div class="vector-name">${v.name}</div>
+                    <div class="vector-description">${v.description}</div>
+                </div>
+            `).join('');
+
+            // Recommendations
+            let recs = [];
+            if (apiExposure === 'public') {
+                recs.push('Implement authentication and authorization for API access.');
+            }
+            if (rateLimit > 100) {
+                recs.push('Reduce rate limits to <10 requests/minute per user.');
+            }
+            if (outputType === 'logits') {
+                recs.push('Return only top-1 predicted label instead of full logits.');
+            }
+            if (score > 50) {
+                recs.push('Add gradient masking or model watermarking to detect extraction.');
+                recs.push('Monitor API usage patterns for anomalous extraction attempts.');
+            }
+            if (modelSize > 10000) {
+                recs.push('Consider model compression to reduce IP value at extraction.');
+            }
+
+            recommendationsElement.innerHTML = recs.map(r => `
+                <div class="recommendation-item">
+                    <div class="recommendation-text">✓ ${r}</div>
+                </div>
+            `).join('');
+
+            resultsSection.classList.add('show');
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>

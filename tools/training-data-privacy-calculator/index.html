@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Training Data Privacy Calculator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculate privacy risk of training data exposure in ML models. Assess k-anonymity, extraction probability, and privacy budgets.">
+    <meta name="keywords" content="training data privacy, differential privacy, k-anonymity, memorization">
+    <meta name="author" content="lockml.com">
+    <meta property="og:title" content="Training Data Privacy Calculator">
+    <meta property="og:description" content="Assess training data privacy risks and exposure probability.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/training-data-privacy-calculator">
+    <meta property="og:image" content="https://lockml.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Training Data Privacy Calculator">
+    <meta name="twitter:description" content="Assess training data privacy risks and exposure probability.">
+    <link rel="canonical" href="https://lockml.com/tools/training-data-privacy-calculator">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2241192243363112" crossorigin="anonymous"></script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Training Data Privacy Calculator",
+        "description": "Calculate privacy risk of training data exposure in ML models",
+        "url": "https://lockml.com/tools/training-data-privacy-calculator",
+        "applicationCategory": "SecurityApplication",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e5e5e5;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+        }
+        .tool-card {
+            background: #242424;
+            border: 1px solid #3a3a3a;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+        input[type="number"],
+        input[type="range"] {
+            cursor: pointer;
+            accent-color: #ef4444;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            color: #e5e5e5;
+            font-size: 1rem;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #1a1a1a;
+            outline: none;
+        }
+        .slider-value {
+            background: #ef4444;
+            color: #ffffff;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            min-width: 50px;
+            text-align: center;
+        }
+        button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .results-section {
+            display: none;
+            margin-top: 40px;
+        }
+        .results-section.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .metric-card {
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border-left: 4px solid #ef4444;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ef4444;
+            margin: 10px 0;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+        .metric-description {
+            font-size: 0.85rem;
+            color: #777;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #3a3a3a;
+        }
+        .privacy-details {
+            background: #1a1a1a;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .detail-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .detail-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+        .detail-value {
+            color: #a0a0a0;
+            font-size: 0.95rem;
+        }
+        .recommendations {
+            background: #1a1a1a;
+            border-left: 4px solid #22c55e;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        .recommendation-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .recommendation-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .recommendation-text {
+            color: #e5e5e5;
+            font-size: 0.95rem;
+        }
+        footer {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+            font-size: 0.9rem;
+            border-top: 1px solid #3a3a3a;
+            margin-top: 60px;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Training Data Privacy Calculator</h1>
+            <p class="subtitle">Assess privacy risk of training data exposure</p>
+        </header>
+
+        <div class="tool-card">
+            <form id="privacyForm">
+                <div class="form-group">
+                    <label for="datasetSize">Dataset Size (total samples)</label>
+                    <input type="number" id="datasetSize" name="datasetSize" min="100" max="10000000" value="100000" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="uniqueSamples">Unique/Rare Samples (%)</label>
+                    <div class="slider-container">
+                        <input type="range" id="uniqueSamples" name="uniqueSamples" min="0" max="100" value="10">
+                        <span class="slider-value" id="uniqueValue">10%</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="memorizationRate">Model Memorization Rate (%)</label>
+                    <div class="slider-container">
+                        <input type="range" id="memorizationRate" name="memorizationRate" min="0" max="100" value="5">
+                        <span class="slider-value" id="memValue">5%</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="queryBudget">Query Budget (max queries to model)</label>
+                    <input type="number" id="queryBudget" name="queryBudget" min="1" max="1000000" value="10000" required>
+                </div>
+
+                <button type="submit">Calculate Privacy Risk</button>
+            </form>
+        </div>
+
+        <div id="resultsSection" class="results-section">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Extraction Probability</div>
+                    <div class="metric-value" id="extractionProb">0%</div>
+                    <div class="metric-description">Likelihood attacker can extract training samples</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">K-Anonymity Score</div>
+                    <div class="metric-value" id="kanonymity">0</div>
+                    <div class="metric-description">Group size for individual record anonymization</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Privacy Budget</div>
+                    <div class="metric-value" id="privacyBudget">0</div>
+                    <div class="metric-description">Recommended differential privacy epsilon</div>
+                </div>
+            </div>
+
+            <div class="section-title">Privacy Analysis</div>
+            <div class="privacy-details" id="privacyDetails"></div>
+
+            <div class="section-title">Recommendations</div>
+            <div class="recommendations" id="recommendations"></div>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 lockml.com — ML Security Tools
+    </footer>
+
+    <script>
+        const form = document.getElementById('privacyForm');
+        const resultsSection = document.getElementById('resultsSection');
+        const uniqueSlider = document.getElementById('uniqueSamples');
+        const memSlider = document.getElementById('memorizationRate');
+        const uniqueValue = document.getElementById('uniqueValue');
+        const memValue = document.getElementById('memValue');
+
+        uniqueSlider.addEventListener('input', function() {
+            uniqueValue.textContent = this.value + '%';
+        });
+
+        memSlider.addEventListener('input', function() {
+            memValue.textContent = this.value + '%';
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculatePrivacy();
+        });
+
+        function calculatePrivacy() {
+            const datasetSize = parseInt(document.getElementById('datasetSize').value);
+            const uniqueSamples = parseInt(document.getElementById('uniqueSamples').value);
+            const memRate = parseInt(document.getElementById('memorizationRate').value);
+            const queryBudget = parseInt(document.getElementById('queryBudget').value);
+
+            // Calculate extraction probability
+            const rareCount = Math.ceil(datasetSize * uniqueSamples / 100);
+            const memorizedRare = Math.ceil(rareCount * memRate / 100);
+            const extractionProb = Math.min(100, (memorizedRare / rareCount) * (queryBudget / datasetSize) * 100);
+
+            // Calculate k-anonymity
+            const kanon = Math.max(1, Math.ceil(datasetSize / (rareCount + 1)));
+
+            // Calculate privacy budget (epsilon for differential privacy)
+            const baseEpsilon = Math.log(datasetSize);
+            const queryFactor = queryBudget / datasetSize;
+            const epsilon = Math.max(0.1, baseEpsilon * (1 - memRate / 100) / queryFactor);
+
+            displayResults(datasetSize, uniqueSamples, memRate, queryBudget, extractionProb, kanon, epsilon, rareCount, memorizedRare);
+        }
+
+        function displayResults(datasetSize, uniqueSamples, memRate, queryBudget, extractionProb, kanon, epsilon, rareCount, memorizedRare) {
+            document.getElementById('extractionProb').textContent = Math.round(extractionProb) + '%';
+            document.getElementById('kanonymity').textContent = kanon;
+            document.getElementById('privacyBudget').textContent = epsilon.toFixed(2);
+
+            // Privacy details
+            const details = [
+                {
+                    name: 'Unique/Rare Samples',
+                    value: rareCount.toLocaleString() + ' samples (' + uniqueSamples + '% of dataset)'
+                },
+                {
+                    name: 'Memorized Rare Samples',
+                    value: memorizedRare.toLocaleString() + ' samples (' + memRate + '% memorization)'
+                },
+                {
+                    name: 'Query Exploitation Factor',
+                    value: (queryBudget / datasetSize).toFixed(3) + 'x (queries to dataset ratio)'
+                },
+                {
+                    name: 'Privacy Risk Classification',
+                    value: extractionProb > 50 ? 'HIGH' : (extractionProb > 25 ? 'MEDIUM' : 'LOW')
+                }
+            ];
+
+            const detailsHtml = details.map(d => `
+                <div class="detail-item">
+                    <div class="detail-name">${d.name}</div>
+                    <div class="detail-value">${d.value}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('privacyDetails').innerHTML = detailsHtml;
+
+            // Recommendations
+            let recs = [];
+            if (extractionProb > 50) {
+                recs.push('Implement differential privacy with epsilon ≤ ' + epsilon.toFixed(2) + ' to protect against extraction.');
+            }
+            if (uniqueSamples > 20) {
+                recs.push('Pre-process training data to reduce unique/rare samples or increase k-anonymity.');
+            }
+            if (memRate > 10) {
+                recs.push('Apply regularization techniques (dropout, L2) to reduce model memorization.');
+            }
+            if (queryBudget > 50000) {
+                recs.push('Implement strict query limits and rate limiting on model APIs.');
+            }
+            recs.push('Monitor model outputs for privacy-sensitive information leakage.');
+            recs.push('Use membership inference tests regularly to detect training data extraction.');
+
+            const recsHtml = recs.map(r => `
+                <div class="recommendation-item">
+                    <div class="recommendation-text">✓ ${r}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('recommendations').innerHTML = recsHtml;
+
+            resultsSection.classList.add('show');
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>ML Supply Chain Attack Calculator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculate ML supply chain attack surface. Assess dependencies, model sources, data sources, and deployment methods.">
+    <meta name="keywords" content="supply chain security, ML security, dependency risk, model risk, deployment risk">
+    <meta name="author" content="lockml.com">
+    <meta property="og:title" content="Supply Chain Attack Surface Calculator">
+    <meta property="og:description" content="Assess your ML supply chain for vulnerabilities and attack vectors.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/supply-chain-attack-surface-calculator">
+    <meta property="og:image" content="https://lockml.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Supply Chain Attack Surface Calculator">
+    <meta name="twitter:description" content="Assess your ML supply chain for vulnerabilities and attack vectors.">
+    <link rel="canonical" href="https://lockml.com/tools/supply-chain-attack-surface-calculator">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2241192243363112" crossorigin="anonymous"></script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Supply Chain Attack Surface Calculator",
+        "description": "Calculate ML supply chain attack surface and vulnerability assessment",
+        "url": "https://lockml.com/tools/supply-chain-attack-surface-calculator",
+        "applicationCategory": "SecurityApplication",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e5e5e5;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+        }
+        .tool-card {
+            background: #242424;
+            border: 1px solid #3a3a3a;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        input[type="radio"],
+        input[type="number"] {
+            cursor: pointer;
+            accent-color: #ef4444;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            color: #e5e5e5;
+            font-size: 1rem;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        input[type="checkbox"] {
+            cursor: pointer;
+            accent-color: #ef4444;
+        }
+        .checkbox-label {
+            cursor: pointer;
+            user-select: none;
+            color: #e5e5e5;
+            font-size: 0.95rem;
+        }
+        button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .results-section {
+            display: none;
+            margin-top: 40px;
+        }
+        .results-section.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .attack-surface-score {
+            background: #1a1a1a;
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .score-number {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #ef4444;
+            margin-bottom: 10px;
+        }
+        .score-label {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+        }
+        .risk-level {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .risk-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ff6b6b;
+        }
+        .risk-high {
+            background: rgba(249, 115, 22, 0.2);
+            color: #ffa500;
+        }
+        .risk-medium {
+            background: rgba(234, 179, 8, 0.2);
+            color: #ffd700;
+        }
+        .risk-low {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #3a3a3a;
+        }
+        .vulnerable-points {
+            background: #1a1a1a;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .point-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .point-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .point-name {
+            font-weight: 600;
+            color: #ef4444;
+            margin-bottom: 4px;
+        }
+        .point-description {
+            font-size: 0.95rem;
+            color: #a0a0a0;
+        }
+        .hardening {
+            background: #1a1a1a;
+            border-left: 4px solid #22c55e;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        .hardening-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .hardening-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .hardening-text {
+            color: #e5e5e5;
+            font-size: 0.95rem;
+        }
+        footer {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+            font-size: 0.9rem;
+            border-top: 1px solid #3a3a3a;
+            margin-top: 60px;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .score-number {
+                font-size: 2.5rem;
+            }
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Supply Chain Attack Surface Calculator</h1>
+            <p class="subtitle">Assess ML supply chain vulnerabilities</p>
+        </header>
+
+        <div class="tool-card">
+            <form id="supplyChainForm">
+                <div class="form-group">
+                    <label for="dependencies">Number of Direct Dependencies</label>
+                    <input type="number" id="dependencies" name="dependencies" min="0" max="1000" value="50" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Model Sources</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="huggingface" name="modelSources" value="huggingface">
+                            <label for="huggingface" class="checkbox-label">HuggingFace Hub</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="tfhub" name="modelSources" value="tfhub">
+                            <label for="tfhub" class="checkbox-label">TensorFlow Hub</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="torchvision" name="modelSources" value="torchvision">
+                            <label for="torchvision" class="checkbox-label">PyTorch/Torchvision</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="custom" name="modelSources" value="custom">
+                            <label for="custom" class="checkbox-label">Custom/In-house Models</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Data Sources</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="public" name="dataSources" value="public">
+                            <label for="public" class="checkbox-label">Public Datasets</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="vendor" name="dataSources" value="vendor">
+                            <label for="vendor" class="checkbox-label">Vendor/Third-party Data</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="internal" name="dataSources" value="internal">
+                            <label for="internal" class="checkbox-label">Internal Data</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="crowdsourced" name="dataSources" value="crowdsourced">
+                            <label for="crowdsourced" class="checkbox-label">Crowdsourced Data</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Deployment Method</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="cloud" name="deployment" value="cloud" required>
+                            <label for="cloud" style="margin-bottom: 0;">Cloud Provider (AWS/GCP/Azure)</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="onpremise" name="deployment" value="onpremise">
+                            <label for="onpremise" style="margin-bottom: 0;">On-premise</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="hybrid" name="deployment" value="hybrid">
+                            <label for="hybrid" style="margin-bottom: 0;">Hybrid (Cloud + On-premise)</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="edge" name="deployment" value="edge">
+                            <label for="edge" style="margin-bottom: 0;">Edge Devices</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit">Calculate Attack Surface</button>
+            </form>
+        </div>
+
+        <div id="resultsSection" class="results-section">
+            <div class="attack-surface-score">
+                <div class="score-number" id="surfaceScore">0</div>
+                <div class="score-label">Attack Surface Score (0-100)</div>
+                <div class="risk-level" id="riskLevel"></div>
+            </div>
+
+            <div class="section-title">Vulnerable Points</div>
+            <div class="vulnerable-points" id="vulnerablePoints"></div>
+
+            <div class="section-title">Hardening Recommendations</div>
+            <div class="hardening" id="hardening"></div>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 lockml.com — ML Security Tools
+    </footer>
+
+    <script>
+        const form = document.getElementById('supplyChainForm');
+        const resultsSection = document.getElementById('resultsSection');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculateAttackSurface();
+        });
+
+        function calculateAttackSurface() {
+            const dependencies = parseInt(document.getElementById('dependencies').value);
+            const modelSources = Array.from(document.querySelectorAll('input[name="modelSources"]:checked')).length;
+            const dataSources = Array.from(document.querySelectorAll('input[name="dataSources"]:checked')).length;
+            const deployment = document.querySelector('input[name="deployment"]:checked').value;
+
+            let score = 0;
+
+            // Dependencies factor (0-30)
+            if (dependencies > 500) score += 30;
+            else if (dependencies > 200) score += 25;
+            else if (dependencies > 100) score += 18;
+            else if (dependencies > 50) score += 10;
+            else score += 5;
+
+            // Model sources factor (0-25)
+            if (modelSources >= 4) score += 25;
+            else if (modelSources === 3) score += 18;
+            else if (modelSources === 2) score += 12;
+            else score += 5;
+
+            // Data sources factor (0-25)
+            if (dataSources >= 4) score += 25;
+            else if (dataSources === 3) score += 18;
+            else if (dataSources === 2) score += 12;
+            else score += 5;
+
+            // Deployment factor (0-20)
+            const deploymentScores = {
+                'cloud': 20,
+                'hybrid': 15,
+                'edge': 12,
+                'onpremise': 5
+            };
+            score += deploymentScores[deployment];
+
+            displayResults(score, dependencies, modelSources, dataSources, deployment);
+        }
+
+        function displayResults(score, dependencies, modelSources, dataSources, deployment) {
+            const scoreElement = document.getElementById('surfaceScore');
+            const riskLevelElement = document.getElementById('riskLevel');
+            const vulnerableElement = document.getElementById('vulnerablePoints');
+            const hardeningElement = document.getElementById('hardening');
+
+            scoreElement.textContent = score;
+
+            let riskLabel = '';
+            let riskClass = '';
+            if (score >= 75) {
+                riskLabel = 'CRITICAL';
+                riskClass = 'risk-critical';
+            } else if (score >= 50) {
+                riskLabel = 'HIGH';
+                riskClass = 'risk-high';
+            } else if (score >= 25) {
+                riskLabel = 'MEDIUM';
+                riskClass = 'risk-medium';
+            } else {
+                riskLabel = 'LOW';
+                riskClass = 'risk-low';
+            }
+
+            riskLevelElement.textContent = riskLabel;
+            riskLevelElement.className = `risk-level ${riskClass}`;
+
+            // Vulnerable points
+            let vulnerabilities = [];
+            if (dependencies > 100) {
+                vulnerabilities.push({
+                    name: 'High Dependency Count',
+                    desc: `${dependencies} direct dependencies increases exposure to transitive supply chain attacks.`
+                });
+            }
+            if (modelSources > 2) {
+                vulnerabilities.push({
+                    name: 'Multiple Model Sources',
+                    desc: 'Multiple model sources create verification and audit challenges.'
+                });
+            }
+            if (dataSources > 2) {
+                vulnerabilities.push({
+                    name: 'Data Provenance Risk',
+                    desc: 'Multiple data sources require rigorous validation and lineage tracking.'
+                });
+            }
+            if (deployment === 'cloud' || deployment === 'hybrid') {
+                vulnerabilities.push({
+                    name: 'Cloud Infrastructure Risk',
+                    desc: 'Dependency on cloud provider security posture and API vulnerabilities.'
+                });
+            }
+            if (deployment === 'edge') {
+                vulnerabilities.push({
+                    name: 'Edge Device Vulnerabilities',
+                    desc: 'Physical access and constrained resources increase edge device attack surface.'
+                });
+            }
+
+            vulnerableElement.innerHTML = vulnerabilities.map(v => `
+                <div class="point-item">
+                    <div class="point-name">${v.name}</div>
+                    <div class="point-description">${v.desc}</div>
+                </div>
+            `).join('');
+
+            // Hardening recommendations
+            let recommendations = [];
+            if (dependencies > 50) {
+                recommendations.push('Implement Software Composition Analysis (SCA) tools to detect vulnerable dependencies.');
+            }
+            recommendations.push('Pin dependency versions explicitly and verify cryptographic signatures of all artifacts.');
+            recommendations.push('Conduct regular security audits of all model and data sources.');
+            if (modelSources > 1) {
+                recommendations.push('Create model integrity verification pipeline using hash validation and watermarking.');
+            }
+            if (dataSources > 1) {
+                recommendations.push('Establish data governance framework with provenance tracking and quality checks.');
+            }
+            recommendations.push('Isolate supply chain operations in sandboxed environments with network segmentation.');
+            if (deployment === 'cloud') {
+                recommendations.push('Enable cloud security monitoring and implement Infrastructure-as-Code with version control.');
+            }
+            recommendations.push('Deploy model registry with attestation, versioning, and rollback capabilities.');
+
+            hardeningElement.innerHTML = recommendations.map(r => `
+                <div class="hardening-item">
+                    <div class="hardening-text">✓ ${r}</div>
+                </div>
+            `).join('');
+
+            resultsSection.classList.add('show');
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>

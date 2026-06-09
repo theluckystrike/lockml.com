@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Prompt Injection Detector | lockml.com</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Detect prompt injection vulnerabilities in AI systems. Analyze prompts for injection patterns and attack vectors.">
+    <meta name="keywords" content="prompt injection, LLM security, AI safety, vulnerability detection">
+    <meta name="author" content="lockml.com">
+    <meta property="og:title" content="Prompt Injection Detector">
+    <meta property="og:description" content="Identify prompt injection vulnerabilities in your AI system.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/prompt-injection-detector">
+    <meta property="og:image" content="https://lockml.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Prompt Injection Detector">
+    <meta name="twitter:description" content="Identify prompt injection vulnerabilities in your AI system.">
+    <link rel="canonical" href="https://lockml.com/tools/prompt-injection-detector">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2241192243363112" crossorigin="anonymous"></script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Prompt Injection Detector",
+        "description": "Detect prompt injection vulnerabilities in AI systems",
+        "url": "https://lockml.com/tools/prompt-injection-detector",
+        "applicationCategory": "SecurityApplication",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e5e5e5;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+        }
+        .tool-card {
+            background: #242424;
+            border: 1px solid #3a3a3a;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+        textarea {
+            width: 100%;
+            padding: 15px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            color: #e5e5e5;
+            font-size: 1rem;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            min-height: 200px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .results-section {
+            display: none;
+            margin-top: 40px;
+        }
+        .results-section.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .risk-badge {
+            background: #1a1a1a;
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .risk-label {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+            margin-bottom: 8px;
+        }
+        .risk-level {
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        .risk-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ff6b6b;
+        }
+        .risk-high {
+            background: rgba(249, 115, 22, 0.2);
+            color: #ffa500;
+        }
+        .risk-medium {
+            background: rgba(234, 179, 8, 0.2);
+            color: #ffd700;
+        }
+        .risk-low {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #3a3a3a;
+        }
+        .findings {
+            background: #1a1a1a;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .finding-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .finding-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .finding-type {
+            font-weight: 700;
+            color: #ef4444;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        .finding-description {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+        .suggestions {
+            background: #1a1a1a;
+            border-left: 4px solid #22c55e;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        .suggestion-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .suggestion-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .suggestion-text {
+            color: #e5e5e5;
+            font-size: 0.95rem;
+        }
+        footer {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+            font-size: 0.9rem;
+            border-top: 1px solid #3a3a3a;
+            margin-top: 60px;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .risk-level {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Prompt Injection Detector</h1>
+            <p class="subtitle">Analyze prompts for injection vulnerabilities</p>
+        </header>
+
+        <div class="tool-card">
+            <form id="detectorForm">
+                <div class="form-group">
+                    <label for="promptText">Prompt Text</label>
+                    <textarea id="promptText" name="promptText" placeholder="Paste your prompt here to analyze for injection vulnerabilities..." required></textarea>
+                </div>
+
+                <button type="submit">Analyze Prompt</button>
+            </form>
+        </div>
+
+        <div id="resultsSection" class="results-section">
+            <div class="risk-badge">
+                <div class="risk-label">Injection Risk Level</div>
+                <div class="risk-level" id="riskLevel"></div>
+            </div>
+
+            <div class="section-title">Detected Vulnerabilities</div>
+            <div class="findings" id="findings"></div>
+
+            <div class="section-title">Sanitization Recommendations</div>
+            <div class="suggestions" id="suggestions"></div>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 lockml.com — ML Security Tools
+    </footer>
+
+    <script>
+        const form = document.getElementById('detectorForm');
+        const resultsSection = document.getElementById('resultsSection');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            analyzePrompt();
+        });
+
+        function analyzePrompt() {
+            const promptText = document.getElementById('promptText').value.toLowerCase();
+
+            const patterns = {
+                direct: [
+                    { pattern: 'ignore.*instruction', desc: 'Ignore instruction pattern detected' },
+                    { pattern: 'forget.*previous', desc: 'Forget previous instruction detected' },
+                    { pattern: 'override.*system', desc: 'System override attempt detected' },
+                    { pattern: 'new.*instruction.*:', desc: 'New instruction injection attempt' },
+                    { pattern: '\\*\\*.*\\*\\*', desc: 'Markdown formatting manipulation' }
+                ],
+                indirect: [
+                    { pattern: '\\[.*\\]', desc: 'Bracket escaping potential indirect injection' },
+                    { pattern: '--+', desc: 'Comment delimiters that may bypass parsing' },
+                    { pattern: 'execute|run|eval', desc: 'Code execution keywords detected' },
+                    { pattern: 'as if|imagine|pretend', desc: 'Role-playing instruction patterns' }
+                ],
+                delimiter: [
+                    { pattern: '\\n\\n', desc: 'Double newline delimiter pattern' },
+                    { pattern: '===+|---+', desc: 'Delimiter line patterns detected' },
+                    { pattern: '\\|\\|\\||&&', desc: 'Logical operator delimiters' }
+                ]
+            };
+
+            let findings = [];
+            let riskScore = 0;
+
+            // Check direct injection
+            patterns.direct.forEach(p => {
+                if (new RegExp(p.pattern).test(promptText)) {
+                    findings.push({ category: 'Direct Injection', text: p.desc, severity: 'critical' });
+                    riskScore += 25;
+                }
+            });
+
+            // Check indirect injection
+            patterns.indirect.forEach(p => {
+                if (new RegExp(p.pattern).test(promptText)) {
+                    findings.push({ category: 'Indirect Injection', text: p.desc, severity: 'high' });
+                    riskScore += 15;
+                }
+            });
+
+            // Check delimiter escaping
+            patterns.delimiter.forEach(p => {
+                if (new RegExp(p.pattern).test(promptText)) {
+                    findings.push({ category: 'Delimiter Escaping', text: p.desc, severity: 'medium' });
+                    riskScore += 10;
+                }
+            });
+
+            // Check instruction override attempts
+            const overrideKeywords = ['role', 'persona', 'character', 'mode', 'system prompt', 'jailbreak'];
+            let overrideMatches = overrideKeywords.filter(kw => promptText.includes(kw));
+            if (overrideMatches.length > 0) {
+                findings.push({
+                    category: 'Instruction Override',
+                    text: `Detected ${overrideMatches.length} role/persona manipulation keywords`,
+                    severity: 'high'
+                });
+                riskScore += 15;
+            }
+
+            riskScore = Math.min(100, riskScore);
+
+            displayResults(findings, riskScore);
+        }
+
+        function displayResults(findings, riskScore) {
+            const riskLevelElement = document.getElementById('riskLevel');
+            const findingsElement = document.getElementById('findings');
+            const suggestionsElement = document.getElementById('suggestions');
+
+            let riskLabel = '';
+            let riskClass = '';
+            if (riskScore >= 75) {
+                riskLabel = 'CRITICAL';
+                riskClass = 'risk-critical';
+            } else if (riskScore >= 50) {
+                riskLabel = 'HIGH';
+                riskClass = 'risk-high';
+            } else if (riskScore >= 25) {
+                riskLabel = 'MEDIUM';
+                riskClass = 'risk-medium';
+            } else {
+                riskLabel = 'LOW';
+                riskClass = 'risk-low';
+            }
+
+            riskLevelElement.textContent = riskLabel;
+            riskLevelElement.className = `risk-level ${riskClass}`;
+
+            if (findings.length === 0) {
+                findingsElement.innerHTML = '<div class="finding-item"><div class="finding-description">No injection patterns detected in this prompt.</div></div>';
+            } else {
+                findingsElement.innerHTML = findings.map(f => `
+                    <div class="finding-item">
+                        <div class="finding-type">${f.category} (${f.severity.toUpperCase()})</div>
+                        <div class="finding-description">${f.text}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Suggestions based on risk score
+            let suggestions = [];
+            if (findings.length > 0) {
+                suggestions.push('Use input validation to reject prompts with suspicious keywords like "ignore", "forget", or "override".');
+            }
+            suggestions.push('Implement prompt sanitization to remove or escape special delimiters and markdown formatting.');
+            suggestions.push('Use prompt templates with clear boundaries between system instructions and user input.');
+            suggestions.push('Add monitoring and logging to detect anomalous prompt patterns in production.');
+            if (riskScore > 50) {
+                suggestions.push('Consider using a dedicated prompt injection detection model or service.');
+                suggestions.push('Test your system regularly with adversarial prompts from prompt injection repositories.');
+            }
+
+            suggestionsElement.innerHTML = suggestions.map(s => `
+                <div class="suggestion-item">
+                    <div class="suggestion-text">✓ ${s}</div>
+                </div>
+            `).join('');
+
+            resultsSection.classList.add('show');
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>

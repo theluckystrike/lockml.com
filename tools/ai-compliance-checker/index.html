@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>AI Compliance Checker | lockml.com</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Check AI system compliance with EU AI Act, NIST AI RMF, ISO 42001, GDPR. Identify gaps and requirements.">
+    <meta name="keywords" content="AI compliance, EU AI Act, NIST AI RMF, ISO 42001, GDPR, AI regulations">
+    <meta name="author" content="lockml.com">
+    <meta property="og:title" content="AI Compliance Checker">
+    <meta property="og:description" content="Assess AI system compliance with major regulations and frameworks.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lockml.com/tools/ai-compliance-checker">
+    <meta property="og:image" content="https://lockml.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI Compliance Checker">
+    <meta name="twitter:description" content="Assess AI system compliance with major regulations and frameworks.">
+    <link rel="canonical" href="https://lockml.com/tools/ai-compliance-checker">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2241192243363112" crossorigin="anonymous"></script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "AI Compliance Checker",
+        "description": "Check AI system compliance with regulations and frameworks",
+        "url": "https://lockml.com/tools/ai-compliance-checker",
+        "applicationCategory": "SecurityApplication",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e5e5e5;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+        }
+        .tool-card {
+            background: #242424;
+            border: 1px solid #3a3a3a;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .framework-section {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .framework-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .framework-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+        }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: #ef4444;
+            flex-shrink: 0;
+        }
+        .checkbox-label {
+            cursor: pointer;
+            user-select: none;
+            color: #e5e5e5;
+            font-size: 0.95rem;
+        }
+        button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .results-section {
+            display: none;
+            margin-top: 40px;
+        }
+        .results-section.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .compliance-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .compliance-card {
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .compliance-score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ef4444;
+            margin: 10px 0;
+        }
+        .compliance-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        .compliance-status {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #3a3a3a;
+        }
+        .gaps-list {
+            background: #1a1a1a;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .gap-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .gap-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .gap-category {
+            font-weight: 600;
+            color: #ef4444;
+            margin-bottom: 4px;
+        }
+        .gap-description {
+            color: #a0a0a0;
+            font-size: 0.95rem;
+        }
+        .documentation {
+            background: #1a1a1a;
+            border-left: 4px solid #22c55e;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        .doc-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .doc-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .doc-text {
+            color: #e5e5e5;
+            font-size: 0.95rem;
+        }
+        footer {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+            font-size: 0.9rem;
+            border-top: 1px solid #3a3a3a;
+            margin-top: 60px;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+            .compliance-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Compliance Checker</h1>
+            <p class="subtitle">Assess compliance with AI regulations and frameworks</p>
+        </header>
+
+        <div class="tool-card">
+            <form id="complianceForm">
+                <div class="framework-section">
+                    <div class="framework-title">EU AI Act</div>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="euRiskAssess" name="euAiAct" value="risk-assessment">
+                            <label for="euRiskAssess" class="checkbox-label">Risk Assessment Completed</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="euTransparency" name="euAiAct" value="transparency">
+                            <label for="euTransparency" class="checkbox-label">Transparency Documentation</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="euMonitoring" name="euAiAct" value="monitoring">
+                            <label for="euMonitoring" class="checkbox-label">Monitoring & Logging</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="euHumanReview" name="euAiAct" value="human-review">
+                            <label for="euHumanReview" class="checkbox-label">Human Oversight Process</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="framework-section">
+                    <div class="framework-title">NIST AI Risk Management Framework</div>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="nistMap" name="nistRmf" value="map">
+                            <label for="nistMap" class="checkbox-label">Mapped to NIST Categories</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="nistMeasure" name="nistRmf" value="measure">
+                            <label for="nistMeasure" class="checkbox-label">Measurement Plan Defined</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="nistManage" name="nistRmf" value="manage">
+                            <label for="nistManage" class="checkbox-label">Risk Management Plan</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="nistGov" name="nistRmf" value="govern">
+                            <label for="nistGov" class="checkbox-label">Governance Model Established</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="framework-section">
+                    <div class="framework-title">ISO 42001 (AI Management System)</div>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="isoPolicy" name="iso42001" value="policy">
+                            <label for="isoPolicy" class="checkbox-label">AI Policy & Strategy</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="isoRoles" name="iso42001" value="roles">
+                            <label for="isoRoles" class="checkbox-label">Roles & Responsibilities</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="isoControl" name="iso42001" value="control">
+                            <label for="isoControl" class="checkbox-label">Control Framework</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="isoAudit" name="iso42001" value="audit">
+                            <label for="isoAudit" class="checkbox-label">Internal Audit Program</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="framework-section">
+                    <div class="framework-title">GDPR (AI-Specific Provisions)</div>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="gdprDpia" name="gdpr" value="dpia">
+                            <label for="gdprDpia" class="checkbox-label">DPIA Completed</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="gdprConsent" name="gdpr" value="consent">
+                            <label for="gdprConsent" class="checkbox-label">Consent Management</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="gdprRight" name="gdpr" value="right-to-explain">
+                            <label for="gdprRight" class="checkbox-label">Right to Explanation</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="gdprDeletion" name="gdpr" value="deletion">
+                            <label for="gdprDeletion" class="checkbox-label">Right to Be Forgotten</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit">Check Compliance</button>
+            </form>
+        </div>
+
+        <div id="resultsSection" class="results-section">
+            <div class="compliance-summary" id="complianceSummary"></div>
+
+            <div class="section-title">Identified Gaps</div>
+            <div class="gaps-list" id="gapsList"></div>
+
+            <div class="section-title">Required Documentation</div>
+            <div class="documentation" id="documentation"></div>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 lockml.com — ML Security Tools
+    </footer>
+
+    <script>
+        const form = document.getElementById('complianceForm');
+        const resultsSection = document.getElementById('resultsSection');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            checkCompliance();
+        });
+
+        function checkCompliance() {
+            const euChecked = Array.from(document.querySelectorAll('input[name="euAiAct"]:checked')).length;
+            const nistChecked = Array.from(document.querySelectorAll('input[name="nistRmf"]:checked')).length;
+            const isoChecked = Array.from(document.querySelectorAll('input[name="iso42001"]:checked')).length;
+            const gdprChecked = Array.from(document.querySelectorAll('input[name="gdpr"]:checked')).length;
+
+            const euScore = Math.round((euChecked / 4) * 100);
+            const nistScore = Math.round((nistChecked / 4) * 100);
+            const isoScore = Math.round((isoChecked / 4) * 100);
+            const gdprScore = Math.round((gdprChecked / 4) * 100);
+
+            displayResults(euScore, nistScore, isoScore, gdprScore, euChecked, nistChecked, isoChecked, gdprChecked);
+        }
+
+        function displayResults(euScore, nistScore, isoScore, gdprScore, euChecked, nistChecked, isoChecked, gdprChecked) {
+            const summaryElement = document.getElementById('complianceSummary');
+            const gapsElement = document.getElementById('gapsList');
+            const docElement = document.getElementById('documentation');
+
+            // Compliance summary cards
+            const frameworks = [
+                { name: 'EU AI Act', score: euScore },
+                { name: 'NIST RMF', score: nistScore },
+                { name: 'ISO 42001', score: isoScore },
+                { name: 'GDPR', score: gdprScore }
+            ];
+
+            summaryElement.innerHTML = frameworks.map(f => `
+                <div class="compliance-card">
+                    <div class="compliance-name">${f.name}</div>
+                    <div class="compliance-score">${f.score}%</div>
+                    <div class="compliance-status">${f.score >= 75 ? 'Compliant' : (f.score >= 50 ? 'Partial' : 'Non-Compliant')}</div>
+                </div>
+            `).join('');
+
+            // Identify gaps
+            let gaps = [];
+            if (euChecked < 4) {
+                gaps.push({
+                    category: 'EU AI Act',
+                    desc: `${4 - euChecked} requirements not met: Risk assessment, transparency, monitoring, and human oversight.`
+                });
+            }
+            if (nistChecked < 4) {
+                gaps.push({
+                    category: 'NIST RMF',
+                    desc: `${4 - nistChecked} framework elements missing: Map, Measure, Manage, and Govern.`
+                });
+            }
+            if (isoChecked < 4) {
+                gaps.push({
+                    category: 'ISO 42001',
+                    desc: `${4 - isoChecked} management system components not implemented.`
+                });
+            }
+            if (gdprChecked < 4) {
+                gaps.push({
+                    category: 'GDPR',
+                    desc: `${4 - gdprChecked} data protection safeguards missing: DPIA, consent, explainability, deletion rights.`
+                });
+            }
+
+            gapsElement.innerHTML = gaps.length > 0 ? gaps.map(g => `
+                <div class="gap-item">
+                    <div class="gap-category">${g.category}</div>
+                    <div class="gap-description">${g.desc}</div>
+                </div>
+            `).join('') : '<div class="gap-item"><div class="gap-description">All major frameworks compliant!</div></div>';
+
+            // Required documentation
+            let docs = [];
+            docs.push('AI System Impact Assessment documenting risks and mitigation measures');
+            docs.push('Data Protection Impact Assessment (DPIA) under GDPR');
+            docs.push('Model Documentation including training data, performance metrics, and limitations');
+            docs.push('Audit Trail and Monitoring logs for all model decisions in high-risk applications');
+            docs.push('Incident Response Plan for AI model failures and security breaches');
+            docs.push('Human Oversight & Appeal Process documentation');
+            docs.push('Vendor Risk Assessment if using third-party AI services');
+
+            docElement.innerHTML = docs.map(d => `
+                <div class="doc-item">
+                    <div class="doc-text">✓ ${d}</div>
+                </div>
+            `).join('');
+
+            resultsSection.classList.add('show');
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>
