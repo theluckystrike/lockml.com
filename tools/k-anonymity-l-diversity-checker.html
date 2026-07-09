@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>k-Anonymity &amp; l-Diversity Checker</title>
+<meta name="description" content="Paste a CSV, pick quasi-identifier and sensitive columns, and instantly measure k-anonymity, l-diversity, and t-closeness of your dataset before release.">
+<link rel="canonical" href="https://lockml.com/tools/k-anonymity-l-diversity-checker">
+<meta property="og:title" content="k-Anonymity &amp; l-Diversity Checker">
+<meta property="og:description" content="Paste a CSV, pick quasi-identifier and sensitive columns, and instantly measure k-anonymity, l-diversity, and t-closeness of your dataset before release.">
+<meta property="og:url" content="https://lockml.com/tools/k-anonymity-l-diversity-checker">
+<meta property="og:type" content="website">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "k-Anonymity & l-Diversity Checker",
+      "url": "https://lockml.com/tools/k-anonymity-l-diversity-checker",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any",
+      "description": "Paste a CSV, pick quasi-identifier and sensitive columns, and instantly measure k-anonymity, l-diversity, and t-closeness of your dataset before release.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://lockml.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://lockml.com/tools/" },
+        { "@type": "ListItem", "position": 3, "name": "k-Anonymity & l-Diversity Checker", "item": "https://lockml.com/tools/k-anonymity-l-diversity-checker" }
+      ]
+    }
+  ]
+}
+</script>
+<style>
+:root{
+  --bg:#0c0e14; --panel:#141824; --panel2:#1b2030; --border:#262d40;
+  --fg:#e6e9f0; --muted:#8b93a7; --accent:#5eead4; --accent2:#818cf8;
+  --ok:#34d399; --warn:#fbbf24; --bad:#f87171;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.6;font-size:16px;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+nav{display:flex;gap:1.2rem;padding:1rem 1.4rem;border-bottom:1px solid var(--border);font-size:.95rem}
+.wrap{max-width:1000px;margin:0 auto;padding:1.6rem 1.4rem 3rem}
+h1{font-size:1.9rem;line-height:1.25;margin:1.2rem 0 .4rem}
+h2{font-size:1.3rem;margin:2rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.35rem}
+.lede{color:var(--muted);font-size:1.05rem;margin:0 0 1rem}
+section#tool{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1.3rem;margin:1.4rem 0}
+label{display:block;font-weight:600;font-size:.9rem;margin:.9rem 0 .35rem}
+.hint{font-weight:400;color:var(--muted);font-size:.82rem}
+textarea,select,input{
+  width:100%;background:var(--panel2);color:var(--fg);border:1px solid var(--border);
+  border-radius:9px;padding:.6rem .7rem;font-size:.92rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+textarea{min-height:140px;resize:vertical;white-space:pre;overflow:auto}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:.3rem;background:var(--panel2);border:1px solid var(--border);border-radius:9px;padding:.6rem;max-height:180px;overflow:auto}
+.cols label{display:flex;align-items:center;gap:.5rem;margin:.15rem 0;font-weight:500;cursor:pointer}
+.cols input{width:auto}
+.thr{display:flex;gap:1rem;flex-wrap:wrap}
+.thr>div{flex:1;min-width:120px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin:1.1rem 0}
+.card{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:.9rem;text-align:center}
+.card .k{font-size:2rem;font-weight:700;line-height:1.1}
+.card .lbl{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:.3rem}
+.card .sub{font-size:.75rem;margin-top:.3rem}
+.ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+.verdict{padding:.8rem 1rem;border-radius:10px;font-weight:600;margin:1rem 0;border:1px solid var(--border)}
+.verdict.pass{background:rgba(52,211,153,.09);border-color:rgba(52,211,153,.4)}
+.verdict.fail{background:rgba(248,113,113,.09);border-color:rgba(248,113,113,.4)}
+table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.6rem}
+th,td{padding:.5rem .6rem;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.03em}
+td.mono,th.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
+.pill{display:inline-block;padding:.12rem .5rem;border-radius:999px;font-size:.74rem;font-weight:600}
+.pill.risk{background:rgba(248,113,113,.16);color:var(--bad)}
+.pill.safe{background:rgba(52,211,153,.14);color:var(--ok)}
+.err{color:var(--bad);font-size:.85rem;margin-top:.4rem}
+.related a{display:inline-block;margin:.2rem .6rem .2rem 0}
+footer{border-top:1px solid var(--border);margin-top:2.5rem;padding:1.4rem;color:var(--muted);font-size:.88rem;text-align:center}
+footer a{margin:0 .5rem}
+code{background:var(--panel2);padding:.1rem .35rem;border-radius:5px;font-size:.85em}
+p{margin:.7rem 0}
+@media(max-width:720px){.grid,.grid3,.cards{grid-template-columns:1fr 1fr}.card .k{font-size:1.6rem}}
+@media(max-width:480px){.grid,.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/">Home</a>
+  <a href="/tools/">Tools</a>
+</nav>
+<div class="wrap">
+<h1>Audit Re-identification Risk in a Dataset Before You Release It</h1>
+<p class="lede">Paste tabular data, mark the quasi-identifiers an attacker could link on, and the sensitive attribute you want to protect. This runs entirely in your browser and reports k-anonymity, l-diversity, and t-closeness with the exact equivalence classes that fail your thresholds.</p>
+
+<section id="tool">
+  <label for="csv">CSV data <span class="hint">— first row is the header. Data stays in your browser; nothing is uploaded.</span></label>
+  <textarea id="csv" spellcheck="false"></textarea>
+  <div class="err" id="parseErr" style="display:none"></div>
+
+  <div class="grid">
+    <div>
+      <label>Quasi-identifier columns <span class="hint">— attributes an adversary could join on (age, ZIP, sex…)</span></label>
+      <div class="cols" id="qiCols"></div>
+    </div>
+    <div>
+      <label for="sensCol">Sensitive column <span class="hint">— the secret to protect (diagnosis, salary…)</span></label>
+      <select id="sensCol"></select>
+    </div>
+  </div>
+
+  <div class="thr" style="margin-top:1rem">
+    <div>
+      <label for="kThr">Require k &ge; <span class="hint">min class size</span></label>
+      <input id="kThr" type="number" min="1" value="3">
+    </div>
+    <div>
+      <label for="lThr">Require l &ge; <span class="hint">distinct sensitive vals</span></label>
+      <input id="lThr" type="number" min="1" value="2">
+    </div>
+    <div>
+      <label for="tThr">Require t &le; <span class="hint">TV distance (0–1)</span></label>
+      <input id="tThr" type="number" min="0" max="1" step="0.05" value="0.30">
+    </div>
+  </div>
+
+  <div class="cards" id="cards"></div>
+  <div id="verdict"></div>
+
+  <h2 style="margin-top:1.4rem">Equivalence classes</h2>
+  <div class="tablewrap">
+    <table id="ecTable">
+      <thead><tr>
+        <th>Quasi-identifier tuple</th>
+        <th>k (size)</th>
+        <th>l (distinct)</th>
+        <th>t (TV dist)</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody id="ecBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<h2>How the metrics are computed</h2>
+<p>The tool splits your table into <strong>equivalence classes</strong>: sets of rows that share an identical combination of values across every selected quasi-identifier (QI) column. All three privacy guarantees are properties of these classes.</p>
+<p><strong>k-anonymity</strong> is the size of the <em>smallest</em> equivalence class. If k = 1, at least one QI tuple is unique, so linking it to an external voter roll or public record uniquely re-identifies a person. A dataset is k-anonymous when every class contains at least k indistinguishable records: <code>k = min over classes of |class|</code>.</p>
+<p><strong>l-diversity</strong> guards against attribute disclosure even when k is large. A class of 50 people is useless privacy if all 50 share the same diagnosis. This checker reports <em>distinct</em> l — the minimum number of distinct sensitive values found in any single class: <code>l = min over classes of |distinct sensitive values|</code>. Higher l means an attacker who locates the class still cannot pin down the sensitive value.</p>
+<p><strong>t-closeness</strong> tightens l-diversity by requiring each class's sensitive-value distribution to resemble the distribution across the whole table. We use the <em>total variation distance</em>, <code>TV(P,Q) = ½ · Σ |P(v) − Q(v)|</code>, comparing a class's local distribution P against the global distribution Q. The reported t is the maximum TV distance over all classes; small t means no class leaks a skewed, unusual concentration of the sensitive attribute.</p>
+<p>A row fails your policy when its class violates <em>any</em> chosen threshold. Those classes are flagged <span class="pill risk">risk</span> below so you can generalize, suppress, or bucket the offending quasi-identifiers before release. Everything runs client-side over the exact rows you paste — a useful last gate before publishing a microdata file.</p>
+
+<div class="related">
+<h2>Related Tools</h2>
+<a href="/tools/differential-privacy-budget-calculator">Differential Privacy Budget Calculator</a>
+<a href="/tools/pii-column-scanner">PII Column Scanner</a>
+<a href="/tools/laplace-noise-generator">Laplace Noise Generator</a>
+</div>
+</div>
+
+<footer>
+  <a href="/">lockml.com</a>
+  <a href="/tools/">All Tools</a>
+  <a href="/privacy">Privacy</a>
+  <div style="margin-top:.5rem">&copy; 2026 lockml.com — ML security &amp; privacy tools. Runs entirely in your browser.</div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SAMPLE = "age,zip,sex,diagnosis\n"+
+    "29,90210,M,flu\n"+
+    "29,90210,M,cold\n"+
+    "29,90210,M,flu\n"+
+    "41,90211,F,cancer\n"+
+    "41,90211,F,cancer\n"+
+    "41,90211,F,cancer\n"+
+    "35,90210,M,flu\n"+
+    "22,90213,F,asthma\n"+
+    "22,90213,F,flu\n"+
+    "22,90213,F,cold\n"+
+    "58,90210,M,cancer\n"+
+    "58,90210,M,flu";
+
+  var $ = function(id){ return document.getElementById(id); };
+  var csvEl=$("csv"), qiEl=$("qiCols"), sensEl=$("sensCol"),
+      kThr=$("kThr"), lThr=$("lThr"), tThr=$("tThr"),
+      cardsEl=$("cards"), verdictEl=$("verdict"), bodyEl=$("ecBody"), errEl=$("parseErr");
+
+  var headers=[], rows=[];
+
+  // ---- CSV parsing (RFC-4180-ish, handles quotes + embedded commas) ----
+  function parseCSV(text){
+    var out=[], row=[], field="", i=0, inQ=false, c;
+    text = text.replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+    while(i<text.length){
+      c=text[i];
+      if(inQ){
+        if(c==='"'){
+          if(text[i+1]==='"'){ field+='"'; i+=2; continue; }
+          inQ=false; i++; continue;
+        }
+        field+=c; i++; continue;
+      }
+      if(c==='"'){ inQ=true; i++; continue; }
+      if(c===','){ row.push(field); field=""; i++; continue; }
+      if(c==='\n'){ row.push(field); out.push(row); row=[]; field=""; i++; continue; }
+      field+=c; i++;
+    }
+    row.push(field); out.push(row);
+    // drop trailing fully-empty line
+    if(out.length && out[out.length-1].length===1 && out[out.length-1][0]==="") out.pop();
+    return out;
+  }
+
+  function loadTable(){
+    errEl.style.display="none";
+    var grid = parseCSV(csvEl.value);
+    if(grid.length<2){ headers=[]; rows=[]; showErr("Need a header row plus at least one data row."); return false; }
+    headers = grid[0].map(function(h){ return h.trim(); });
+    var w = headers.length, r=[];
+    for(var j=1;j<grid.length;j++){
+      var line=grid[j];
+      if(line.length===1 && line[0].trim()==="") continue;
+      var obj=[];
+      for(var c=0;c<w;c++) obj.push((line[c]!==undefined?line[c]:"").trim());
+      r.push(obj);
+    }
+    rows=r;
+    return true;
+  }
+  function showErr(m){ errEl.textContent=m; errEl.style.display="block"; }
+
+  // rebuild column pickers, preserving prior selection where names match
+  function buildPickers(){
+    var prevQI={}, prevSens=sensEl.value;
+    Array.prototype.forEach.call(qiEl.querySelectorAll("input:checked"),function(cb){ prevQI[cb.value]=1; });
+
+    qiEl.innerHTML="";
+    sensEl.innerHTML="";
+    headers.forEach(function(h,idx){
+      var id="qi_"+idx;
+      var lab=document.createElement("label");
+      var cb=document.createElement("input");
+      cb.type="checkbox"; cb.value=String(idx); cb.id=id;
+      // default: check everything except the last column on first ever load
+      if(Object.keys(prevQI).length? prevQI[String(idx)] : (idx<headers.length-1)) cb.checked=true;
+      cb.addEventListener("change", compute);
+      lab.appendChild(cb);
+      lab.appendChild(document.createTextNode(h||("col"+idx)));
+      qiEl.appendChild(lab);
+
+      var op=document.createElement("option");
+      op.value=String(idx); op.textContent=h||("col"+idx);
+      sensEl.appendChild(op);
+    });
+    // sensitive default = last column, or restore previous
+    var sIdx = prevSens!=="" && Number(prevSens)<headers.length ? prevSens : String(headers.length-1);
+    sensEl.value=sIdx;
+  }
+
+  function getQI(){
+    var arr=[];
+    Array.prototype.forEach.call(qiEl.querySelectorAll("input:checked"),function(cb){ arr.push(Number(cb.value)); });
+    return arr;
+  }
+
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  function compute(){
+    if(!headers.length){ return; }
+    var qi=getQI(), sIdx=Number(sensEl.value);
+    if(!qi.length){ renderEmpty("Select at least one quasi-identifier column."); return; }
+    if(isNaN(sIdx)){ renderEmpty("Select a sensitive column."); return; }
+
+    // global sensitive distribution
+    var globalCount={}, N=rows.length;
+    rows.forEach(function(r){ var v=r[sIdx]; globalCount[v]=(globalCount[v]||0)+1; });
+
+    // group into equivalence classes
+    var classes={}; // key -> {tuple:[], rows:[], sens:{}}
+    rows.forEach(function(r){
+      var key = qi.map(function(c){ return r[c]; }).join("");
+      if(!classes[key]) classes[key]={ tuple: qi.map(function(c){ return r[c]; }), sens:{}, n:0 };
+      var cl=classes[key];
+      cl.n++;
+      var sv=r[sIdx];
+      cl.sens[sv]=(cl.sens[sv]||0)+1;
+    });
+
+    var kThrV=Math.max(1,Number(kThr.value)||1),
+        lThrV=Math.max(1,Number(lThr.value)||1),
+        tThrV=Math.min(1,Math.max(0,Number(tThr.value)||0));
+
+    var globalK=Infinity, globalL=Infinity, globalT=0;
+    var list=[];
+    Object.keys(classes).forEach(function(key){
+      var cl=classes[key];
+      var k=cl.n;
+      var distinct=Object.keys(cl.sens).length;
+      // total variation distance vs global
+      var tv=0, keys={};
+      Object.keys(cl.sens).forEach(function(v){ keys[v]=1; });
+      Object.keys(globalCount).forEach(function(v){ keys[v]=1; });
+      Object.keys(keys).forEach(function(v){
+        var p=(cl.sens[v]||0)/cl.n;
+        var q=(globalCount[v]||0)/N;
+        tv+=Math.abs(p-q);
+      });
+      tv=tv/2;
+
+      if(k<globalK) globalK=k;
+      if(distinct<globalL) globalL=distinct;
+      if(tv>globalT) globalT=tv;
+
+      var risk = (k<kThrV) || (distinct<lThrV) || (tv>tThrV+1e-9);
+      list.push({ tuple:cl.tuple, k:k, l:distinct, t:tv, risk:risk });
+    });
+
+    list.sort(function(a,b){ return a.k-b.k || b.t-a.t; });
+
+    renderCards(globalK, globalL, globalT, kThrV, lThrV, tThrV, list.length);
+    renderVerdict(globalK, globalL, globalT, kThrV, lThrV, tThrV, list);
+    renderTable(qi, list);
+  }
+
+  function card(val, lbl, sub, cls){
+    return '<div class="card"><div class="k '+cls+'">'+val+'</div><div class="lbl">'+lbl+'</div><div class="sub '+cls+'">'+sub+'</div></div>';
+  }
+
+  function renderCards(k,l,t,kt,lt,tt,nClasses){
+    var kc = k>=kt?"ok":"bad", lc=l>=lt?"ok":"bad", tc=t<=tt+1e-9?"ok":"bad";
+    cardsEl.innerHTML =
+      card(isFinite(k)?k:"—","k-anonymity", (k>=kt?"meets k&ge;"+kt:"below k&ge;"+kt), kc)+
+      card(isFinite(l)?l:"—","l-diversity", (l>=lt?"meets l&ge;"+lt:"below l&ge;"+lt), lc)+
+      card(t.toFixed(3),"t-closeness", (t<=tt+1e-9?"meets t&le;"+tt:"exceeds t&le;"+tt), tc)+
+      card(nClasses,"equiv. classes","QI groupings","");
+  }
+
+  function renderVerdict(k,l,t,kt,lt,tt,list){
+    var risky=list.filter(function(x){ return x.risk; }).length;
+    var pass = (k>=kt)&&(l>=lt)&&(t<=tt+1e-9);
+    if(pass){
+      verdictEl.className="verdict pass";
+      verdictEl.innerHTML="&#10003; Safe to release under this policy — every equivalence class satisfies k&ge;"+kt+", l&ge;"+lt+", and t&le;"+tt+".";
+    } else {
+      verdictEl.className="verdict fail";
+      verdictEl.innerHTML="&#9888; Re-identification risk: "+risky+" of "+list.length+" equivalence classes violate the policy. Generalize or suppress the flagged quasi-identifiers below before release.";
+    }
+  }
+
+  function renderTable(qi, list){
+    var qiNames = qi.map(function(c){ return headers[c]||("col"+c); }).join(" · ");
+    var head = bodyEl.parentNode.querySelector("thead tr th");
+    head.textContent = "QI tuple ("+qiNames+")";
+    var kt=Math.max(1,Number(kThr.value)||1), lt=Math.max(1,Number(lThr.value)||1), tt=Math.min(1,Math.max(0,Number(tThr.value)||0));
+    var html="";
+    list.forEach(function(x){
+      var kbad=x.k<kt, lbad=x.l<lt, tbad=x.t>tt+1e-9;
+      html+='<tr>'+
+        '<td class="mono">'+esc(x.tuple.join(", "))+'</td>'+
+        '<td class="mono '+(kbad?"bad":"")+'">'+x.k+'</td>'+
+        '<td class="mono '+(lbad?"bad":"")+'">'+x.l+'</td>'+
+        '<td class="mono '+(tbad?"bad":"")+'">'+x.t.toFixed(3)+'</td>'+
+        '<td>'+(x.risk?'<span class="pill risk">risk</span>':'<span class="pill safe">safe</span>')+'</td>'+
+      '</tr>';
+    });
+    bodyEl.innerHTML = html || '<tr><td colspan="5" style="color:var(--muted)">No rows.</td></tr>';
+  }
+
+  function renderEmpty(msg){
+    cardsEl.innerHTML="";
+    verdictEl.className="verdict"; verdictEl.textContent=msg;
+    bodyEl.innerHTML="";
+  }
+
+  function onData(){
+    if(loadTable()){ buildPickers(); compute(); }
+    else { renderEmpty("Paste valid CSV to begin."); }
+  }
+
+  csvEl.addEventListener("input", onData);
+  sensEl.addEventListener("change", compute);
+  [kThr,lThr,tThr].forEach(function(el){ el.addEventListener("input", compute); });
+
+  // prefill defaults
+  csvEl.value=SAMPLE;
+  onData();
+})();
+</script>
+</body>
+</html>

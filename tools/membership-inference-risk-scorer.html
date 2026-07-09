@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Membership Inference Attack Risk Scorer</title>
+<meta name="description" content="Estimate how vulnerable your model is to membership inference from its train vs. test accuracy gap. Get attack advantage, AUC, and empirical epsilon.">
+<link rel="canonical" href="https://lockml.com/tools/membership-inference-risk-scorer">
+<meta property="og:title" content="Membership Inference Attack Risk Scorer">
+<meta property="og:description" content="Estimate how vulnerable your model is to membership inference from its train vs. test accuracy gap. Get attack advantage, AUC, and empirical epsilon.">
+<meta property="og:url" content="https://lockml.com/tools/membership-inference-risk-scorer">
+<meta property="og:type" content="website">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "Membership Inference Attack Risk Scorer",
+      "url": "https://lockml.com/tools/membership-inference-risk-scorer",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any",
+      "description": "Estimate how vulnerable your model is to membership inference from its train vs. test accuracy gap. Get attack advantage, AUC, and empirical epsilon.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://lockml.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://lockml.com/tools/" },
+        { "@type": "ListItem", "position": 3, "name": "Membership Inference Attack Risk Scorer", "item": "https://lockml.com/tools/membership-inference-risk-scorer" }
+      ]
+    }
+  ]
+}
+</script>
+<style>
+  :root{
+    --bg:#0c0f14; --panel:#141a22; --panel2:#1b232e; --edge:#26303c;
+    --ink:#e8eef5; --mut:#9aa8ba; --acc:#5fb3ff; --acc2:#7ee0c0;
+    --warn:#ffcc66; --bad:#ff6b7a; --ok:#7ee0a0;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6; font-size:16px;
+  }
+  nav{display:flex; gap:18px; padding:16px 22px; border-bottom:1px solid var(--edge); background:#0a0d12}
+  nav a{color:var(--acc); text-decoration:none; font-weight:600; font-size:14px}
+  nav a:hover{text-decoration:underline}
+  main{max-width:920px; margin:0 auto; padding:26px 20px 60px}
+  h1{font-size:29px; line-height:1.25; margin:14px 0 8px}
+  h2{font-size:20px; margin:34px 0 12px; border-left:3px solid var(--acc); padding-left:10px}
+  .lede{color:var(--mut); font-size:17px; margin:0 0 8px}
+  .tool{background:var(--panel); border:1px solid var(--edge); border-radius:14px; padding:22px; margin:22px 0}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  label{display:block; font-size:13px; font-weight:600; color:var(--mut); margin-bottom:6px; letter-spacing:.2px}
+  label .u{color:var(--acc2); font-weight:500}
+  input[type=number],select{
+    width:100%; background:var(--panel2); border:1px solid var(--edge); color:var(--ink);
+    border-radius:9px; padding:11px 12px; font-size:15px; font-family:inherit;
+  }
+  input[type=range]{width:100%; accent-color:var(--acc)}
+  .rangewrap{display:flex; align-items:center; gap:12px}
+  .rangewrap output{min-width:58px; text-align:right; font-variant-numeric:tabular-nums; font-weight:700; color:var(--acc2)}
+  .modebar{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap}
+  .modebar button{
+    flex:1; min-width:130px; background:var(--panel2); border:1px solid var(--edge); color:var(--mut);
+    padding:10px; border-radius:9px; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit;
+  }
+  .modebar button.on{background:var(--acc); color:#04121f; border-color:var(--acc)}
+  .hint{font-size:12px; color:var(--mut); margin-top:5px}
+  .out{margin-top:22px}
+  .verdict{border-radius:12px; padding:18px 20px; border:1px solid var(--edge); background:var(--panel2)}
+  .verdict .tier{font-size:22px; font-weight:800; letter-spacing:.3px}
+  .verdict .sub{color:var(--mut); font-size:14px; margin-top:2px}
+  .bar{height:14px; border-radius:8px; margin:14px 0 6px; background:linear-gradient(90deg,#2e7d5b 0%,#8a8a3c 42%,#a86a2c 70%,#8f2f3c 100%); position:relative}
+  .bar .pin{position:absolute; top:-5px; width:4px; height:24px; background:#fff; border-radius:2px; box-shadow:0 0 0 2px rgba(0,0,0,.5); transition:left .15s ease}
+  .metrics{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media(max-width:640px){.metrics{grid-template-columns:repeat(2,1fr)}}
+  .metric{background:var(--panel2); border:1px solid var(--edge); border-radius:10px; padding:14px}
+  .metric .k{font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.5px}
+  .metric .v{font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; margin-top:3px; color:var(--acc2)}
+  .metric .n{font-size:11px; color:var(--mut); margin-top:2px}
+  .rec{margin-top:18px; background:#10151c; border:1px solid var(--edge); border-left:3px solid var(--acc); border-radius:10px; padding:14px 16px}
+  .rec h3{margin:0 0 6px; font-size:15px}
+  .rec ul{margin:6px 0 0; padding-left:20px; color:var(--mut); font-size:14px}
+  .rec ul li{margin:4px 0}
+  code{background:#10151c; border:1px solid var(--edge); padding:1px 6px; border-radius:5px; font-size:13px; color:var(--acc2)}
+  .formula{background:#0a0d12; border:1px solid var(--edge); border-radius:10px; padding:14px 16px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13.5px; color:var(--acc2); overflow-x:auto; margin:14px 0}
+  p{color:#cdd7e2}
+  .rel a{display:inline-block; margin:4px 14px 4px 0; color:var(--acc); text-decoration:none; font-weight:600}
+  .rel a:hover{text-decoration:underline}
+  footer{border-top:1px solid var(--edge); margin-top:44px; padding:22px 0 8px; color:var(--mut); font-size:13px}
+  footer a{color:var(--acc); text-decoration:none; margin-right:16px}
+  .swatch{display:inline-block; width:11px; height:11px; border-radius:3px; vertical-align:middle; margin-right:5px}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/">Home</a>
+  <a href="/tools/">Tools</a>
+</nav>
+<main>
+  <h1>Score Your Model's Exposure to Membership Inference Attacks</h1>
+  <p class="lede">Feed in your model's train/test performance and instantly see how much a membership inference adversary can learn about who was in your training set — expressed as attack advantage, equivalent AUC, and an empirical privacy epsilon.</p>
+
+  <section id="tool">
+    <div class="tool">
+      <div class="modebar" id="modebar">
+        <button data-mode="acc" class="on">By accuracy gap</button>
+        <button data-mode="loss">By loss distributions</button>
+      </div>
+
+      <!-- Accuracy mode -->
+      <div id="mode-acc">
+        <div class="grid">
+          <div>
+            <label>Train accuracy <span class="u">(0–1)</span></label>
+            <div class="rangewrap">
+              <input type="range" id="trainAcc" min="0.5" max="1" step="0.001" value="0.985">
+              <output id="trainAccO">0.985</output>
+            </div>
+            <div class="hint">Accuracy on data the model was trained on.</div>
+          </div>
+          <div>
+            <label>Test accuracy <span class="u">(0–1)</span></label>
+            <div class="rangewrap">
+              <input type="range" id="testAcc" min="0.3" max="1" step="0.001" value="0.870">
+              <output id="testAccO">0.870</output>
+            </div>
+            <div class="hint">Accuracy on held-out / unseen data.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loss mode -->
+      <div id="mode-loss" style="display:none">
+        <div class="grid">
+          <div>
+            <label>Member mean loss <span class="u">(train)</span></label>
+            <input type="number" id="mMean" step="0.001" value="0.120">
+            <div class="hint">Average per-example loss on training members.</div>
+          </div>
+          <div>
+            <label>Member loss std dev</label>
+            <input type="number" id="mStd" step="0.001" value="0.180">
+          </div>
+          <div>
+            <label>Non-member mean loss <span class="u">(test)</span></label>
+            <input type="number" id="nMean" step="0.001" value="0.480">
+            <div class="hint">Average per-example loss on held-out non-members.</div>
+          </div>
+          <div>
+            <label>Non-member loss std dev</label>
+            <input type="number" id="nStd" step="0.001" value="0.320">
+          </div>
+        </div>
+        <div class="hint" style="margin-top:10px">Advantage is estimated from the overlap of two Gaussian loss distributions (a threshold attacker). Bigger separation = easier to tell members from non-members.</div>
+      </div>
+
+      <div class="grid" style="margin-top:16px">
+        <div>
+          <label>Training set size <span class="u">(n examples)</span></label>
+          <input type="number" id="nData" min="1" step="1" value="50000">
+          <div class="hint">Used to flag per-record memorization risk.</div>
+        </div>
+        <div>
+          <label>Data sensitivity</label>
+          <select id="sens">
+            <option value="1">Low — public / non-personal</option>
+            <option value="2" selected>Medium — behavioral / de-identified</option>
+            <option value="3">High — medical, financial, biometric</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="out">
+        <div class="verdict">
+          <div class="tier" id="tier">—</div>
+          <div class="sub" id="tierSub">Adjust the inputs to score your model.</div>
+          <div class="bar"><div class="pin" id="pin" style="left:0%"></div></div>
+          <div class="hint"><span class="swatch" style="background:#2e7d5b"></span>Minimal <span class="swatch" style="background:#8a8a3c;margin-left:12px"></span>Low <span class="swatch" style="background:#a86a2c;margin-left:12px"></span>Elevated <span class="swatch" style="background:#8f2f3c;margin-left:12px"></span>Severe</div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <div class="k">Attack advantage</div>
+            <div class="v" id="advV">—</div>
+            <div class="n">P(correct) − 0.5, doubled</div>
+          </div>
+          <div class="metric">
+            <div class="k">Attacker AUC</div>
+            <div class="v" id="aucV">—</div>
+            <div class="n">0.5 + adv / 2</div>
+          </div>
+          <div class="metric">
+            <div class="k">Empirical ε</div>
+            <div class="v" id="epsV">—</div>
+            <div class="n">ln((1+adv)/(1−adv))</div>
+          </div>
+          <div class="metric">
+            <div class="k">Success rate</div>
+            <div class="v" id="succV">—</div>
+            <div class="n">attacker accuracy</div>
+          </div>
+        </div>
+
+        <div class="rec" id="rec">
+          <h3>Recommendations</h3>
+          <ul id="recList"><li>Enter values above.</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <h2>How the risk score is computed</h2>
+  <p>A membership inference attack (MIA) tries to decide whether a specific record was part of a model's training set. The single strongest predictor of MIA success is the <strong>generalization gap</strong> — how much better the model performs on training data than on unseen data. Yeom et al. (2018) proved that for a threshold attacker, the <em>membership advantage</em> is bounded by exactly this gap:</p>
+  <div class="formula">advantage = train_accuracy − test_accuracy</div>
+  <p>Advantage ranges from 0 (attacker no better than a coin flip) to 1 (perfect membership recovery). We convert it into two familiar quantities. An adversary's balanced accuracy is <code>0.5 + advantage/2</code>, which is also the operating point of the equivalent ROC — so we report an <strong>attacker AUC = 0.5 + advantage/2</strong>. We then derive an empirical, worst-case privacy lower bound in the differential-privacy sense: any mechanism whose attacker can reach advantage <code>adv</code> cannot satisfy an epsilon tighter than</p>
+  <div class="formula">ε ≥ ln( (1 + adv) / (1 − adv) )</div>
+  <p>In the loss-distribution mode we instead model members and non-members as two Gaussian loss distributions and compute the advantage as the total-variation distance a threshold attacker achieves, then feed the same conversions. The score is bucketed into Minimal / Low / Elevated / Severe tiers, shifted upward when your data is sensitive or your training set is small (each record then carries more marginal influence and memorizes more easily). This is a fast pre-audit heuristic — a real shadow-model or LiRA attack will give tighter numbers, but the gap bound is a rigorous upper limit that no attacker can exceed.</p>
+
+  <h2>Related Tools</h2>
+  <div class="rel">
+    <a href="/tools/differential-privacy-epsilon-calculator">Differential Privacy Epsilon Calculator</a>
+    <a href="/tools/k-anonymity-checker">K-Anonymity &amp; L-Diversity Checker</a>
+    <a href="/tools/dp-sgd-noise-multiplier-calculator">DP-SGD Noise Multiplier Calculator</a>
+  </div>
+
+  <footer>
+    <a href="/">Home</a>
+    <a href="/tools/">All Tools</a>
+    <a href="/tools/differential-privacy-epsilon-calculator">DP Calculator</a>
+    <div style="margin-top:10px">© 2026 lockml.com · ML security &amp; privacy tooling. Heuristic pre-audit — verify with a full shadow-model attack before publishing privacy claims.</div>
+  </footer>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var mode = "acc";
+  var $ = function(id){ return document.getElementById(id); };
+
+  // error function approximation (Abramowitz & Stegun 7.1.26)
+  function erf(x){
+    var s = x < 0 ? -1 : 1; x = Math.abs(x);
+    var t = 1/(1+0.3275911*x);
+    var y = 1 - (((((1.061405429*t - 1.453152027)*t) + 1.421413741)*t - 0.284496736)*t + 0.254829592)*t*Math.exp(-x*x);
+    return s*y;
+  }
+  var clamp = function(v,a,b){ return Math.max(a, Math.min(b, v)); };
+
+  // advantage from two Gaussian loss distributions = total variation distance
+  // (max over thresholds of |CDF_member(t) - CDF_nonmember(t)|), sampled numerically
+  function gaussianAdvantage(m1,s1,m2,s2){
+    s1 = Math.max(1e-6, s1); s2 = Math.max(1e-6, s2);
+    var lo = Math.min(m1-4*s1, m2-4*s2), hi = Math.max(m1+4*s1, m2+4*s2);
+    var steps = 400, best = 0;
+    var cdf = function(x,m,s){ return 0.5*(1+erf((x-m)/(s*Math.SQRT2))); };
+    for(var i=0;i<=steps;i++){
+      var x = lo + (hi-lo)*i/steps;
+      var d = Math.abs(cdf(x,m1,s1) - cdf(x,m2,s2));
+      if(d > best) best = d;
+    }
+    return clamp(best, 0, 1);
+  }
+
+  function tierFor(adv, sens, n){
+    // effective advantage nudged up for sensitive data & small datasets
+    var eff = adv;
+    if(sens === 3) eff += 0.06;
+    else if(sens === 2) eff += 0.02;
+    if(n < 5000) eff += 0.05;
+    else if(n < 20000) eff += 0.02;
+    eff = clamp(eff, 0, 1);
+    if(eff < 0.05) return {i:0, name:"Minimal risk", col:"#7ee0a0"};
+    if(eff < 0.15) return {i:1, name:"Low risk", col:"#cfe06a"};
+    if(eff < 0.30) return {i:2, name:"Elevated risk", col:"#ffb25e"};
+    return {i:3, name:"Severe risk", col:"#ff6b7a"};
+  }
+
+  function recs(adv, tier, sens, n){
+    var out = [];
+    if(tier.i === 0){
+      out.push("Gap is small — the model generalizes well and leaks little membership signal.");
+      out.push("Keep monitoring the train/test gap as you train longer or fine-tune.");
+    }
+    if(tier.i >= 1){
+      out.push("Add regularization to shrink the gap: stronger weight decay, dropout, or early stopping.");
+    }
+    if(tier.i >= 2){
+      var noise = adv >= 0.30 ? "0.8–1.5" : "0.5–0.8";
+      out.push("Train with DP-SGD. Start with a noise multiplier of ~" + noise + " and gradient clipping norm 1.0, then re-score.");
+      out.push("Reduce epochs / use larger batches — extended training memorizes individual records.");
+    }
+    if(tier.i >= 3){
+      out.push("Do NOT publish or expose this model's confidence scores externally until the gap is reduced.");
+      out.push("Run a full LiRA / shadow-model attack to confirm the empirical epsilon before any privacy claim.");
+    }
+    if(sens === 3){
+      out.push("Data is high-sensitivity: target a formal DP guarantee of ε ≤ 3 for medical/financial/biometric records.");
+    }
+    if(n < 5000){
+      out.push("Small training set (" + n.toLocaleString() + " rows): each record has high influence — favor DP or synthetic augmentation.");
+    }
+    if(!out.length) out.push("No specific action needed.");
+    return out;
+  }
+
+  function compute(){
+    var adv, note;
+    if(mode === "acc"){
+      var tr = parseFloat($("trainAcc").value);
+      var te = parseFloat($("testAcc").value);
+      $("trainAccO").textContent = tr.toFixed(3);
+      $("testAccO").textContent = te.toFixed(3);
+      adv = clamp(tr - te, 0, 1);
+      note = "gap = " + tr.toFixed(3) + " − " + te.toFixed(3);
+    } else {
+      var m1 = parseFloat($("mMean").value)||0, s1 = parseFloat($("mStd").value)||0;
+      var m2 = parseFloat($("nMean").value)||0, s2 = parseFloat($("nStd").value)||0;
+      adv = gaussianAdvantage(m1,s1,m2,s2);
+      note = "loss-distribution overlap";
+    }
+
+    var n = Math.max(1, parseInt($("nData").value,10) || 1);
+    var sens = parseInt($("sens").value,10) || 1;
+
+    var auc = 0.5 + adv/2;
+    var succ = 0.5 + adv/2;                       // balanced attacker accuracy
+    // empirical epsilon lower bound; guard adv->1
+    var eps = (adv >= 0.999) ? Infinity : Math.log((1+adv)/(1-adv));
+
+    var tier = tierFor(adv, sens, n);
+
+    $("advV").textContent = adv.toFixed(3);
+    $("aucV").textContent = auc.toFixed(3);
+    $("epsV").textContent = (eps === Infinity) ? "∞" : eps.toFixed(2);
+    $("succV").textContent = (succ*100).toFixed(1) + "%";
+
+    var t = $("tier");
+    t.textContent = tier.name;
+    t.style.color = tier.col;
+    $("tierSub").textContent = note + " → attacker wins " + (succ*100).toFixed(1) + "% of member/non-member guesses.";
+
+    // pin position mapped to advantage (0..0.40 spread across bar, then clamp)
+    var pct = clamp(adv / 0.40, 0, 1) * 100;
+    $("pin").style.left = pct + "%";
+
+    var list = $("recList");
+    list.innerHTML = "";
+    recs(adv, tier, sens, n).forEach(function(r){
+      var li = document.createElement("li"); li.textContent = r; list.appendChild(li);
+    });
+  }
+
+  // mode switching
+  var buttons = document.querySelectorAll("#modebar button");
+  buttons.forEach(function(b){
+    b.addEventListener("click", function(){
+      buttons.forEach(function(x){ x.classList.remove("on"); });
+      b.classList.add("on");
+      mode = b.getAttribute("data-mode");
+      $("mode-acc").style.display = (mode === "acc") ? "" : "none";
+      $("mode-loss").style.display = (mode === "loss") ? "" : "none";
+      compute();
+    });
+  });
+
+  ["trainAcc","testAcc","mMean","mStd","nMean","nStd","nData","sens"].forEach(function(id){
+    var el = $(id);
+    el.addEventListener("input", compute);
+    el.addEventListener("change", compute);
+  });
+
+  compute();
+})();
+</script>
+</body>
+</html>

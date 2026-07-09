@@ -191,4 +191,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+<url><loc>https://lockml.com/tools/gaussian-mechanism-noise-calibrator</loc><lastmod>2026-07-09</lastmod></url>
+<url><loc>https://lockml.com/tools/k-anonymity-l-diversity-checker</loc><lastmod>2026-07-09</lastmod></url>
+<url><loc>https://lockml.com/tools/membership-inference-risk-scorer</loc><lastmod>2026-07-09</lastmod></url>
 </urlset>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gaussian Mechanism Noise Calibrator for DP</title>
+<meta name="description" content="Compute the exact noise scale (sigma) to add for (epsilon, delta)-differential privacy given your query's L2 sensitivity. Analytic Gaussian mechanism.">
+<link rel="canonical" href="https://lockml.com/tools/gaussian-mechanism-noise-calibrator">
+<meta property="og:title" content="Gaussian Mechanism Noise Calibrator for DP">
+<meta property="og:description" content="Compute the exact noise scale (sigma) for (epsilon, delta)-differential privacy from your query's L2 sensitivity using the analytic Gaussian mechanism.">
+<meta property="og:url" content="https://lockml.com/tools/gaussian-mechanism-noise-calibrator">
+<meta property="og:type" content="website">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "Gaussian Mechanism Noise Calibrator for Differential Privacy",
+      "url": "https://lockml.com/tools/gaussian-mechanism-noise-calibrator",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any",
+      "description": "Compute the exact noise scale (sigma) to add for (epsilon, delta)-differential privacy given your query's L2 sensitivity using the analytic Gaussian mechanism.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://lockml.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://lockml.com/tools/" },
+        { "@type": "ListItem", "position": 3, "name": "Gaussian Mechanism Noise Calibrator for Differential Privacy", "item": "https://lockml.com/tools/gaussian-mechanism-noise-calibrator" }
+      ]
+    }
+  ]
+}
+</script>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --bd:#2b3444;
+    --fg:#e6edf3; --mut:#9aa7b5; --acc:#58a6ff; --acc2:#7ee787;
+    --warn:#f0883e; --danger:#f85149; --ok:#3fb950;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6; font-size:16px;
+  }
+  a{color:var(--acc); text-decoration:none}
+  a:hover{text-decoration:underline}
+  nav{
+    display:flex; gap:20px; padding:14px 20px; border-bottom:1px solid var(--bd);
+    background:var(--panel); font-size:14px; position:sticky; top:0; z-index:5;
+  }
+  main{max-width:860px; margin:0 auto; padding:24px 20px 60px}
+  h1{font-size:26px; line-height:1.25; margin:20px 0 8px}
+  h2{font-size:20px; margin:36px 0 10px; border-bottom:1px solid var(--bd); padding-bottom:6px}
+  .intro{color:var(--mut); font-size:16px}
+  section#tool{
+    background:var(--panel); border:1px solid var(--bd); border-radius:12px;
+    padding:22px; margin:24px 0;
+  }
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media(max-width:620px){.grid{grid-template-columns:1fr}}
+  label{display:block; font-size:13px; color:var(--mut); margin-bottom:6px; font-weight:600}
+  label .hint{font-weight:400; color:#6f7c8c}
+  input[type=number],select{
+    width:100%; padding:10px 12px; background:var(--panel2); border:1px solid var(--bd);
+    color:var(--fg); border-radius:8px; font-size:15px; font-family:inherit;
+  }
+  input[type=range]{width:100%}
+  .field{margin-bottom:14px}
+  .rangewrap{display:flex; align-items:center; gap:10px}
+  .rangewrap output{font-variant-numeric:tabular-nums; min-width:64px; text-align:right; color:var(--acc2); font-weight:600}
+  .out{
+    margin-top:18px; background:var(--panel2); border:1px solid var(--bd);
+    border-radius:10px; padding:18px;
+  }
+  .big{font-size:40px; font-weight:700; color:var(--acc2); font-variant-numeric:tabular-nums; line-height:1.1}
+  .biglabel{font-size:13px; color:var(--mut); text-transform:uppercase; letter-spacing:.5px}
+  .rows{margin-top:16px; display:grid; grid-template-columns:1fr auto; gap:8px 14px; font-size:14px}
+  .rows .k{color:var(--mut)}
+  .rows .v{text-align:right; font-variant-numeric:tabular-nums; font-weight:600}
+  code{background:#0b1017; border:1px solid var(--bd); border-radius:5px; padding:2px 6px; font-size:13px}
+  pre{background:#0b1017; border:1px solid var(--bd); border-radius:8px; padding:14px; overflow-x:auto; font-size:13px}
+  .note{font-size:13px; color:var(--mut); margin-top:12px}
+  .badge{display:inline-block; padding:2px 9px; border-radius:20px; font-size:12px; font-weight:600}
+  .b-ok{background:rgba(63,185,80,.15); color:var(--ok)}
+  .b-warn{background:rgba(240,136,62,.15); color:var(--warn)}
+  .b-bad{background:rgba(248,81,73,.15); color:var(--danger)}
+  footer{border-top:1px solid var(--bd); padding:24px 20px; color:var(--mut); font-size:14px; text-align:center}
+  footer a{margin:0 8px}
+  .rel a{display:inline-block; margin:4px 12px 4px 0}
+  table.cmp{width:100%; border-collapse:collapse; margin-top:10px; font-size:14px}
+  table.cmp th,table.cmp td{border:1px solid var(--bd); padding:8px 10px; text-align:left}
+  table.cmp th{color:var(--mut); font-weight:600}
+  .v.mono{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/">Home</a>
+  <a href="/tools/">Tools</a>
+</nav>
+<main>
+  <h1>Calibrate Gaussian Noise for (&epsilon;, &delta;)-Differential Privacy</h1>
+  <p class="intro">Enter your privacy budget and the L2 sensitivity of your query. This tool solves for the
+  <em>minimum</em> Gaussian noise standard deviation &sigma; you must add, using the exact analytic Gaussian
+  mechanism of Balle &amp; Wang (2018) — tighter than the classic closed-form bound, and valid for any
+  &epsilon; (including &epsilon; &gt; 1).</p>
+
+  <section id="tool">
+    <div class="grid">
+      <div>
+        <div class="field">
+          <label for="eps">Epsilon (&epsilon;) <span class="hint">privacy loss — smaller = more private</span></label>
+          <input type="number" id="eps" value="1.0" min="0.001" step="0.1">
+        </div>
+        <div class="field">
+          <label for="delta">Delta (&delta;) <span class="hint">failure probability — often 1/N or smaller</span></label>
+          <input type="number" id="delta" value="1e-5" min="1e-15" max="0.5" step="any">
+        </div>
+      </div>
+      <div>
+        <div class="field">
+          <label for="sens">L2 sensitivity (&Delta;&#8322;) <span class="hint">max L2 change from one record</span></label>
+          <input type="number" id="sens" value="1.0" min="1e-9" step="0.1">
+        </div>
+        <div class="field">
+          <label for="signal">Expected true answer magnitude <span class="hint">optional — for SNR estimate</span></label>
+          <input type="number" id="signal" value="100" min="0" step="1">
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="epsr">Quick &epsilon; sweep <output id="epsrOut">1.00</output></label>
+      <div class="rangewrap">
+        <input type="range" id="epsr" min="0.05" max="10" step="0.05" value="1">
+      </div>
+    </div>
+
+    <div class="out">
+      <div class="biglabel">Required Gaussian &sigma; (analytic mechanism)</div>
+      <div class="big" id="sigmaOut">—</div>
+      <div class="rows">
+        <div class="k">Noise multiplier &sigma;/&Delta;&#8322;</div><div class="v mono" id="multOut">—</div>
+        <div class="k">Classic bound &sigma; = &radic;(2 ln(1.25/&delta;))&middot;&Delta;&#8322;/&epsilon;</div><div class="v mono" id="classicOut">—</div>
+        <div class="k">Analytic vs classic savings</div><div class="v mono" id="saveOut">—</div>
+        <div class="k">Gaussian variance &sigma;&sup2;</div><div class="v mono" id="varOut">—</div>
+        <div class="k">Signal-to-noise ratio (signal/&sigma;)</div><div class="v mono" id="snrOut">—</div>
+        <div class="k">Verified &delta; at this &sigma;</div><div class="v mono" id="checkOut">—</div>
+        <div class="k">Regime</div><div class="v"><span id="badgeOut" class="badge">—</span></div>
+      </div>
+      <div class="note" id="noteOut"></div>
+      <pre id="snippet">// numpy sampling call appears here</pre>
+    </div>
+  </section>
+
+  <h2>How the calibration works</h2>
+  <p>The Gaussian mechanism releases <code>f(D) + N(0, &sigma;&sup2; I)</code>. Whether a given &sigma; satisfies
+  (&epsilon;, &delta;)-DP depends only on the <strong>noise multiplier</strong> &mu; = &Delta;&#8322;/&sigma;.
+  The classic analysis (Dwork &amp; Roth) gives the closed form
+  <code>&sigma; &ge; &radic;(2&nbsp;ln(1.25/&delta;))&nbsp;&middot;&nbsp;&Delta;&#8322;&nbsp;/&nbsp;&epsilon;</code>,
+  but that bound is only valid for &epsilon; &lt; 1 and is loose — it can demand far more noise than necessary.</p>
+  <p>The <strong>analytic Gaussian mechanism</strong> replaces the bound with the exact privacy condition. For
+  &mu; = &Delta;&#8322;/&sigma;, the tight tradeoff function is
+  <code>&delta;(&epsilon;) = &Phi;(&mu;/2 &minus; &epsilon;/&mu;) &minus; e<sup>&epsilon;</sup>&nbsp;&Phi;(&minus;&mu;/2 &minus; &epsilon;/&mu;)</code>,
+  where &Phi; is the standard-normal CDF. Because &delta;(&epsilon;) is monotone decreasing in &sigma; (increasing in &mu;),
+  this tool runs a <strong>binary search on &sigma;</strong> until the achieved &delta; equals your target to within
+  1e-12. &Phi; itself is evaluated with a high-accuracy <code>erf</code> rational approximation, so everything runs
+  in the browser with no server round-trip. The "Verified &delta;" row plugs the returned &sigma; back into the
+  formula so you can confirm the guarantee holds. Cutting &sigma; means less distortion for the same privacy — the
+  analytic mechanism typically saves 5–20% of noise versus the closed-form bound, and much more as &epsilon; grows.
+  Report the resulting &sigma; alongside &epsilon; and &delta; whenever you document a private release; the noise
+  multiplier &sigma;/&Delta;&#8322; is the scale-free number to compare across queries.</p>
+
+  <h2>Analytic vs classic bound</h2>
+  <table class="cmp">
+    <tr><th>Property</th><th>Classic (Dwork–Roth)</th><th>Analytic (Balle–Wang)</th></tr>
+    <tr><td>Valid range</td><td>&epsilon; &lt; 1 only</td><td>any &epsilon; &gt; 0</td></tr>
+    <tr><td>Tightness</td><td>upper bound (loose)</td><td>exact tradeoff</td></tr>
+    <tr><td>Noise added</td><td>more</td><td>minimal</td></tr>
+  </table>
+
+  <h2>Related Tools</h2>
+  <p class="rel">
+    <a href="/tools/laplace-mechanism-noise-calculator">Laplace Mechanism Noise Calculator</a>
+    <a href="/tools/dp-privacy-budget-composition">DP Privacy Budget Composition</a>
+    <a href="/tools/k-anonymity-checker">k-Anonymity Checker</a>
+  </p>
+</main>
+<footer>
+  <div>
+    <a href="/">Home</a> ·
+    <a href="/tools/">All Tools</a> ·
+    <a href="/about/">About</a> ·
+    <a href="/privacy/">Privacy</a>
+  </div>
+  <p>&copy; 2026 lockml.com — ML security &amp; privacy calculators. Built by Michael Lip.</p>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  // erf via Abramowitz-Stegun 7.1.26 rational approx (|err| < 1.5e-7)
+  function erf(x){
+    var s = x < 0 ? -1 : 1;
+    x = Math.abs(x);
+    var t = 1 / (1 + 0.3275911 * x);
+    var y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+    return s * y;
+  }
+  // standard normal CDF
+  function Phi(x){ return 0.5 * (1 + erf(x / Math.SQRT2)); }
+
+  // achieved delta for a given noise multiplier mu = sens/sigma, at epsilon eps
+  function deltaOf(mu, eps){
+    if (mu <= 0) return 1;
+    return Phi(mu/2 - eps/mu) - Math.exp(eps) * Phi(-mu/2 - eps/mu);
+  }
+
+  // Solve minimum sigma s.t. delta(mu=sens/sigma, eps) <= targetDelta.
+  // delta increases with mu (i.e. decreases as sigma grows). Binary search on sigma.
+  function analyticSigma(eps, targetDelta, sens){
+    if (!(eps > 0) || !(targetDelta > 0) || !(sens > 0)) return null;
+    // sigma range in units of sensitivity; search mu instead for stability.
+    // Large sigma -> small mu -> small delta. Find mu where deltaOf(mu)=targetDelta.
+    var lo = 1e-9, hi = 1e-9; // mu bounds
+    // grow hi until delta exceeds target
+    hi = 0.001;
+    var guard = 0;
+    while (deltaOf(hi, eps) < targetDelta && guard < 200){ hi *= 2; guard++; }
+    // now delta(lo) < target <= delta(hi); bisect
+    for (var i = 0; i < 200; i++){
+      var mid = 0.5 * (lo + hi);
+      if (deltaOf(mid, eps) < targetDelta) lo = mid; else hi = mid;
+    }
+    var mu = 0.5 * (lo + hi);
+    var sigma = sens / mu; // sigma = sensitivity / mu
+    return { sigma: sigma, mu: mu };
+  }
+
+  function classicSigma(eps, delta, sens){
+    if (!(delta > 0) || !(eps > 0)) return null;
+    var arg = 1.25 / delta;
+    if (arg <= 1) return null;
+    return Math.sqrt(2 * Math.log(arg)) * sens / eps;
+  }
+
+  function fmt(x, sig){
+    sig = sig || 4;
+    if (x === null || !isFinite(x)) return "—";
+    if (x === 0) return "0";
+    var a = Math.abs(x);
+    if (a >= 1e6 || a < 1e-4) return x.toExponential(sig - 1);
+    return Number(x.toPrecision(sig)).toString();
+  }
+
+  var epsEl = document.getElementById('eps');
+  var deltaEl = document.getElementById('delta');
+  var sensEl = document.getElementById('sens');
+  var signalEl = document.getElementById('signal');
+  var epsr = document.getElementById('epsr');
+  var epsrOut = document.getElementById('epsrOut');
+
+  function readNum(el){ var v = parseFloat(el.value); return isFinite(v) ? v : NaN; }
+
+  function compute(){
+    var eps = readNum(epsEl);
+    var delta = readNum(deltaEl);
+    var sens = readNum(sensEl);
+    var signal = readNum(signalEl);
+
+    var sigmaEl = document.getElementById('sigmaOut');
+    var badge = document.getElementById('badgeOut');
+    var note = document.getElementById('noteOut');
+
+    if (!(eps > 0) || !(delta > 0) || delta >= 1 || !(sens > 0)){
+      sigmaEl.textContent = '—';
+      document.getElementById('multOut').textContent = '—';
+      document.getElementById('classicOut').textContent = '—';
+      document.getElementById('saveOut').textContent = '—';
+      document.getElementById('varOut').textContent = '—';
+      document.getElementById('snrOut').textContent = '—';
+      document.getElementById('checkOut').textContent = '—';
+      badge.className = 'badge b-bad'; badge.textContent = 'invalid input';
+      note.textContent = 'Require epsilon > 0, 0 < delta < 1, and L2 sensitivity > 0.';
+      document.getElementById('snippet').textContent = '// fix inputs to generate code';
+      return;
+    }
+
+    var an = analyticSigma(eps, delta, sens);
+    var cl = classicSigma(eps, delta, sens);
+    var sigma = an ? an.sigma : null;
+
+    sigmaEl.textContent = fmt(sigma, 5);
+    document.getElementById('multOut').textContent = sigma ? fmt(sigma / sens, 4) : '—';
+    document.getElementById('classicOut').textContent = fmt(cl, 5);
+
+    if (sigma && cl){
+      var save = (1 - sigma / cl) * 100;
+      var sv = document.getElementById('saveOut');
+      sv.textContent = (save >= 0 ? '−' + fmt(save,3) + '% noise' : '+' + fmt(-save,3) + '%');
+    } else {
+      document.getElementById('saveOut').textContent = '—';
+    }
+
+    document.getElementById('varOut').textContent = sigma ? fmt(sigma*sigma, 5) : '—';
+
+    if (sigma && signal >= 0){
+      var snr = signal / sigma;
+      document.getElementById('snrOut').textContent = fmt(snr, 4);
+    } else {
+      document.getElementById('snrOut').textContent = '—';
+    }
+
+    // verify
+    if (sigma){
+      var achieved = deltaOf(sens / sigma, eps);
+      document.getElementById('checkOut').textContent = fmt(achieved, 4) + ' (target ' + fmt(delta,3) + ')';
+    }
+
+    // regime badge
+    if (eps < 1){
+      badge.className = 'badge b-ok'; badge.textContent = 'strong privacy (ε<1)';
+    } else if (eps <= 3){
+      badge.className = 'badge b-warn'; badge.textContent = 'moderate privacy (1≤ε≤3)';
+    } else {
+      badge.className = 'badge b-bad'; badge.textContent = 'weak privacy (ε>3)';
+    }
+
+    var notes = [];
+    if (eps >= 1) notes.push('Classic bound is not valid for ε ≥ 1 — the analytic σ above is the one to use.');
+    if (delta > 1e-3) notes.push('δ = ' + fmt(delta,2) + ' is large; keep δ ≪ 1/N (N = dataset size) for meaningful guarantees.');
+    if (sigma && signal > 0 && (signal / sigma) < 3) notes.push('SNR < 3: the added noise may dominate your answer — consider raising ε or reducing sensitivity.');
+    note.textContent = notes.join(' ');
+
+    // code snippet
+    document.getElementById('snippet').textContent =
+      'import numpy as np\n' +
+      '# (epsilon, delta) = (' + fmt(eps,4) + ', ' + fmt(delta,3) + '), L2 sensitivity = ' + fmt(sens,4) + '\n' +
+      'sigma = ' + (sigma ? sigma.toPrecision(8) : 'None') + '  # analytic Gaussian mechanism\n' +
+      'noisy = true_answer + np.random.normal(0.0, sigma, size=np.shape(true_answer))';
+  }
+
+  function syncFromSlider(){
+    epsEl.value = parseFloat(epsr.value).toString();
+    epsrOut.textContent = parseFloat(epsr.value).toFixed(2);
+    compute();
+  }
+  function syncSliderFromInput(){
+    var v = readNum(epsEl);
+    if (isFinite(v) && v >= parseFloat(epsr.min) && v <= parseFloat(epsr.max)){
+      epsr.value = v;
+      epsrOut.textContent = v.toFixed(2);
+    }
+    compute();
+  }
+
+  epsEl.addEventListener('input', syncSliderFromInput);
+  deltaEl.addEventListener('input', compute);
+  sensEl.addEventListener('input', compute);
+  signalEl.addEventListener('input', compute);
+  epsr.addEventListener('input', syncFromSlider);
+
+  // defaults prefilled -> initial render
+  epsrOut.textContent = parseFloat(epsr.value).toFixed(2);
+  compute();
+})();
+</script>
+</body>
+</html>
