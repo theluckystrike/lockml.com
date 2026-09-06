@@ -194,4 +194,7 @@
 <url><loc>https://lockml.com/tools/gaussian-mechanism-noise-calibrator</loc><lastmod>2026-07-09</lastmod></url>
 <url><loc>https://lockml.com/tools/k-anonymity-l-diversity-checker</loc><lastmod>2026-07-09</lastmod></url>
 <url><loc>https://lockml.com/tools/membership-inference-risk-scorer</loc><lastmod>2026-07-09</lastmod></url>
+<url><loc>https://lockml.com/tools/</loc><lastmod>2026-07-29</lastmod></url>
+<url><loc>https://lockml.com/guides/prompt-injection-defense.html</loc><lastmod>2026-07-29</lastmod></url>
+<url><loc>https://lockml.com/research/llm-red-teaming-checklist.html</loc><lastmod>2026-07-29</lastmod></url>
 </urlset>
