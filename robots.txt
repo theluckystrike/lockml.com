@@ -1,3 +1,36 @@
+# lockml.com robots.txt
+# Search and user-triggered crawlers are allowed. The training-bot policy is unchanged.
+
+# AI search and user-triggered bots (send referrals)
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+# Classic search crawlers
+User-agent: Applebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+# Everything else, including training bots: unchanged from the previous file
 User-agent: *
 Allow: /
 

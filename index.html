@@ -31,47 +31,107 @@
     "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" }
   }
   </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "LockML",
-    "url": "https://lockml.com",
-    "description": "Interactive comparison table for 30+ open-source ML models with filtering, sorting, and real benchmark data.",
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "Web",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
-    "datePublished": "2026-04-05",
-    "dateModified": "2026-05-25",
-    "featureList": [
-      "30+ open-source ML models compared side-by-side",
-      "Filter by parameter count, license type, and use case",
-      "Sortable columns: model name, org, parameters, license, release date, MMLU score",
-      "Real benchmark data from official papers and Open LLM Leaderboard",
-      "License compatibility checker for commercial use",
-      "Use case tags: chat, code, RAG, multilingual, edge deployment",
-      "No sign-up required",
-      "100% browser-based, no data sent to servers"
-    ]
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "What is the best open source LLM?", "acceptedAnswer": { "@type": "Answer", "text": "Llama 3.1 405B leads benchmarks (87.3 MMLU). For cost efficiency, Llama 3.1 70B and Qwen 2 72B excel. For edge deployment, Phi-3 Mini 3.8B is ideal." } },
-      { "@type": "Question", "name": "Can I use Llama commercially?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, the Llama 3/3.1 Community License allows commercial use for organizations under 700M monthly active users with attribution required." } },
-      { "@type": "Question", "name": "Which LLM licenses are most permissive?", "acceptedAnswer": { "@type": "Answer", "text": "Apache 2.0 and MIT are most permissive. Mistral 7B, Falcon 40B, Grok-1 use Apache 2.0. Phi-3 uses MIT. CC-BY-NC models prohibit commercial use." } },
-      { "@type": "Question", "name": "What does open source mean for LLMs?", "acceptedAnswer": { "@type": "Answer", "text": "Usually means open weights (downloadable model), not necessarily open training data or code. True open source like OLMo includes everything." } },
-      { "@type": "Question", "name": "Which open source LLM is best for coding?", "acceptedAnswer": { "@type": "Answer", "text": "DeepSeek Coder V2 leads coding benchmarks. Codestral 22B supports 80+ languages. StarCoder2 covers 600+ languages." } },
-      { "@type": "Question", "name": "Is LockML free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, LockML is completely free. Compare 30+ models, check license compatibility, no sign-up required." } },
-      { "@type": "Question", "name": "How often is LockML updated?", "acceptedAnswer": { "@type": "Answer", "text": "LockML is updated regularly as new open-source models are released. Benchmark data is sourced from official papers and the Open LLM Leaderboard. Check the last-updated date on the page for the most recent refresh." } },
-      { "@type": "Question", "name": "What benchmarks does LockML include?", "acceptedAnswer": { "@type": "Answer", "text": "LockML currently displays MMLU scores as the primary benchmark, along with parameter counts, release dates, licensing information, and use-case tags. MMLU is the most widely reported benchmark across open-source models, making it the most useful for cross-model comparison." } }
-    ]
-  }
-  </script>
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "LockML",
+  "url": "https://lockml.com",
+  "description": "LockML is an interactive comparison table for open-source machine learning models.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Michael Lip",
+    "url": "https://zovo.one"
+  },
+  "datePublished": "2026-04-05",
+  "dateModified": "2026-10-28",
+  "featureList": [
+    "Compare 30+ open-source models side-by-side",
+    "The search box filters by model name or organization.",
+    "The parameter slider lets you set a maximum model size based on your hardware constraints",
+    "The license dropdown filters by permissiveness: Apache 2.0, MIT, or restrictive/custom licenses.",
+    "Use-case tag chips let you filter by task type: general chat, code generation, RAG, multilingual, or edge deployment.",
+    "Every column in the table is sortable.",
+    "All filters work together",
+    "Everything runs locally in your browser."
+  ]
+}</script>
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the best open source LLM?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It depends on your use case. Llama 3.1 405B leads on benchmarks (87.3 MMLU) and is competitive with GPT-4. For cost efficiency, Llama 3.1 70B and Qwen 2 72B offer excellent performance-per-parameter. For edge deployment, Phi-3 Mini 3.8B punches above its weight class."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use Llama commercially?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, with conditions. The Llama 3/3.1 Community License allows commercial use for organizations with under 700 million monthly active users. Above that threshold, you need a separate license from Meta. You must also include attribution and comply with the Acceptable Use Policy."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "LLM license comparison — which are most permissive?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Apache 2.0 and MIT are the most permissive, allowing unrestricted commercial use. Models like Mistral 7B, Falcon 40B, Grok-1, and Arctic use Apache 2.0. Microsoft's Phi-3 uses MIT. Llama and Gemma have custom licenses with some restrictions. CC-BY-NC models like Command R+ prohibit commercial use entirely."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does open source mean for LLMs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In the LLM space, \"open source\" often means open weights — the model weights are downloadable but training data and code may not be. True open source (like OLMo from AI2) includes data, weights, code, and training logs. Always check the specific license for your use case."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which open source LLM is best for coding?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "DeepSeek Coder V2 leads on coding benchmarks, beating GPT-4 Turbo. Codestral 22B supports 80+ languages with fill-in-the-middle. StarCoder2 15B covers 600+ languages. For general coding, Llama 3.1 70B and Mixtral 8x22B are strong all-rounders."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is LockML free to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, LockML is completely free. Compare 30+ open-source models, check license compatibility, and find the right model for your project. No sign-up required. Everything runs in your browser."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How often is LockML updated?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "LockML is updated regularly as new open-source models are released. Benchmark data is sourced from official papers and the Open LLM Leaderboard. Check the last-updated date on the page for the most recent data refresh."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What benchmarks does LockML include?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "LockML currently displays MMLU scores as the primary benchmark, along with parameter counts, release dates, licensing information, and use-case tags. MMLU is the most widely reported benchmark across open-source models, making it the most useful for cross-model comparison."
+      }
+    }
+  ]
+}</script>
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
@@ -95,6 +155,11 @@
     <h1>Open Source <span>ML Model</span> Comparison</h1>
     <p>Compare 30+ open-source models side-by-side. Real parameters, benchmarks, and licensing info. Filter, sort, and find the right model for your use case.</p>
   </section>
+
+<section class="page-answer" style="max-width:820px;margin:1.5rem auto 2rem;padding:0 1.5rem;">
+  <p style="font-size:1.05rem;line-height:1.6;margin:0 0 .4rem;">Compare 32 open-source language models in one filterable table. Each row gives the model name, organization, parameter count, license, release date and MMLU score. Sort or filter by license, size and use case to make a shortlist. Model data was last updated 25 May 2026.</p>
+  <p style="font-size:.85rem;color:#555;margin:0;">By Michael Lip &middot; Updated 2026-10-28</p>
+</section>
 
   <section class="tool-section">
     <div class="filters">
