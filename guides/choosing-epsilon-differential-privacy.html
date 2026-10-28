@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Choose an Epsilon for Differential Privacy | LockML</title>
+<meta name="description" content="How to pick an epsilon and delta for differential privacy: fix delta first, compute the noise each epsilon demands, count composition, and write the budget down.">
+<link rel="canonical" href="https://lockml.com/guides/choosing-epsilon-differential-privacy.html">
+<link rel="alternate" hreflang="en" href="https://lockml.com/guides/choosing-epsilon-differential-privacy.html">
+<link rel="alternate" hreflang="x-default" href="https://lockml.com/guides/choosing-epsilon-differential-privacy.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Choosing an Epsilon for Differential Privacy">
+<meta property="og:description" content="How to pick an epsilon and delta for differential privacy: fix delta first, compute the noise each epsilon demands, count composition, and write the budget down.">
+<meta property="og:url" content="https://lockml.com/guides/choosing-epsilon-differential-privacy.html">
+<meta property="og:site_name" content="Zovo Tools">
+<meta property="og:image" content="https://lockml.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Choosing an Epsilon for Differential Privacy">
+<meta name="twitter:description" content="How to pick an epsilon and delta for differential privacy: fix delta first, compute the noise each epsilon demands, count composition, and write the budget down.">
+<meta name="twitter:image" content="https://lockml.com/assets/og-image.png">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Choosing an Epsilon for Differential Privacy",
+  "description": "Epsilon bounds how much one record can change a published result. Set delta first, usually to 1/n or smaller. Then compute the Gaussian noise each epsilon demands, because epsilon 0.1 needs 80 times more noise than epsilon 8. Add up the budget over all queries before you release anything.",
+  "url": "https://lockml.com/guides/choosing-epsilon-differential-privacy.html",
+  "datePublished": "2026-10-28",
+  "dateModified": "2026-10-28",
+  "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" },
+  "publisher": { "@type": "Organization", "name": "LockML", "url": "https://lockml.com" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://lockml.com/guides/choosing-epsilon-differential-privacy.html" },
+  "image": "https://lockml.com/assets/og-image.png"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "LockML", "item": "https://lockml.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://lockml.com/guides/" },
+    { "@type": "ListItem", "position": 3, "name": "Choosing an Epsilon", "item": "https://lockml.com/guides/choosing-epsilon-differential-privacy.html" }
+  ]
+}
+</script>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">lockml</a>
+  <ul class="nav-links">
+    <li><a href="/">Tool</a></li>
+    <li><a href="/research/">Research</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://zovo.one/pricing?utm_source=lockml&amp;utm_medium=satellite&amp;utm_campaign=nav-link" class="nav-pro" target="_blank">Go Pro &#10022;</a>
+    <a href="https://zovo.one/tools?utm_source=lockml&amp;utm_medium=nav&amp;utm_campaign=guides-choosing-epsilon" class="nav-zovo">Zovo Tools</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">LockML</a><span>/</span><a href="/guides/">Guides</a><span>/</span>Choosing an Epsilon
+</div>
+
+<section class="hero">
+  <h1>Choosing an Epsilon for Differential Privacy</h1>
+  <p>Epsilon bounds how much one record can change a published result. Set delta first, usually to 1/n or smaller. Then compute the Gaussian noise each epsilon demands, because epsilon 0.1 needs 80 times more noise than epsilon 8. Add up the budget over all queries before you release anything.</p>
+  <p style="font-size:.85rem;color:#555;margin-top:.6rem;">By Michael Lip &middot; Updated 2026-10-28 &middot; LockML / Guides</p>
+</section>
+
+<article class="article">
+  <div class="article-content">
+
+    <h2>What epsilon controls</h2>
+    <p>A mechanism is (epsilon, delta)-differentially private when one person's record can change the
+    probability of any published outcome by at most a factor of e^epsilon, except with probability delta.
+    Epsilon is the size of that change. Delta is the chance that the guarantee fails outright.</p>
+    <p>Epsilon is not a property of your data. It is a promise you publish. Two releases with the same
+    epsilon are only comparable when they use the same delta and the same mechanism class.</p>
+
+    <h2>Step 1: set delta before epsilon</h2>
+    <p>Delta must be smaller than the chance that any single record matters. For a table of n records,
+    the usual convention is delta = 1/n or smaller, so the failure probability stays below one record's
+    worth of risk. Write the value down as a number, not as "small".</p>
+    <p>Delta is also the term that sets the noise floor. The table below uses delta = 0.00001 for a table
+    of up to 100,000 records, which is the same as delta = 1/n.</p>
+
+    <h2>Step 2: compute the noise that each epsilon demands</h2>
+    <p>For the Gaussian mechanism the classic bound is sigma = sqrt(2 ln(1.25/delta)) times the L2
+    sensitivity, divided by epsilon. Sensitivity is the largest change one record can cause in the query
+    answer. The table below uses sensitivity 1.0, so the noise multiplier equals sigma.</p>
+
+    <div class="table-wrap">
+    <table class="model-table">
+      <thead>
+        <tr><th>Epsilon</th><th>Sigma (noise)</th><th>Noise multiplier</th><th>Signal-to-noise</th></tr>
+      </thead>
+      <tbody>
+      <tr><td>0.1</td><td>48.45</td><td>48.45</td><td>0.02</td></tr>
+      <tr><td>0.5</td><td>9.69</td><td>9.69</td><td>0.10</td></tr>
+      <tr><td>1</td><td>4.84</td><td>4.84</td><td>0.21</td></tr>
+      <tr><td>2</td><td>2.42</td><td>2.42</td><td>0.41</td></tr>
+      <tr><td>4</td><td>1.21</td><td>1.21</td><td>0.83</td></tr>
+      <tr><td>8</td><td>0.61</td><td>0.61</td><td>1.65</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <p>The same computation for epsilon 8 gives sigma 0.61, and for epsilon 0.1 it gives sigma 48.45.
+    The ratio is 80. That is the real cost of a smaller epsilon: at 0.1 the noise is 80 times larger than
+    at 8, so a per-record style answer becomes unreadable and only large aggregates survive.</p>
+    <p>This table comes from the classic closed-form bound. That bound is only valid for epsilon below 1.
+    For epsilon above 1, or when the noise budget is tight, use an exact analytic calibration instead. The
+    <a href="/tools/gaussian-mechanism-noise-calibrator">Gaussian mechanism noise calibrator</a> computes
+    both and prints the saving.</p>
+
+    <h2>Step 3: count composition before you ship</h2>
+    <p>Each answer spends part of the budget. Twenty queries at epsilon 0.1 in sequence cost epsilon 2.0
+    and delta 0.0002 in total. The same twenty queries over twenty disjoint sets of records cost only
+    epsilon 0.1, because each record is used once.</p>
+    <p>So the question "what epsilon should I use" is really "what total epsilon may I spend, and how many
+    queries will I run". Pick the total first, then divide.</p>
+
+    <h2>Step 4: choose from the release, not from a blog post</h2>
+    <p>Match epsilon to who can see the output:</p>
+    <ul>
+      <li><strong>Public record-level release:</strong> the smallest budget you can afford. Check the noise
+      column first. If the noise swamps the signal, publish aggregates instead of rows.</li>
+      <li><strong>Internal analytics with access control:</strong> a larger epsilon is defensible when the
+      output stays inside the organisation and each analyst is accountable for their queries.</li>
+      <li><strong>Model training or synthetic data:</strong> the budget is per training run, and the run
+      output is reused many times. Count the reuse.</li>
+    </ul>
+    <p>Record four numbers for every release: epsilon, delta, mechanism, and query count. A budget without
+    delta cannot be audited.</p>
+
+    <h2>Common mistakes</h2>
+    <ul>
+      <li>Reporting epsilon without delta. The guarantee is a pair.</li>
+      <li>Comparing an approximate-DP epsilon from a Gaussian mechanism with a pure-DP epsilon from
+      Laplace noise. They are not the same scale.</li>
+      <li>Ignoring composition. Ten quiet queries are not one quiet query.</li>
+      <li>Raising epsilon until the chart looks clean. That trades the promise for the picture.</li>
+    </ul>
+
+    <h2>Related LockML tools</h2>
+    <p>Use the <a href="/tools/privacy-budget-calculator">privacy budget calculator</a> to add up
+    composition for a query plan, the
+    <a href="/tools/gaussian-mechanism-noise-calibrator">Gaussian mechanism noise calibrator</a> for the
+    noise scale, and the <a href="/answers/ml-privacy-techniques">differential privacy answer page</a> for
+    the definitions.</p>
+
+  </div>
+</article>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Zovo Tools</div>
+    <div class="footer-tagline">Free developer tools by a solo dev. No tracking.</div>
+    <a href="https://zovo.one/pricing?utm_source=lockml&amp;utm_medium=satellite&amp;utm_campaign=footer-link" class="footer-cta">Zovo Lifetime — $99 once, free forever &rarr;</a>
+    <div class="footer-copy">&copy; 2026 <a href="https://zovo.one/lifetime?utm_source=lockml&amp;utm_medium=footer&amp;utm_campaign=guides-choosing-epsilon">Zovo</a> &middot; 47/500 founding spots</div>
+  </div>
+</footer>
+
+<nav class="zovo-network" aria-label="Zovo Tools Network">
+    <div class="zovo-network-inner">
+        <h3 class="zovo-network-title">Explore More Tools</h3>
+        <div class="zovo-network-links">
+            <a href="https://abwex.com">ABWex — A/B Testing</a>
+            <a href="https://b2berp.com">B2BERP — Business Tools</a>
+            <a href="https://bugbountyreality.com">BugBountyReality — Security</a>
+            <a href="https://claudflow.com">ClaudFlow — Workflows</a>
+            <a href="https://claudkit.com">ClaudKit — API Tools</a>
+            <a href="https://dismissticket.com">DismissTicket — Support</a>
+            <a href="https://enhio.com">Enhio — Text Tools</a>
+            <a href="https://epochpilot.com">EpochPilot — Timestamps</a>
+            <a href="https://gen8x.com">Gen8X — Color Tools</a>
+            <a href="https://gpt0x.com">GPT0X — AI Models</a>
+            <a href="https://heytensor.com">HeyTensor — ML Tools</a>
+            <a href="https://ingredientcalculator.com">IngredientCalc — Recipes</a>
+            <a href="https://invokebot.com">InvokeBot — Webhooks</a>
+            <a href="https://kappafy.com">Kappafy — JSON</a>
+            <a href="https://kappakit.com">KappaKit — Dev Toolkit</a>
+            <a href="https://kickllm.com">KickLLM — LLM Costs</a>
+            <a href="https://krzen.com">Krzen — Image Tools</a>
+            <a href="https://lochbot.com">LochBot — Security</a>
+            <a href="https://ml0x.com?utm_source=lockml&amp;utm_medium=nav&amp;utm_campaign=guides-choosing-epsilon">ML0X — ML Basics</a>
+            <a href="https://ml3x.com">ML3X — Matrix Math</a>
+            <a href="https://pictureeditor.net">PictureEditor — Image Editing</a>
+            <a href="https://recipetool.net">RecipeTool — Cooking</a>
+            <a href="https://viryd.com">Viryd — Dev Tools</a>
+            <a href="https://tg.zovo.one/">Tiny Telegram Tools — Telegram Bots</a>
+        </div>
+    </div>
+</nav>
+
+<div class="pow-strip">
+  <div class="pow-strip-inner">
+    <span class="pow-label">By the same builder:</span>
+    <a href="https://github.com/theluckystrike" rel="nofollow">GitHub — theluckystrike</a>
+    <a href="https://www.belikenative.com" rel="nofollow">BeLikeNative — Grammar AI</a>
+    <a href="https://earlythunder.com" rel="nofollow">EarlyThunder — Dev Blog</a>
+    <a href="https://bugbountyreality.com" rel="nofollow">Bug Bounty Reality</a>
+    <a href="https://zovo.one/lifetime?utm_source=lockml&amp;utm_medium=inline&amp;utm_campaign=guides-choosing-epsilon" rel="nofollow">Zovo — AI Dev Tools</a>
+  </div>
+</div>
+
+</body>
+</html>

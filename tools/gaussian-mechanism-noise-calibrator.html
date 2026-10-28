@@ -10,31 +10,52 @@
 <meta property="og:description" content="Compute the exact noise scale (sigma) for (epsilon, delta)-differential privacy from your query's L2 sensitivity using the analytic Gaussian mechanism.">
 <meta property="og:url" content="https://lockml.com/tools/gaussian-mechanism-noise-calibrator">
 <meta property="og:type" content="website">
-<script type="application/ld+json">
-{
+<script type="application/ld+json">{
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "WebApplication",
-      "name": "Gaussian Mechanism Noise Calibrator for Differential Privacy",
+      "name": "Gaussian Mechanism Noise Calibrator",
       "url": "https://lockml.com/tools/gaussian-mechanism-noise-calibrator",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Any",
-      "description": "Compute the exact noise scale (sigma) to add for (epsilon, delta)-differential privacy given your query's L2 sensitivity using the analytic Gaussian mechanism.",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-      "author": { "@type": "Person", "name": "Michael Lip", "url": "https://zovo.one" }
+      "description": "Enter your privacy budget and the L2 sensitivity of your query.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Michael Lip",
+        "url": "https://zovo.one"
+      }
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://lockml.com/" },
-        { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://lockml.com/tools/" },
-        { "@type": "ListItem", "position": 3, "name": "Gaussian Mechanism Noise Calibrator for Differential Privacy", "item": "https://lockml.com/tools/gaussian-mechanism-noise-calibrator" }
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://lockml.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Tools",
+          "item": "https://lockml.com/tools/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Gaussian Mechanism Noise Calibrator",
+          "item": "https://lockml.com/tools/gaussian-mechanism-noise-calibrator"
+        }
       ]
     }
   ]
-}
-</script>
+}</script>
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --bd:#2b3444;
@@ -104,6 +125,12 @@
   <a href="/tools/">Tools</a>
 </nav>
 <main>
+<section class="page-answer" style="max-width:820px;margin:1.5rem auto 2rem;padding:0 1.5rem;">
+  <p style="font-size:.8rem;color:#777;margin:0 0 .6rem;">Home / Tools / Gaussian Mechanism Noise Calibrator</p>
+  <p style="font-size:1.05rem;line-height:1.6;margin:0 0 .4rem;">This tool computes the Gaussian noise standard deviation sigma for (epsilon, delta)-differential privacy. Give it epsilon, delta and the L2 sensitivity of your query. It uses the analytic Gaussian mechanism of Balle and Wang (2018), which holds for any epsilon including values above one, and shows the sigma the classic bound would demand.</p>
+  <p style="font-size:.85rem;color:#555;margin:0;">By Michael Lip &middot; Updated 2026-10-28</p>
+</section>
+
   <h1>Calibrate Gaussian Noise for (&epsilon;, &delta;)-Differential Privacy</h1>
   <p class="intro">Enter your privacy budget and the L2 sensitivity of your query. This tool solves for the
   <em>minimum</em> Gaussian noise standard deviation &sigma; you must add, using the exact analytic Gaussian
